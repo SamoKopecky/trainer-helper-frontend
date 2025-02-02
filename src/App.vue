@@ -1,39 +1,46 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import ButtonComponent from './components/ButtonComponent.vue'
+import { ref } from "vue"
+import { getTimeslots, type Timeslot } from "./backend-helpers/timeslots.ts"
 
-const test = 1
-const disabled = ref(false)
-const rawHtml = '<span style="color: red">This is red</span>'
+const drawer = ref(false)
+const events = ref<any>([])
 
-function setDisabled() {
-  console.log('clicked')
-  disabled.value = !disabled.value
-}
+const data = ref<Timeslot | null>(null)
 
-const obj = ref({
-  nested: { count: 0 },
-  arr: ['foo', 'bar'],
+getTimeslots().then((res) => (data.value = res[0]))
+
+const customEvents = []
+customEvents.push({
+  title: "abc",
+  start: new Date(),
+  end: new Date(),
+  color: "blue",
+  allDay: false,
 })
+events.value = customEvents
+function onEventClick() {
+  console.log("clicked")
+}
 </script>
 
 <template>
-  <h1>Trainer app {{ test }}</h1>
-  <p>Using text interpolation: {{ rawHtml }}</p>
-  <p>Using v-html directive: <span v-html="rawHtml"></span></p>
-  <button :disabled>This is a disabled button</button>
-  <button @click="setDisabled">Disable the button</button>
+  <v-app>
+    <v-navigation-drawer v-model="drawer">
+      <v-list-item link title="Time schedule"></v-list-item>
+    </v-navigation-drawer>
 
-  <br />
-  <br />
-  <button></button>
-  <button @click="obj.nested.count++">Update obj</button>
-  <div>
-    <p>{{ obj.arr }}</p>
-    <p>{{ obj.nested }}</p>
-  </div>
+    <v-app-bar>
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
 
-  <div>
-    <ButtonComponent />
-  </div>
+      <v-app-bar-title>App name</v-app-bar-title>
+    </v-app-bar>
+
+    <v-main>
+      <div>
+        <v-calendar :events="events" @click:day="onEventClick"></v-calendar>
+      </div>
+    </v-main>
+  </v-app>
 </template>
+
+<style></style>
