@@ -11,9 +11,14 @@ import {
   VAppBar,
   VAppBarNavIcon,
   VAppBarTitle,
+  VCard,
+  VCardTitle,
+  VDialog,
+  VIcon,
   VListItem,
   VMain,
   VNavigationDrawer,
+  VSpacer,
 } from "vuetify/components"
 
 const vuetify = createVuetify({
@@ -26,6 +31,11 @@ const vuetify = createVuetify({
     VAppBar,
     VMain,
     VApp,
+    VDialog,
+    VCard,
+    VCardTitle,
+    VIcon,
+    VSpacer,
   },
   directives,
   icons: {

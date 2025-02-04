@@ -1,25 +1,40 @@
 <script setup lang="ts">
 import { ref } from "vue"
-import { getTimeslots, type Timeslot } from "./backend-helpers/timeslots.ts"
+import "vue-cal/dist/vuecal.css"
+import VueCal from "vue-cal"
+import { type Event } from "./events/event"
+import { getTimeslots } from "./backend-helpers/timeslots"
+import type { Timeslot } from "./backend-helpers/timeslots"
 
 const drawer = ref(false)
-const events = ref<any>([])
+const selectedEvent = ref<Event | null>(null)
+const showDialog = ref(false)
+const events = ref<Array<Event>>([])
 
-const data = ref<Timeslot | null>(null)
+function addMinutes(date: Date, minutes: number): Date {
+  const msToAdd = minutes * 60 * 1000
+  return new Date(date.getTime() + msToAdd)
+}
 
-getTimeslots().then((res) => (data.value = res[0]))
-
-const customEvents = []
-customEvents.push({
-  title: "abc",
-  start: new Date(),
-  end: new Date(),
-  color: "blue",
-  allDay: false,
+getTimeslots().then((timeslots) => {
+  const abc = timeslots.map((timeslot: Timeslot) => {
+    const event: Event = {
+      start: timeslot.start.toString(),
+      end: addMinutes(timeslot.start, timeslot.duration).toString(),
+      title: timeslot.id,
+      content: `trainer id: ${timeslot.trainer_id}`,
+    }
+    console.log(event)
+    return event
+  })
+  events.value = abc
 })
-events.value = customEvents
-function onEventClick() {
-  console.log("clicked")
+
+function onEventClick(event: Event, e: any) {
+  selectedEvent.value = event
+  showDialog.value = true
+
+  e.stopPropagation()
 }
 </script>
 
@@ -34,13 +49,22 @@ function onEventClick() {
 
       <v-app-bar-title>App name</v-app-bar-title>
     </v-app-bar>
-
     <v-main>
       <div>
-        <v-calendar :events="events" @click:day="onEventClick"></v-calendar>
+        <vue-cal :events="events" style="height: 100%" :on-event-click="onEventClick"></vue-cal>
       </div>
     </v-main>
   </v-app>
+
+  <v-dialog v-model="showDialog">
+    <v-card>
+      <v-card-title>
+        <v-card-text>
+          <p>{{ selectedEvent?.title }}</p>
+        </v-card-text>
+      </v-card-title>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style></style>
