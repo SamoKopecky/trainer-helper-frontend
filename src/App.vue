@@ -24,7 +24,6 @@ getTimeslots().then((timeslots) => {
       title: timeslot.id,
       content: `trainer id: ${timeslot.trainer_id}`,
     }
-    console.log(event)
     return event
   })
   events.value = abc
@@ -51,7 +50,15 @@ function onEventClick(event: Event, e: any) {
     </v-app-bar>
     <v-main>
       <div>
-        <vue-cal :events="events" style="height: 100%" :on-event-click="onEventClick"></vue-cal>
+        <vue-cal
+          :events="events"
+          style="height: 100%"
+          :on-event-click="onEventClick"
+          :disable-views="['years', 'year']"
+          :time-from="15 * 60"
+          :time-to="22 * 60"
+          :time-step="30"
+        ></vue-cal>
       </div>
     </v-main>
   </v-app>
