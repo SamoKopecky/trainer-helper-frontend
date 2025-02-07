@@ -12,6 +12,7 @@ import {
   VAppBarNavIcon,
   VAppBarTitle,
   VCard,
+  VCardText,
   VCardTitle,
   VDialog,
   VIcon,
@@ -20,6 +21,7 @@ import {
   VNavigationDrawer,
   VSpacer,
 } from "vuetify/components"
+import router from "./router"
 
 const vuetify = createVuetify({
   components: {
@@ -34,6 +36,7 @@ const vuetify = createVuetify({
     VDialog,
     VCard,
     VCardTitle,
+    VCardText,
     VIcon,
     VSpacer,
   },
@@ -46,4 +49,4 @@ const vuetify = createVuetify({
   },
 })
 
-createApp(App).use(vuetify).mount("#app")
+createApp(App).use(router).use(vuetify).mount("#app")
