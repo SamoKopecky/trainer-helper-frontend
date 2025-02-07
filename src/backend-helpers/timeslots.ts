@@ -1,7 +1,7 @@
 export interface Timeslot {
   id: string
   trainer_id: string
-  user_id: string
+  user_id: string | null
   duration: number
   start: Date
 }
@@ -17,5 +17,14 @@ export async function getTimeslots(): Promise<Timeslot[]> {
     }),
   }
   const jsonRes = await (await fetch(api_url, request)).json()
-  return jsonRes as Timeslot[]
+  const test: Timeslot[] = jsonRes.map((obj) => {
+    return {
+      duration: obj.duration,
+      id: obj.duration.toString(),
+      user_id: obj.user_id,
+      start: new Date(obj.start),
+      trainer_id: obj.trainer_id,
+    }
+  })
+  return test
 }
