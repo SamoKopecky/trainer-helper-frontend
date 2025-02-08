@@ -11,7 +11,6 @@ const route = useRoute()
     <v-navigation-drawer v-model="drawer">
       <v-list-item link title="Home" to="/"> </v-list-item>
       <v-list-item link title="Time schedule" to="/calendar"> </v-list-item>
-      <v-list-item link title="About" to="/about"> </v-list-item>
     </v-navigation-drawer>
 
     <v-app-bar>

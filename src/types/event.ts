@@ -3,4 +3,5 @@ export interface Event {
   end: string
   title: string
   content: string
+  timeslot_id: number
 }

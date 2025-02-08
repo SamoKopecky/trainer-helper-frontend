@@ -2,9 +2,9 @@
 import { ref } from "vue"
 import "vue-cal/dist/vuecal.css"
 import VueCal from "vue-cal"
-import { type Event } from "../types/event"
-import { TimeslotConnector } from "../backend-helpers/timeslots"
-import type { Timeslot, TimeslotPost } from "../backend-helpers/timeslots"
+import { type Event } from "@/types/event"
+import { TimeslotConnector } from "@/backend-helpers/timeslots"
+import type { Timeslot, TimeslotRequest } from "@/backend-helpers/timeslots"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
@@ -12,7 +12,7 @@ const selectedEvent = ref<Event | null>(null)
 const showDialog = ref(false)
 const events = ref<Array<Event>>([])
 const timeslot_fetcher = new TimeslotConnector()
-const request: TimeslotPost = {
+const request: TimeslotRequest = {
   start_date: "2025-01-20T12:00:00",
   end_date: "2025-02-28T20:15:00",
 }
@@ -29,15 +29,16 @@ timeslot_fetcher.post(request).then((timeslots) => {
       end: addMinutes(timeslot.start, timeslot.duration).toString(),
       title: timeslot.id.toString(),
       content: `trainer id: ${timeslot.trainer_id}`,
+      timeslot_id: timeslot.id,
     }
     return event
   })
 })
 
 function onEventClick(event: Event, e: any) {
-  selectedEvent.value = event
-  showDialog.value = true
-  router.push({ path: "about" })
+  // selectedEvent.value = event
+  // showDialog.value = true
+  router.push({ path: `/work-sets/${event.timeslot_id}` })
 
   e.stopPropagation()
 }
@@ -59,7 +60,6 @@ function onEventClick(event: Event, e: any) {
       <v-card-title>
         <v-card-text>
           <p>{{ selectedEvent?.title }}</p>
-          <RouterLink to="/about">Session link</RouterLink>
         </v-card-text>
       </v-card-title>
     </v-card>
