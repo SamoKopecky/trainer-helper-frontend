@@ -12,11 +12,24 @@ export interface WorkSet {
   note: string | null
 }
 
-export interface WorkSetRequest {
+export interface WorkSetPostRequest {
   timeslot_id: number
 }
 
-export class WorkSetConnector extends BackendConnector<WorkSetRequest, WorkSet> {
+export interface WorkSetPutRequest {
+  id: number
+  reps: number | null
+  intensity: string | null
+  rpe: number | null
+  tempo: string | null
+  note: string | null
+}
+
+export class WorkSetConnector extends BackendConnector<
+  WorkSetPostRequest,
+  WorkSet,
+  WorkSetPutRequest
+> {
   route = Route.WorkSet
   obj_to_response(obj: any): WorkSet {
     return obj

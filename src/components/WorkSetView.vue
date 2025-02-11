@@ -1,10 +1,19 @@
 <script setup lang="ts">
-import { WorkSetConnector, type WorkSet, type WorkSetRequest } from "../backend-helpers/worksets"
-import { ref, watch } from "vue"
+import {
+  WorkSetConnector,
+  type WorkSet,
+  type WorkSetPutRequest,
+  type WorkSetRequest,
+} from "../backend-helpers/worksets"
+import { ref, toRaw, watch } from "vue"
 import { useRoute } from "vue-router"
 import { createVuetify } from "vuetify"
 
 const COLUMNS: (keyof WorkSet)[] = ["set_type", "intensity", "rpe", "tempo", "note"]
+
+function deepClone(obj: Array<any>) {
+  return JSON.parse(JSON.stringify(obj))
+}
 
 defineProps({
   id: String,
@@ -12,6 +21,7 @@ defineProps({
 const route = useRoute()
 const work_sets_values = ref<WorkSet[]>([])
 const work_sets_columns = ref(COLUMNS)
+let clone: WorkSet[] = []
 const vuetify = ref(createVuetify())
 
 const connector = new WorkSetConnector()
@@ -20,16 +30,35 @@ const request: WorkSetRequest = {
 }
 
 connector.post(request).then((work_set) => {
-  work_sets_values.value = work_set.map((work_set) => work_set)
+  const v = work_set.map((work_set) => work_set)
+  work_sets_values.value = v
+  clone = v
 })
-
 watch(
   work_sets_values,
-  async (newValues, oldValues) => {
+  async (newValues) => {
     // TODO: Add debounce function
-    console.log(newValues)
-    console.log(oldValues)
-    console.log("Change!")
+
+    const diff_res = {}
+    newValues.forEach((v, i) => {
+      const clone_v = clone[i]
+      for (const key in clone_v) {
+        if (v[key] !== clone_v[key]) {
+          diff_res[key] = v[key]
+          diff_res["id"] = v.id
+        }
+      }
+    })
+    console.log(diff_res)
+    const request: WorkSetPutRequest = {
+      ...diff_res,
+    }
+    console.log(request)
+    connector.put(request)
+    // console.log(clone)
+    // console.log(newValues)
+
+    clone = deepClone(newValues)
   },
   { deep: true },
 )

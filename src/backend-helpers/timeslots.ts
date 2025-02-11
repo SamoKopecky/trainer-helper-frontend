@@ -8,13 +8,19 @@ export interface Timeslot {
   start: Date
 }
 
-export interface TimeslotRequest {
+export interface TimeslotPostRequest {
   // TODO: Make date jsonify correcly
   start_date: string
   end_date: string
 }
 
-export class TimeslotConnector extends BackendConnector<TimeslotRequest, Timeslot> {
+export interface TimeslotPutRequest {}
+
+export class TimeslotConnector extends BackendConnector<
+  TimeslotPostRequest,
+  Timeslot,
+  TimeslotPutRequest
+> {
   route = Route.Timeslot
   obj_to_response(obj: any): Timeslot {
     obj.start = new Date(obj.start)
