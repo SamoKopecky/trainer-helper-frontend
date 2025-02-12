@@ -1,64 +1,77 @@
 <script setup lang="ts">
+import { deepClone, workSetDiff } from "@/utils"
 import {
   WorkSetConnector,
   type WorkSet,
-  type WorkSetPutRequest,
-  type WorkSetRequest,
+  type WorkSetPostRequest,
 } from "../backend-helpers/worksets"
-import { ref, toRaw, watch } from "vue"
+import { ref, watch } from "vue"
 import { useRoute } from "vue-router"
 import { createVuetify } from "vuetify"
+import type { ChangeNotification } from "@/types"
+import { randomUUID } from "crypto"
 
-const COLUMNS: (keyof WorkSet)[] = ["set_type", "intensity", "rpe", "tempo", "note"]
-
-function deepClone(obj: Array<any>) {
-  return JSON.parse(JSON.stringify(obj))
+function removeNotification(notificationId: string) {
+  notifications.value.delete(notificationId)
 }
+
+const WORK_SET_COLUMNS: (keyof WorkSet)[] = ["set_type", "intensity", "rpe", "tempo", "note"]
 
 defineProps({
   id: String,
 })
+
 const route = useRoute()
-const work_sets_values = ref<WorkSet[]>([])
-const work_sets_columns = ref(COLUMNS)
-let clone: WorkSet[] = []
 const vuetify = ref(createVuetify())
 
+const work_sets_values = ref<WorkSet[]>([])
+let work_sets_values_copy: WorkSet[] = []
+
+const notifications = ref<Map<string, ChangeNotification>>(new Map())
+
 const connector = new WorkSetConnector()
-const request: WorkSetRequest = {
+const request: WorkSetPostRequest = {
   timeslot_id: Number(route.params.id),
 }
 
 connector.post(request).then((work_set) => {
-  const v = work_set.map((work_set) => work_set)
-  work_sets_values.value = v
-  clone = v
+  const work_set_res = work_set.map((work_set) => work_set)
+  work_sets_values.value = work_set_res
+  work_sets_values_copy = work_set_res
 })
+// TODO: add input type
+
+// NOTE: Possible improvment, watch each row separatly
 watch(
   work_sets_values,
-  async (newValues) => {
+  async (newValues: WorkSet[]) => {
     // TODO: Add debounce function
 
-    const diff_res = {}
-    newValues.forEach((v, i) => {
-      const clone_v = clone[i]
-      for (const key in clone_v) {
-        if (v[key] !== clone_v[key]) {
-          diff_res[key] = v[key]
-          diff_res["id"] = v.id
-        }
+    newValues.forEach((row, index) => {
+      const request = workSetDiff(row, work_sets_values_copy[index])
+      if (request) {
+        const notificationId = (Math.random() + 1).toString(36).substring(2)
+        connector
+          .put(request)
+          .then(() => {
+            notifications.value.set(notificationId, {
+              text: "Update succesful",
+              type: "success",
+            } as ChangeNotification)
+          })
+          .catch((error: Error) => {
+            notifications.value.set(notificationId, {
+              text: error.message,
+              type: "error",
+            } as ChangeNotification)
+          })
+          .finally(() => {
+            setTimeout(() => removeNotification(notificationId), 2000)
+          })
       }
     })
-    console.log(diff_res)
-    const request: WorkSetPutRequest = {
-      ...diff_res,
-    }
-    console.log(request)
-    connector.put(request)
-    // console.log(clone)
-    // console.log(newValues)
 
-    clone = deepClone(newValues)
+    work_sets_values_copy = deepClone(newValues)
   },
   { deep: true },
 )
@@ -66,21 +79,35 @@ watch(
 
 <template>
   <h1>Work set</h1>
-  <div :class="vuetify.theme.name"></div>
-  <table class="custom-table">
-    <thead>
-      <tr>
-        <th v-for="column in work_sets_columns" :key="column">{{ column }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="row in work_sets_values" :key="row.id">
-        <td v-for="column in work_sets_columns" :key="column">
-          <input v-model="row[column]" :size="Math.max(1, String(row[column]).length)" />
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div :class="vuetify.theme.name" />
+  <div class="notification">
+    <v-slide-y-transition group>
+      <v-alert
+        v-for="notification in notifications"
+        class="top-alert"
+        closable
+        :key="notification[0]"
+        :type="notification[1].type"
+        >{{ notification[1].text }}</v-alert
+      >
+    </v-slide-y-transition>
+  </div>
+  <div>
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th v-for="column in WORK_SET_COLUMNS" :key="column">{{ column }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="row in work_sets_values" :key="row.id">
+          <td v-for="column in WORK_SET_COLUMNS" :key="column">
+            <input v-model="row[column]" :size="Math.max(1, String(row[column]).length)" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <style>
@@ -136,5 +163,24 @@ watch(
 
 .custom-table tr:last-child {
   border-bottom: none;
+}
+
+.notification {
+  position: relative; /* Make the container a positioned element */
+}
+
+.top-alert {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1000; /* Ensure the alert is above other content */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+  max-width: 100%; /* Ensure it doesn't overflow the container */
+  padding: 16px; /* Add padding for content spacing */
+  background-color: #f0f0f0; /* Optional: Set a background color */
 }
 </style>

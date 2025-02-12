@@ -2,9 +2,9 @@
 import { ref } from "vue"
 import "vue-cal/dist/vuecal.css"
 import VueCal from "vue-cal"
-import { type Event } from "@/types/event"
+import { type Event } from "@/types"
 import { TimeslotConnector } from "@/backend-helpers/timeslots"
-import type { Timeslot, TimeslotRequest } from "@/backend-helpers/timeslots"
+import type { Timeslot, TimeslotPostRequest } from "@/backend-helpers/timeslots"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
@@ -12,7 +12,7 @@ const selectedEvent = ref<Event | null>(null)
 const showDialog = ref(false)
 const events = ref<Array<Event>>([])
 const timeslot_fetcher = new TimeslotConnector()
-const request: TimeslotRequest = {
+const request: TimeslotPostRequest = {
   start_date: "2025-01-20T12:00:00",
   end_date: "2025-02-28T20:15:00",
 }

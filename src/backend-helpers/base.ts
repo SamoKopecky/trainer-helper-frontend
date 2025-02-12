@@ -27,14 +27,18 @@ export abstract class BackendConnector<RequestType, PostResponseType, PutRespons
     return jsonRes.map((obj: any): PostResponseType => this.obj_to_response(obj))
   }
 
-  async put(body: PutResponseType) {
+  async put(body: PutResponseType): Promise<void> {
     const request = {
       method: "PUT",
       headers: this.get_headers(),
       body: JSON.stringify(body),
     }
 
-    // TODO: Work with status codes
-    await fetch(this.get_api_url(), request)
+    await fetch(this.get_api_url(), request).then((response: Response) => {
+      if (!response.ok) {
+        throw new Error(`Put error status: ${response.status} and text: ${response.statusText}`)
+      }
+      return
+    })
   }
 }
