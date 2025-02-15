@@ -19,3 +19,7 @@ export function workSetDiff(newObj: WorkSet, oldObj: WorkSet): WorkSetPutRequest
   }
   return null
 }
+
+export function randomId(): string {
+  return (Math.random() + 1).toString(36).substring(2)
+}

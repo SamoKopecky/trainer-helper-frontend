@@ -13,6 +13,7 @@ import {
   VAppBarNavIcon,
   VAppBarTitle,
   VCard,
+  VCardText,
   VCardTitle,
   VDialog,
   VIcon,
@@ -26,6 +27,7 @@ import router from "./router"
 
 const vuetify = createVuetify({
   components: {
+    VCardText,
     VCalendar,
     VListItem,
     VNavigationDrawer,

@@ -1,21 +1,27 @@
 <script setup lang="ts">
-import { deepClone, workSetDiff } from "@/utils"
+import { deepClone, randomId, workSetDiff } from "@/utils"
 import {
   WorkSetConnector,
   type WorkSet,
   type WorkSetPostRequest,
 } from "../backend-helpers/worksets"
-import { ref, watch } from "vue"
+import { ref } from "vue"
 import { useRoute } from "vue-router"
 import { createVuetify } from "vuetify"
-import type { ChangeNotification } from "@/types"
-import { randomUUID } from "crypto"
+import type { ChangeNotification, WorkSetTableRow } from "@/types"
+import { watchDebounced } from "@vueuse/core"
 
 function removeNotification(notificationId: string) {
   notifications.value.delete(notificationId)
 }
 
-const WORK_SET_COLUMNS: (keyof WorkSet)[] = ["set_type", "intensity", "rpe", "tempo", "note"]
+const WORK_SET_COLUMNS: WorkSetTableRow[] = [
+  { key: "set_type", type: "text", name: "Set Type" },
+  { key: "intensity", type: "text", name: "Intensity" },
+  { key: "rpe", type: "number", name: "RPE" },
+  { key: "tempo", type: "text", name: "Tempo" },
+  { key: "note", type: "text", name: "Note" },
+]
 
 defineProps({
   id: String,
@@ -34,51 +40,59 @@ const request: WorkSetPostRequest = {
   timeslot_id: Number(route.params.id),
 }
 
+function updateTable() {
+  work_sets_values.value.forEach((row, index) => {
+    const request = workSetDiff(row, work_sets_values_copy[index])
+
+    if (!request) {
+      return
+    }
+
+    const notificationId = randomId()
+    connector
+      .put(request)
+      .then(() => {
+        notifications.value.set(notificationId, {
+          text: "Update succesful",
+          type: "success",
+        })
+      })
+      .catch((error: Error) => {
+        notifications.value.set(notificationId, {
+          text: error.message,
+          type: "error",
+        })
+      })
+      .finally(() => {
+        setTimeout(() => removeNotification(notificationId), 2000)
+      })
+  })
+
+  work_sets_values_copy = deepClone(work_sets_values.value)
+}
+
 connector.post(request).then((work_set) => {
   const work_set_res = work_set.map((work_set) => work_set)
   work_sets_values.value = work_set_res
-  work_sets_values_copy = work_set_res
+  work_sets_values_copy = deepClone(work_set_res)
+
+  // NOTE: Possible improvment, watch each row separatly
+  // NOTE: Add persistent storage so that a reload doesn't cancel data
+  watchDebounced(
+    work_sets_values,
+    async () => {
+      updateTable()
+    },
+    {
+      deep: true,
+      debounce: 1000,
+      maxWait: 5000,
+    },
+  )
 })
-// TODO: add input type
-
-// NOTE: Possible improvment, watch each row separatly
-watch(
-  work_sets_values,
-  async (newValues: WorkSet[]) => {
-    // TODO: Add debounce function
-
-    newValues.forEach((row, index) => {
-      const request = workSetDiff(row, work_sets_values_copy[index])
-      if (request) {
-        const notificationId = (Math.random() + 1).toString(36).substring(2)
-        connector
-          .put(request)
-          .then(() => {
-            notifications.value.set(notificationId, {
-              text: "Update succesful",
-              type: "success",
-            } as ChangeNotification)
-          })
-          .catch((error: Error) => {
-            notifications.value.set(notificationId, {
-              text: error.message,
-              type: "error",
-            } as ChangeNotification)
-          })
-          .finally(() => {
-            setTimeout(() => removeNotification(notificationId), 2000)
-          })
-      }
-    })
-
-    work_sets_values_copy = deepClone(newValues)
-  },
-  { deep: true },
-)
 </script>
 
 <template>
-  <h1>Work set</h1>
   <div :class="vuetify.theme.name" />
   <div class="notification">
     <v-slide-y-transition group>
@@ -96,13 +110,15 @@ watch(
     <table class="custom-table">
       <thead>
         <tr>
-          <th v-for="column in WORK_SET_COLUMNS" :key="column">{{ column }}</th>
+          <th v-for="column in WORK_SET_COLUMNS" :key="column.key">
+            {{ column.name }}
+          </th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="row in work_sets_values" :key="row.id">
-          <td v-for="column in WORK_SET_COLUMNS" :key="column">
-            <input v-model="row[column]" :size="Math.max(1, String(row[column]).length)" />
+          <td v-for="column in WORK_SET_COLUMNS" :key="column.key">
+            <input v-model="row[column.key]" :type="column.type" @change="updateTable" />
           </td>
         </tr>
       </tbody>
@@ -182,5 +198,17 @@ watch(
   max-width: 100%; /* Ensure it doesn't overflow the container */
   padding: 16px; /* Add padding for content spacing */
   background-color: #f0f0f0; /* Optional: Set a background color */
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 </style>
