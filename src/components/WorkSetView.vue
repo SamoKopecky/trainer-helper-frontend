@@ -30,8 +30,8 @@ defineProps({
 const route = useRoute()
 const vuetify = ref(createVuetify())
 
-const work_sets_values = ref<WorkSet[]>([])
-let work_sets_values_copy: WorkSet[] = []
+const work_sets = ref<WorkSet[]>([])
+const work_sets_old: Map<number, WorkSet[]> = new Map()
 
 const notifications = ref<Map<string, ChangeNotification>>(new Map())
 
@@ -40,48 +40,40 @@ const request: WorkSetPostRequest = {
   timeslot_id: Number(route.params.id),
 }
 
-function updateTable() {
-  work_sets_values.value.forEach((row, index) => {
-    const request = workSetDiff(row, work_sets_values_copy[index])
+function updateTable(row: WorkSet) {
+  const request = workSetDiff(row, work_sets_old[row.id])
 
-    if (!request) {
-      return
-    }
+  if (!request) {
+    return
+  }
 
-    const notificationId = randomId()
-    connector
-      .put(request)
-      .then(() => {
-        notifications.value.set(notificationId, {
-          text: "Update succesful",
-          type: "success",
-        })
+  const notificationId = randomId()
+  connector
+    .put(request)
+    .then(() => {
+      notifications.value.set(notificationId, {
+        text: "Update succesful",
+        type: "success",
       })
-      .catch((error: Error) => {
-        notifications.value.set(notificationId, {
-          text: error.message,
-          type: "error",
-        })
+    })
+    .catch((error: Error) => {
+      notifications.value.set(notificationId, {
+        text: error.message,
+        type: "error",
       })
-      .finally(() => {
-        setTimeout(() => removeNotification(notificationId), 2000)
-      })
-  })
+    })
+    .finally(() => {
+      setTimeout(() => removeNotification(notificationId), 2000)
+    })
 
-  work_sets_values_copy = deepClone(work_sets_values.value)
+  work_sets_old[row.id] = deepClone(row)
 }
 
-connector.post(request).then((work_set) => {
-  const work_set_res = work_set.map((work_set) => work_set)
-  work_sets_values.value = work_set_res
-  work_sets_values_copy = deepClone(work_set_res)
-
-  // NOTE: Possible improvment, watch each row separatly
-  // NOTE: Add persistent storage so that a reload doesn't cancel data
+function addWatchToRow(row: WorkSet) {
   watchDebounced(
-    work_sets_values,
+    row,
     async () => {
-      updateTable()
+      updateTable(row)
     },
     {
       deep: true,
@@ -89,6 +81,17 @@ connector.post(request).then((work_set) => {
       maxWait: 5000,
     },
   )
+}
+
+connector.post(request).then((work_set) => {
+  const work_set_res = work_set.map((work_set) => work_set)
+  work_sets.value = work_set_res
+  work_set_res.forEach((row) => {
+    work_sets_old[row.id] = deepClone(row)
+  })
+
+  // NOTE: Add persistent storage so that a reload doesn't cancel data
+  work_sets.value.forEach((row) => addWatchToRow(row))
 })
 </script>
 
@@ -116,9 +119,9 @@ connector.post(request).then((work_set) => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in work_sets_values" :key="row.id">
+        <tr v-for="row in work_sets" :key="row.id">
           <td v-for="column in WORK_SET_COLUMNS" :key="column.key">
-            <input v-model="row[column.key]" :type="column.type" @change="updateTable" />
+            <input v-model="row[column.key]" :type="column.type" @change="updateTable(row)" />
           </td>
         </tr>
       </tbody>
@@ -195,6 +198,7 @@ connector.post(request).then((work_set) => {
   align-items: center;
   justify-content: center;
   margin-right: 20px;
+  margin-top: 10px;
   max-width: 100%; /* Ensure it doesn't overflow the container */
   padding: 16px; /* Add padding for content spacing */
   background-color: #f0f0f0; /* Optional: Set a background color */
