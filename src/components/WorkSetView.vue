@@ -16,7 +16,8 @@ function removeNotification(notificationId: string) {
 }
 
 const WORK_SET_COLUMNS: WorkSetTableRow[] = [
-  { key: "set_type", type: "text", name: "Set Type" },
+  { key: "set_type", type: null, name: "Set Type" },
+  { key: "reps", type: "number", name: "Repetitions" },
   { key: "intensity", type: "text", name: "Intensity" },
   { key: "rpe", type: "number", name: "RPE" },
   { key: "tempo", type: "text", name: "Tempo" },
@@ -121,7 +122,13 @@ connector.post(request).then((work_set) => {
       <tbody>
         <tr v-for="row in work_sets" :key="row.id">
           <td v-for="column in WORK_SET_COLUMNS" :key="column.key">
-            <input v-model="row[column.key]" :type="column.type" @change="updateTable(row)" />
+            <input
+              v-if="column.type"
+              v-model="row[column.key]"
+              :type="column.type"
+              @change="updateTable(row)"
+            />
+            <span v-else>{{ row[column.key] }}</span>
           </td>
         </tr>
       </tbody>

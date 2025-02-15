@@ -13,6 +13,6 @@ export interface ChangeNotification {
 
 export interface WorkSetTableRow {
   key: string
-  input_type: string
-  displayName: string
+  type: string | null
+  name: string
 }
