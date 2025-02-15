@@ -7,6 +7,7 @@ import * as directives from "vuetify/directives"
 import { VCalendar } from "vuetify/labs/VCalendar"
 import App from "./App.vue"
 import {
+  VAlert,
   VApp,
   VAppBar,
   VAppBarNavIcon,
@@ -19,12 +20,14 @@ import {
   VListItem,
   VMain,
   VNavigationDrawer,
+  VSlideYTransition,
   VSpacer,
 } from "vuetify/components"
 import router from "./router"
 
 const vuetify = createVuetify({
   components: {
+    VCardText,
     VCalendar,
     VListItem,
     VNavigationDrawer,
@@ -36,9 +39,10 @@ const vuetify = createVuetify({
     VDialog,
     VCard,
     VCardTitle,
-    VCardText,
     VIcon,
     VSpacer,
+    VAlert,
+    VSlideYTransition,
   },
   directives,
   icons: {
