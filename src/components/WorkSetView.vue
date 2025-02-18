@@ -1,27 +1,25 @@
 <script setup lang="ts">
-import { deepClone, randomId, workSetDiff } from "@/utils"
-import {
-  WorkSetConnector,
-  type WorkSet,
-  type WorkSetPostRequest,
-} from "../backend-helpers/worksets"
+import { deepClone, exerciseToTableData, randomId, workSetDiff } from "../utils/work_set"
+import { WorkSetConnector } from "../backend-helpers/worksets"
 import { ref } from "vue"
 import { useRoute } from "vue-router"
 import { createVuetify } from "vuetify"
-import type { ChangeNotification, WorkSetTableRow } from "@/types"
+import type { ChangeNotification, ExerciseTableData, WorkSetTableRow } from "@/types"
 import { watchDebounced } from "@vueuse/core"
+import { ExerciseConnector } from "@/backend-helpers/exercise"
 
 function removeNotification(notificationId: string) {
   notifications.value.delete(notificationId)
 }
 
 const WORK_SET_COLUMNS: WorkSetTableRow[] = [
+  { key: "group_id", type: null, name: "Group" },
   { key: "set_type", type: null, name: "Set Type" },
+  { key: "work_set_count", type: null, name: "Set count" },
   { key: "reps", type: "number", name: "Repetitions" },
   { key: "intensity", type: "text", name: "Intensity" },
   { key: "rpe", type: "number", name: "RPE" },
-  { key: "tempo", type: "text", name: "Tempo" },
-  { key: "note", type: "text", name: "Note" },
+  { key: "note", type: null, name: "Note" },
 ]
 
 defineProps({
@@ -31,25 +29,25 @@ defineProps({
 const route = useRoute()
 const vuetify = ref(createVuetify())
 
-const work_sets = ref<WorkSet[]>([])
-const work_sets_old: Map<number, WorkSet[]> = new Map()
+const work_sets = ref<ExerciseTableData[]>([])
+const work_sets_old: Map<number, ExerciseTableData[]> = new Map()
 
 const notifications = ref<Map<string, ChangeNotification>>(new Map())
 
-const connector = new WorkSetConnector()
-const request: WorkSetPostRequest = {
-  timeslot_id: Number(route.params.id),
-}
+const workSetConnector = new WorkSetConnector()
+const exerciseConnector = new ExerciseConnector()
 
-function updateTable(row: WorkSet) {
-  const request = workSetDiff(row, work_sets_old[row.id])
+const timeslot_id = Number(route.params.id)
+
+function updateTable(row: ExerciseTableData) {
+  const request = workSetDiff(row, work_sets_old[row.work_set_id])
 
   if (!request) {
     return
   }
 
   const notificationId = randomId()
-  connector
+  workSetConnector
     .put(request)
     .then(() => {
       notifications.value.set(notificationId, {
@@ -67,10 +65,10 @@ function updateTable(row: WorkSet) {
       setTimeout(() => removeNotification(notificationId), 2000)
     })
 
-  work_sets_old[row.id] = deepClone(row)
+  work_sets_old[row.work_set_id] = deepClone(row)
 }
 
-function addWatchToRow(row: WorkSet) {
+function addWatchToRow(row: ExerciseTableData) {
   watchDebounced(
     row,
     async () => {
@@ -84,11 +82,15 @@ function addWatchToRow(row: WorkSet) {
   )
 }
 
-connector.post(request).then((work_set) => {
-  const work_set_res = work_set.map((work_set) => work_set)
-  work_sets.value = work_set_res
-  work_set_res.forEach((row) => {
-    work_sets_old[row.id] = deepClone(row)
+exerciseConnector.get(timeslot_id).then((exercise) => {
+  const work_set_data_limits: ExerciseTableData[] = []
+  exercise.forEach((e) => {
+    work_set_data_limits.push(...exerciseToTableData(e))
+  })
+
+  work_sets.value = work_set_data_limits
+  work_set_data_limits.forEach((row: ExerciseTableData) => {
+    work_sets_old[row.work_set_id] = deepClone(row)
   })
 
   // NOTE: Add persistent storage so that a reload doesn't cancel data
@@ -120,7 +122,7 @@ connector.post(request).then((work_set) => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in work_sets" :key="row.id">
+        <tr v-for="row in work_sets" :key="row.work_set_id">
           <td v-for="column in WORK_SET_COLUMNS" :key="column.key">
             <input
               v-if="column.type"

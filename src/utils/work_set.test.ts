@@ -1,7 +1,7 @@
 import { test, expect } from "vitest"
-import type { WorkSetPutRequest } from "./backend-helpers/worksets"
-import { workSetFactory } from "./factories"
-import { workSetDiff } from "./utils"
+import type { WorkSetPutRequest } from "../backend-helpers/worksets"
+import { workSetFactory } from "../factories"
+import { workSetDiff } from "./work_set"
 
 test("workSetDiff to return diff correctly", () => {
   const newObj = workSetFactory(1, "105Kg")

@@ -14,13 +14,7 @@ export interface TimeslotPostRequest {
   end_date: string
 }
 
-export interface TimeslotPutRequest {}
-
-export class TimeslotConnector extends BackendConnector<
-  TimeslotPostRequest,
-  Timeslot,
-  TimeslotPutRequest
-> {
+export class TimeslotConnector extends BackendConnector<TimeslotPostRequest, Timeslot, unknown> {
   route = Route.Timeslot
   obj_to_response(obj: any): Timeslot {
     obj.start = new Date(obj.start)
