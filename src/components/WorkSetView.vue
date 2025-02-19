@@ -13,7 +13,7 @@ function removeNotification(notificationId: string) {
 }
 
 const WORK_SET_COLUMNS: WorkSetTableRow[] = [
-  { key: "group_id", type: null, name: "Group" },
+  // { key: "group_id", type: null, name: "Group" },
   { key: "set_type", type: null, name: "Set Type" },
   { key: "work_set_count", type: null, name: "Set count" },
   { key: "reps", type: "number", name: "Repetitions" },
@@ -82,6 +82,13 @@ function addWatchToRow(row: ExerciseTableData) {
   )
 }
 
+function getRowspan(row: ExerciseTableData, column: WorkSetTableRow): number {
+  if (column.key == "set_type" && row.set_type !== null) {
+    return row.work_set_count
+  }
+  return 1
+}
+
 exerciseConnector.get(timeslot_id).then((exercise) => {
   const work_set_data_limits: ExerciseTableData[] = []
   exercise.forEach((e) => {
@@ -123,7 +130,11 @@ exerciseConnector.get(timeslot_id).then((exercise) => {
       </thead>
       <tbody>
         <tr v-for="row in work_sets" :key="row.work_set_id">
-          <td v-for="column in WORK_SET_COLUMNS" :key="column.key">
+          <td
+            v-for="column in WORK_SET_COLUMNS"
+            :key="column.key"
+            :rowspan="getRowspan(row, column)"
+          >
             <input
               v-if="column.type"
               v-model="row[column.key]"
