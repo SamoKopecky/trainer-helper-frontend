@@ -15,6 +15,7 @@ export interface WorkSetTableRow {
   key: string
   type: string | null
   name: string
+  is_multirow: boolean
 }
 
 export enum SetType {
@@ -23,10 +24,11 @@ export enum SetType {
 }
 
 export interface ExerciseTableData {
+  is_main: boolean
   exercise_id: number | null
   group_id: number
   set_type: SetType | null
-  work_set_count: number | null
+  work_set_count: number
   note: string | null
   work_set_id: number
   reps: number

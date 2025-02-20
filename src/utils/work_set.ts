@@ -31,29 +31,17 @@ export function randomId(): string {
 
 export function exerciseToTableData(data: Exercise): ExerciseTableData[] {
   return data.work_sets.map((e: ExerciseWorkSet, index: number): ExerciseTableData => {
-    if (index === 0) {
-      return {
-        intensity: e.intensity,
-        rpe: e.rpe,
-        note: data.note,
-        reps: e.reps,
-        group_id: data.group_id,
-        set_type: data.set_type,
-        exercise_id: data.exercise_id,
-        work_set_id: e.work_set_id,
-        work_set_count: data.work_set_count,
-      }
-    }
     return {
+      is_main: index === 0,
       intensity: e.intensity,
       rpe: e.rpe,
-      note: null,
+      note: data.note,
       reps: e.reps,
       group_id: data.group_id,
-      set_type: null,
-      exercise_id: null,
+      set_type: data.set_type,
+      exercise_id: data.exercise_id,
       work_set_id: e.work_set_id,
-      work_set_count: null,
+      work_set_count: data.work_set_count,
     }
   })
 }

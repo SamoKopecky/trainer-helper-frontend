@@ -12,14 +12,22 @@ function removeNotification(notificationId: string) {
   notifications.value.delete(notificationId)
 }
 
+/*
+TODO:
+
+- Add endpoint for editing an exercise (note)
+- Adjust endpoint to be able to edit set count
+  - this will
+*/
+
 const WORK_SET_COLUMNS: WorkSetTableRow[] = [
-  // { key: "group_id", type: null, name: "Group" },
-  { key: "set_type", type: null, name: "Set Type" },
-  { key: "work_set_count", type: null, name: "Set count" },
-  { key: "reps", type: "number", name: "Repetitions" },
-  { key: "intensity", type: "text", name: "Intensity" },
-  { key: "rpe", type: "number", name: "RPE" },
-  { key: "note", type: null, name: "Note" },
+  { key: "group_id", type: null, name: "Group", is_multirow: true },
+  { key: "set_type", type: null, name: "Set Type", is_multirow: true },
+  { key: "work_set_count", type: null, name: "Set count", is_multirow: true },
+  { key: "reps", type: "number", name: "Repetitions", is_multirow: false },
+  { key: "intensity", type: "text", name: "Intensity", is_multirow: false },
+  { key: "rpe", type: "number", name: "RPE", is_multirow: false },
+  { key: "note", type: "text", name: "Note", is_multirow: true },
 ]
 
 defineProps({
@@ -83,10 +91,17 @@ function addWatchToRow(row: ExerciseTableData) {
 }
 
 function getRowspan(row: ExerciseTableData, column: WorkSetTableRow): number {
-  if (column.key == "set_type" && row.set_type !== null) {
+  if (row.is_main && column.is_multirow) {
     return row.work_set_count
   }
   return 1
+}
+
+function getColumns(row: ExerciseTableData): WorkSetTableRow[] {
+  if (!row.is_main) {
+    return WORK_SET_COLUMNS.filter((row) => !row.is_multirow)
+  }
+  return WORK_SET_COLUMNS
 }
 
 exerciseConnector.get(timeslot_id).then((exercise) => {
@@ -131,7 +146,7 @@ exerciseConnector.get(timeslot_id).then((exercise) => {
       <tbody>
         <tr v-for="row in work_sets" :key="row.work_set_id">
           <td
-            v-for="column in WORK_SET_COLUMNS"
+            v-for="column in getColumns(row)"
             :key="column.key"
             :rowspan="getRowspan(row, column)"
           >
