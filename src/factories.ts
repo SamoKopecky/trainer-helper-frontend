@@ -1,15 +1,24 @@
-import type { WorkSet } from "./backend-helpers/worksets"
+import { SetType, type ExerciseTableData } from "./types"
 
-export function workSetFactory(id: number, intensity: string | null): WorkSet {
+export function workSetFactory({
+  work_set_id,
+  intensity = null,
+  note = null,
+}: {
+  work_set_id: number
+  intensity?: string | null
+  note?: string | null
+}): ExerciseTableData {
   return {
-    id: id,
-    note: "123",
+    work_set_id: work_set_id,
     rpe: 7,
     intensity: intensity ?? "105Kg",
     reps: 2,
-    tempo: null,
-    set_type: "squat",
-    timeslot_id: 1,
-    timeslot_index: 1,
-  } as WorkSet
+    set_type: SetType.Squat,
+    note: note ?? "test",
+    is_main: true,
+    group_id: 1,
+    exercise_id: 1,
+    work_set_count: 4,
+  }
 }

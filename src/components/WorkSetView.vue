@@ -1,24 +1,21 @@
 <script setup lang="ts">
-import { deepClone, exerciseToTableData, randomId, workSetDiff } from "../utils/work_set"
-import { WorkSetConnector } from "../backend-helpers/worksets"
+import { deepClone, exerciseToTableData, randomId, exerciseTableDataDiff } from "../utils/work_set"
+import { WorkSetConnector, type WorkSetPutRequest } from "../backend-helpers/worksets"
 import { ref } from "vue"
 import { useRoute } from "vue-router"
 import { createVuetify } from "vuetify"
-import type { ChangeNotification, ExerciseTableData, WorkSetTableRow } from "@/types"
+import {
+  ExerciseUpdateType,
+  type ChangeNotification,
+  type ExerciseTableData,
+  type WorkSetTableRow,
+} from "@/types"
 import { watchDebounced } from "@vueuse/core"
-import { ExerciseConnector } from "@/backend-helpers/exercise"
+import { ExerciseConnector, type ExercisePutRequest } from "@/backend-helpers/exercise"
 
 function removeNotification(notificationId: string) {
   notifications.value.delete(notificationId)
 }
-
-/*
-TODO:
-
-- Add endpoint for editing an exercise (note)
-- Adjust endpoint to be able to edit set count
-  - this will
-*/
 
 const WORK_SET_COLUMNS: WorkSetTableRow[] = [
   { key: "group_id", type: null, name: "Group", is_multirow: true },
@@ -48,14 +45,25 @@ const exerciseConnector = new ExerciseConnector()
 const timeslot_id = Number(route.params.id)
 
 function updateTable(row: ExerciseTableData) {
-  const request = workSetDiff(row, work_sets_old[row.work_set_id])
+  const [diff, update_type] = exerciseTableDataDiff(row, work_sets_old[row.work_set_id])
 
-  if (!request) {
+  if (!diff || !update_type) {
     return
   }
 
+  let update_connector: WorkSetConnector | ExerciseConnector
+  let request: ExercisePutRequest | WorkSetPutRequest
+
+  if (update_type === ExerciseUpdateType.WorkSet) {
+    update_connector = workSetConnector
+    request = diff as WorkSetPutRequest
+  } else {
+    update_connector = exerciseConnector
+    request = diff as ExercisePutRequest
+  }
+
   const notificationId = randomId()
-  workSetConnector
+  update_connector
     .put(request)
     .then(() => {
       notifications.value.set(notificationId, {
@@ -151,6 +159,7 @@ exerciseConnector.get(timeslot_id).then((exercise) => {
             :rowspan="getRowspan(row, column)"
           >
             <input
+              :class="[column.key === 'note' ? 'large-input' : 'normal-input']"
               v-if="column.type"
               v-model="row[column.key]"
               :type="column.type"
@@ -249,5 +258,15 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+input {
+  box-sizing: border-box; /* Include padding and border in width calculation */
+}
+
+.large-input {
+  width: 100%;
+  /* TODO: Fix this later */
+  height: 100%;
 }
 </style>

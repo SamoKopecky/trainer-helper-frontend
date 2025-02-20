@@ -5,8 +5,6 @@ export interface WorkSetPutRequest {
   reps: number | null
   intensity: string | null
   rpe: number | null
-  tempo: string | null
-  note: string | null
 }
 
 export class WorkSetConnector extends BackendConnector<unknown, unknown, WorkSetPutRequest> {

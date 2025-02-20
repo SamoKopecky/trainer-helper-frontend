@@ -17,7 +17,12 @@ export interface ExerciseWorkSet {
   work_set_id: number
 }
 
-export class ExerciseConnector extends BackendConnector<unknown, unknown, unknown> {
+export interface ExercisePutRequest {
+  id: number
+  note: string | null
+}
+
+export class ExerciseConnector extends BackendConnector<unknown, unknown, ExercisePutRequest> {
   route = Route.Exercise
   obj_to_response(obj: any): Exercise {
     return obj
