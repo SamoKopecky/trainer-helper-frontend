@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { deepClone, exerciseToTableData, randomId, exerciseTableDataDiff } from "../utils/work_set"
+import {
+  deepClone,
+  exerciseToTableData,
+  randomId,
+  tableDataDiff,
+  getRowspan,
+  getColumns,
+} from "../utils/exercise"
 import { WorkSetConnector, type WorkSetPutRequest } from "../backend-helpers/worksets"
 import { ref } from "vue"
 import { useRoute } from "vue-router"
@@ -8,7 +15,8 @@ import {
   ExerciseUpdateType,
   type ChangeNotification,
   type ExerciseTableData,
-  type WorkSetTableRow,
+  type ExerciseTableColumn,
+  type ExerciseDiff,
 } from "@/types"
 import { watchDebounced } from "@vueuse/core"
 import { ExerciseConnector, type ExercisePutRequest } from "@/backend-helpers/exercise"
@@ -17,7 +25,7 @@ function removeNotification(notificationId: string) {
   notifications.value.delete(notificationId)
 }
 
-const WORK_SET_COLUMNS: WorkSetTableRow[] = [
+const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "group_id", type: null, name: "Group", is_multirow: true },
   { key: "set_type", type: null, name: "Set Type", is_multirow: true },
   { key: "work_set_count", type: null, name: "Set count", is_multirow: true },
@@ -34,8 +42,8 @@ defineProps({
 const route = useRoute()
 const vuetify = ref(createVuetify())
 
-const work_sets = ref<ExerciseTableData[]>([])
-const work_sets_old: Map<number, ExerciseTableData[]> = new Map()
+const exercises = ref<ExerciseTableData[]>([])
+const exercises_old: Map<number, ExerciseTableData[]> = new Map()
 
 const notifications = ref<Map<string, ChangeNotification>>(new Map())
 
@@ -44,27 +52,23 @@ const exerciseConnector = new ExerciseConnector()
 
 const timeslot_id = Number(route.params.id)
 
-function updateTable(row: ExerciseTableData) {
-  const [diff, update_type] = exerciseTableDataDiff(row, work_sets_old[row.work_set_id])
+function doUpdate(data: ExerciseDiff, updateType: ExerciseUpdateType): Promise<void> {
+  if (updateType === ExerciseUpdateType.WorkSet) {
+    return workSetConnector.put(data as WorkSetPutRequest)
+  } else {
+    return exerciseConnector.put(data as ExercisePutRequest)
+  }
+}
 
-  if (!diff || !update_type) {
+function updateTable(row: ExerciseTableData) {
+  const [diff, updateType] = tableDataDiff(row, exercises_old[row.work_set_id])
+
+  if (!diff || !updateType) {
     return
   }
 
-  let update_connector: WorkSetConnector | ExerciseConnector
-  let request: ExercisePutRequest | WorkSetPutRequest
-
-  if (update_type === ExerciseUpdateType.WorkSet) {
-    update_connector = workSetConnector
-    request = diff as WorkSetPutRequest
-  } else {
-    update_connector = exerciseConnector
-    request = diff as ExercisePutRequest
-  }
-
   const notificationId = randomId()
-  update_connector
-    .put(request)
+  doUpdate(diff, updateType)
     .then(() => {
       notifications.value.set(notificationId, {
         text: "Update succesful",
@@ -81,7 +85,7 @@ function updateTable(row: ExerciseTableData) {
       setTimeout(() => removeNotification(notificationId), 2000)
     })
 
-  work_sets_old[row.work_set_id] = deepClone(row)
+  exercises_old[row.work_set_id] = deepClone(row)
 }
 
 function addWatchToRow(row: ExerciseTableData) {
@@ -98,33 +102,19 @@ function addWatchToRow(row: ExerciseTableData) {
   )
 }
 
-function getRowspan(row: ExerciseTableData, column: WorkSetTableRow): number {
-  if (row.is_main && column.is_multirow) {
-    return row.work_set_count
-  }
-  return 1
-}
-
-function getColumns(row: ExerciseTableData): WorkSetTableRow[] {
-  if (!row.is_main) {
-    return WORK_SET_COLUMNS.filter((row) => !row.is_multirow)
-  }
-  return WORK_SET_COLUMNS
-}
-
 exerciseConnector.get(timeslot_id).then((exercise) => {
-  const work_set_data_limits: ExerciseTableData[] = []
+  const exercise_data: ExerciseTableData[] = []
   exercise.forEach((e) => {
-    work_set_data_limits.push(...exerciseToTableData(e))
+    exercise_data.push(...exerciseToTableData(e))
   })
 
-  work_sets.value = work_set_data_limits
-  work_set_data_limits.forEach((row: ExerciseTableData) => {
-    work_sets_old[row.work_set_id] = deepClone(row)
+  exercises.value = exercise_data
+  exercise_data.forEach((row: ExerciseTableData) => {
+    exercises_old[row.work_set_id] = deepClone(row)
   })
 
   // NOTE: Add persistent storage so that a reload doesn't cancel data
-  work_sets.value.forEach((row) => addWatchToRow(row))
+  exercises.value.forEach((row) => addWatchToRow(row))
 })
 </script>
 
@@ -146,15 +136,15 @@ exerciseConnector.get(timeslot_id).then((exercise) => {
     <table class="custom-table">
       <thead>
         <tr>
-          <th v-for="column in WORK_SET_COLUMNS" :key="column.key">
+          <th v-for="column in EXERCISE_COLUMNS" :key="column.key">
             {{ column.name }}
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in work_sets" :key="row.work_set_id">
+        <tr v-for="row in exercises" :key="row.work_set_id">
           <td
-            v-for="column in getColumns(row)"
+            v-for="column in getColumns(EXERCISE_COLUMNS, row)"
             :key="column.key"
             :rowspan="getRowspan(row, column)"
           >

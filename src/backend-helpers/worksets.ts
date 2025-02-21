@@ -9,7 +9,7 @@ export interface WorkSetPutRequest {
 
 export class WorkSetConnector extends BackendConnector<unknown, unknown, WorkSetPutRequest> {
   route = Route.WorkSet
-  obj_to_response(obj: any): WorkSet {
+  obj_to_response(obj: any): any {
     return obj
   }
 }

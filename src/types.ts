@@ -11,16 +11,11 @@ export interface ChangeNotification {
   text: string
 }
 
-export interface WorkSetTableRow {
+export interface ExerciseTableColumn {
   key: string
   type: string | null
   name: string
   is_multirow: boolean
-}
-
-export enum SetType {
-  Squat = "Squat",
-  Rdl = "Rdl",
 }
 
 export interface ExerciseTableData {
@@ -39,4 +34,17 @@ export interface ExerciseTableData {
 export enum ExerciseUpdateType {
   Exercise = "Exercise",
   WorkSet = "WorkSet",
+}
+
+export enum SetType {
+  Squat = "Squat",
+  Rdl = "Rdl",
+}
+
+export interface ExerciseDiff {
+  id: number | null
+  note: string | null
+  rpe: number | null
+  intensity: string | null
+  reps: number | null
 }

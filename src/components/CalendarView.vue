@@ -36,9 +36,7 @@ timeslot_fetcher.post(request).then((timeslots) => {
 })
 
 function onEventClick(event: Event, e: any) {
-  // selectedEvent.value = event
-  // showDialog.value = true
-  router.push({ path: `/work-sets/${event.timeslot_id}` })
+  router.push({ path: `/exercise/${event.timeslot_id}` })
 
   e.stopPropagation()
 }

@@ -22,7 +22,7 @@ export interface ExercisePutRequest {
   note: string | null
 }
 
-export class ExerciseConnector extends BackendConnector<unknown, unknown, ExercisePutRequest> {
+export class ExerciseConnector extends BackendConnector<unknown, Exercise, ExercisePutRequest> {
   route = Route.Exercise
   obj_to_response(obj: any): Exercise {
     return obj
