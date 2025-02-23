@@ -16,16 +16,10 @@ import {
   type ExerciseTableData,
   type ExerciseTableColumn,
   type ExerciseDiff,
-  type WorkSetModel,
 } from "@/types"
 import { watchDebounced } from "@vueuse/core"
 import { ExerciseConnector, type ExercisePutRequest } from "@/backendHelpers/exercise"
 import { WorkSetConnector, type WorkSetPutRequest } from "@/backendHelpers/worksets"
-import {
-  ExerciseCountConnector,
-  type ExerciseCountPutRequest,
-  type ExerciseCountPutResponse,
-} from "@/backendHelpers/exerciseCount"
 
 function removeNotification(notificationId: string) {
   notifications.value.delete(notificationId)
@@ -55,33 +49,14 @@ const notifications = ref<Map<string, ChangeNotification>>(new Map())
 
 const workSetConnector = new WorkSetConnector()
 const exerciseConnector = new ExerciseConnector()
-const exerciseCountConnector = new ExerciseCountConnector()
 
 const timeslot_id = Number(route.params.id)
 
-function putResponseToRow(update: WorkSetModel): ExerciseTableData {
-  const exerciseData = exercises.value.find((e) => e.exercise_id == update.exercise_id)
-  const res: ExerciseTableData = {
-    exercise_id: update.exercise_id,
-    rpe: update.rpe,
-    reps: update.reps,
-    is_main: false,
-    work_set_count_display: exerciseData?.work_set_count_display,
-  }
-  return res
-}
-
-function doUpdate(data: ExerciseDiff, updateType: ExerciseUpdateType): Promise<void> {
+function doUpdate(data: ExerciseDiff, updateType: ExerciseUpdateType): Promise<unknown> {
   if (updateType === ExerciseUpdateType.WorkSet) {
     return workSetConnector.put(data as WorkSetPutRequest)
-  } else if (updateType == ExerciseUpdateType.Exercise) {
-    return exerciseConnector.put(data as ExercisePutRequest)
   } else {
-    return new Promise(async () => {
-      const updates = await exerciseCountConnector.put_return(data as ExerciseCountPutRequest)
-      const newWorkSets: ExerciseTableData[] = []
-      exercises.value.push(...newWorkSets)
-    })
+    return exerciseConnector.put(data as ExercisePutRequest)
   }
 }
 

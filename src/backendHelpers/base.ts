@@ -7,9 +7,15 @@ export enum Route {
   ExerciseCount = "exercise-count",
 }
 
+export enum Method {
+  GET = "GET",
+  PUT = "PUT",
+  POST = "POST",
+  DELETE = "DELETE",
+}
+
 export abstract class BackendConnector {
   abstract route: Route
-  abstract obj_to_response<Response>(obj: unknown): Response
 
   protected get_api_url() {
     return `${API_BASE_URL}/${this.route}`
@@ -18,29 +24,30 @@ export abstract class BackendConnector {
     return new Headers({ "Content-Type": "application/json" })
   }
 
-  async post<Request, Response>(body: Request): Promise<Response[]> {
+  async handleRequest<RequestT, ResponseT>(
+    body: RequestT,
+    method: Method,
+    // TODO: Make sure this is a type guard
+    obj_to_response: (obj: unknown) => ResponseT = (obj) => obj as ResponseT,
+  ): Promise<ResponseT | void> {
     const request = {
-      method: "POST",
+      method: method,
       headers: this.get_headers(),
       body: JSON.stringify(body),
     }
 
-    const jsonRes: unknown[] = await (await fetch(this.get_api_url(), request)).json()
-    return jsonRes.map((obj: unknown): Response => this.obj_to_response(obj))
-  }
+    const response = await fetch(this.get_api_url(), request)
 
-  async put<Request, Response>(body: Request): Promise<Response> {
-    const request = {
-      method: "PUT",
-      headers: this.get_headers(),
-      body: JSON.stringify(body),
+    if (!response.ok) {
+      throw new Error(`Error status: ${response.status} and text: ${response.statusText}`)
     }
 
-    await fetch(this.get_api_url(), request).then((response: Response) => {
-      if (!response.ok) {
-        throw new Error(`Put error status: ${response.status} and text: ${response.statusText}`)
-      }
-      return new Promise(() => {})
-    })
+    if (response.status == 204 || response.headers.get("Content-Length") === "0") {
+      return
+    }
+
+    const res = obj_to_response(await response.json())
+
+    return res
   }
 }

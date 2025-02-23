@@ -1,4 +1,4 @@
-import { BackendConnector, Route } from "./base"
+import { BackendConnector, Method, Route } from "./base"
 
 export interface WorkSetPutRequest {
   id: number
@@ -7,9 +7,10 @@ export interface WorkSetPutRequest {
   rpe: number | null
 }
 
-export class WorkSetConnector extends BackendConnector<unknown, unknown, WorkSetPutRequest> {
+export class WorkSetConnector extends BackendConnector {
   route = Route.WorkSet
-  obj_to_response(obj: any): any {
-    return obj
+
+  async put(body: WorkSetPutRequest): Promise<void> {
+    return this.handleRequest(body, Method.PUT)
   }
 }

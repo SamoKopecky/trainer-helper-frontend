@@ -1,4 +1,5 @@
-import { BackendConnector, Route } from "./base"
+import { BackendConnector, Route, Method } from "./base"
+import { isArray } from "./utils"
 
 export interface Timeslot {
   id: number
@@ -14,10 +15,21 @@ export interface TimeslotPostRequest {
   end_date: string
 }
 
-export class TimeslotConnector extends BackendConnector<TimeslotPostRequest, Timeslot, unknown> {
+export class TimeslotConnector extends BackendConnector {
   route = Route.Timeslot
-  obj_to_response(obj: any): Timeslot {
-    obj.start = new Date(obj.start)
-    return obj
+
+  private parseTimeslots(obj: unknown): Timeslot[] {
+    if (!isArray(obj)) {
+      throw new Error("Invalid response: expected an array")
+    }
+
+    return obj.map((o: any): Timeslot => {
+      o.start = new Date(o.start)
+      return o
+    })
+  }
+
+  async post(body: TimeslotPostRequest): Promise<Timeslot[]> {
+    return this.handleRequest(body, Method.POST, this.parseTimeslots) as Promise<Timeslot[]>
   }
 }

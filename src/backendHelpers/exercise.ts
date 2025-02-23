@@ -1,5 +1,5 @@
 import type { SetType } from "../types"
-import { BackendConnector, Route } from "./base"
+import { BackendConnector, Method, Route } from "./base"
 
 export interface Exercise {
   exercise_id: number
@@ -22,7 +22,7 @@ export interface ExercisePutRequest {
   note: string | null
 }
 
-export class ExerciseConnector extends BackendConnector<unknown, Exercise, ExercisePutRequest> {
+export class ExerciseConnector extends BackendConnector {
   route = Route.Exercise
   obj_to_response(obj: any): Exercise {
     return obj
@@ -33,5 +33,9 @@ export class ExerciseConnector extends BackendConnector<unknown, Exercise, Exerc
 
     const jsonRes: any[] = await (await fetch(api_url)).json()
     return jsonRes.map((obj: any): Exercise => this.obj_to_response(obj))
+  }
+
+  async put(body: ExercisePutRequest): Promise<void> {
+    this.handleRequest(body, Method.PUT)
   }
 }
