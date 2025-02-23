@@ -52,13 +52,22 @@ export enum SetType {
   Rdl = "Rdl",
 }
 
-export interface ExerciseDiff {
+export interface Diff {
   id: number
+}
+
+export interface ExerciseDiff extends Diff {
   note: string | null
+}
+
+export interface WorkSetDiff extends Diff {
   rpe: number | null
   intensity: string | null
   reps: number | null
-  work_set_count: number | null
+}
+
+export interface WorkSetCountDiff extends Diff {
+  work_set_count: number
 }
 
 export interface ExerciseTableData extends WorkSet, Exercise {

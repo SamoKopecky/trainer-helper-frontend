@@ -3,6 +3,9 @@ import {
   type ExerciseTableData,
   type ExerciseTableColumn,
   type ExerciseDiff,
+  type Diff,
+  type WorkSetDiff,
+  type WorkSetCountDiff,
 } from "@/types"
 import type { ExerciseGetResponse, ExerciseWorkSet } from "@/backendHelpers/exercise"
 
@@ -30,16 +33,28 @@ const UPDATE_TYPE_ID_MAP: Record<ExerciseUpdateType, keyof ExerciseTableData> = 
   WorkSetCount: "exercise_id",
 }
 
-export function tableDataDiff(
+export function isWorkSetDiff(data: Diff): data is WorkSetDiff {
+  return "rpe" in data || "intensity" in data || "reps" in data
+}
+
+export function isExerciseDiff(data: Diff): data is ExerciseDiff {
+  return "note" in data
+}
+
+export function isWorkSetCountDiff(data: Diff): data is WorkSetCountDiff {
+  return "work_set_count" in data
+}
+
+export function tableDataDiff<T extends Diff>(
   newObj: ExerciseTableData,
   oldObj: ExerciseTableData,
-): [ExerciseDiff | null, ExerciseUpdateType | null] {
-  const res: Partial<ExerciseDiff> = {}
+): [T | null, ExerciseUpdateType | null] {
+  const res: Partial<T> = {}
   let changedKey: keyof ExerciseTableData | null = null
 
   for (const key in newObj) {
     if (oldObj[key] !== newObj[key]) {
-      res[key] = newObj[key]
+      res[key as keyof T] = newObj[key]
       changedKey = key as keyof ExerciseTableData
       break
     }
@@ -56,7 +71,7 @@ export function tableDataDiff(
   const updateIdKey = UPDATE_TYPE_ID_MAP[updateType]
 
   res.id = newObj[updateIdKey] as number
-  return [res as ExerciseDiff, updateType]
+  return [res as T, updateType]
 }
 
 export function randomId(): string {

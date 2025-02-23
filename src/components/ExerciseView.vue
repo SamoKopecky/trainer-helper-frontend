@@ -6,6 +6,9 @@ import {
   tableDataDiff,
   getRowspan,
   getColumns,
+  isWorkSetDiff,
+  isExerciseDiff,
+  isWorkSetCountDiff,
 } from "@/utils/exercise"
 import { ref } from "vue"
 import { useRoute } from "vue-router"
@@ -15,12 +18,13 @@ import {
   type ChangeNotification,
   type ExerciseTableData,
   type ExerciseTableColumn,
-  type ExerciseDiff,
   type WorkSet,
+  type Diff,
+  type WorkSetCountDiff,
 } from "@/types"
 import { watchDebounced } from "@vueuse/core"
-import { ExerciseConnector, type ExercisePutRequest } from "@/backendHelpers/exercise"
-import { WorkSetConnector, type WorkSetPutRequest } from "@/backendHelpers/worksets"
+import { ExerciseConnector } from "@/backendHelpers/exercise"
+import { WorkSetConnector } from "@/backendHelpers/worksets"
 import {
   ExerciseCountConnector,
   type ExerciseCountPutRequest,
@@ -58,19 +62,25 @@ const exerciseCountConnector = new ExerciseCountConnector()
 
 const timeslot_id = Number(route.params.id)
 
-function doUpdate(data: ExerciseDiff, updateType: ExerciseUpdateType): Promise<unknown> {
-  if (updateType === ExerciseUpdateType.WorkSet) {
-    return workSetConnector.put(data as WorkSetPutRequest)
-  } else if (updateType === ExerciseUpdateType.Exercise) {
-    return exerciseConnector.put(data as ExercisePutRequest)
-  } else {
+function doUpdate<T extends Diff>(data: T, updateType: ExerciseUpdateType): Promise<unknown> {
+  switch (updateType) {
+  }
+  if (updateType === ExerciseUpdateType.WorkSet && isWorkSetDiff(data)) {
+    return workSetConnector.put(data)
+  } else if (updateType === ExerciseUpdateType.Exercise && isExerciseDiff(data)) {
+    return exerciseConnector.put(data)
+  } else if (updateType === ExerciseUpdateType.WorkSetCount && isWorkSetCountDiff(data)) {
     return handleCountUpdate(data)
+  } else {
+    return Promise.reject(new Error("Invalid data or update type"))
   }
 }
 
-async function handleCountUpdate(data: ExerciseDiff): Promise<unknown> {
+async function handleCountUpdate(data: WorkSetCountDiff): Promise<unknown> {
   let exercisesCopy: ExerciseTableData[] = deepClone(exercises.value)
+
   const work_sets_filtered = exercises.value.filter((e) => e.exercise_id === data.id)
+
   if (work_sets_filtered.length === 0) {
     throw new Error(`${data.id} no such exercise with id`)
   }
@@ -199,7 +209,6 @@ exerciseConnector.get(timeslot_id).then((exercise) => {
 })
 
 // TODO: Clean up update count function
-// TODO: Fix types and also make type checks for returning diff
 // TODO: Send how much to create to api endpount, count can be removed from rust
 </script>
 
