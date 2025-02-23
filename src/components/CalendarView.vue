@@ -2,9 +2,9 @@
 import { ref } from "vue"
 import "vue-cal/dist/vuecal.css"
 import VueCal from "vue-cal"
-import { type Event } from "@/types"
+import { type Event, type Timeslot } from "@/types"
 import { TimeslotConnector } from "@/backendHelpers/timeslots"
-import type { Timeslot, TimeslotPostRequest } from "@/backendHelpers/timeslots"
+import type { TimeslotPostRequest } from "@/backendHelpers/timeslots"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
@@ -14,7 +14,7 @@ const events = ref<Array<Event>>([])
 const timeslot_fetcher = new TimeslotConnector()
 const request: TimeslotPostRequest = {
   start_date: "2025-01-20T12:00:00",
-  end_date: "2025-02-28T20:15:00",
+  end_date: "2026-02-28T20:15:00",
 }
 
 function addMinutes(date: Date, minutes: number): Date {

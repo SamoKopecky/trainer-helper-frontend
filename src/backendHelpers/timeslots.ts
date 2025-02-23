@@ -1,13 +1,6 @@
+import type { Timeslot } from "@/types"
 import { BackendConnector, Route, Method } from "./base"
 import { isArray } from "./utils"
-
-export interface Timeslot {
-  id: number
-  trainer_id: number
-  user_id: number | null
-  duration: number
-  start: Date
-}
 
 export interface TimeslotPostRequest {
   // TODO: Make date jsonify correcly

@@ -1,36 +1,37 @@
-import { WorkSetModel } from "../types"
-import { BackendConnector, Route } from "./base"
+import type { WorkSet, WorkSetModel } from "../types"
+import { BackendConnector, Method, Route } from "./base"
+import { isArray } from "./utils"
+
+export interface ExerciseCountDeleteRequest {
+  work_set_ids: number[]
+}
 
 export interface ExerciseCountPutRequest {
   id: number
-  note: string | null
+  work_set_count: number
+  work_set_template: WorkSet
 }
 
-export interface ExerciseCountPutResponse {
-  new_work_sets: WorkSetModel[]
-}
-
-export class ExerciseCountConnector extends BackendConnector<
-  unknown,
-  ExerciseCountPutResponse,
-  ExerciseCountPutRequest
-> {
+export class ExerciseCountConnector extends BackendConnector {
   route = Route.ExerciseCount
-  obj_to_response(obj: any): any {
-    return obj
-  }
 
-  async put_return(body: ExerciseCountPutRequest): Promise<ExerciseCountPutResponse[]> {
-    const request = {
-      method: "PUT",
-      headers: this.get_headers(),
-      body: JSON.stringify(body),
+  private parseWorkSetModels(obj: unknown): WorkSetModel[] {
+    if (!isArray(obj)) {
+      throw new Error("Invalid response: expected an array")
     }
 
-    const jsonRes: unknown[] = await (await fetch(this.get_api_url(), request)).json()
-    // TODO: Fix this!!!
-    return jsonRes["new_work_sets"].map(
-      (obj: unknown): ExerciseCountPutResponse => this.obj_to_response(obj),
-    )
+    return obj.map((o: any): WorkSetModel => {
+      o["work_set_id"] = o["id"]
+      delete o["id"]
+      return o
+    })
+  }
+
+  async put(body: ExerciseCountPutRequest): Promise<WorkSetModel[]> {
+    return this.handleRequest(body, Method.PUT, this.parseWorkSetModels) as Promise<WorkSetModel[]>
+  }
+
+  async delete(body: ExerciseCountDeleteRequest): Promise<number> {
+    return this.handleRequest(body, Method.DELETE) as Promise<number>
   }
 }

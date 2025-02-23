@@ -6,6 +6,29 @@ export interface Event {
   timeslot_id: number
 }
 
+export interface WorkSet {
+  work_set_id: number
+  reps: number
+  intensity: string
+  rpe: number | null
+}
+
+export interface Exercise {
+  exercise_id: number
+  group_id: number
+  note: string | null
+  set_type: SetType
+  work_set_count: number
+}
+
+export interface Timeslot {
+  id: number
+  trainer_id: number
+  user_id: number | null
+  duration: number
+  start: Date
+}
+
 export interface ChangeNotification {
   type: "success" | "info" | "warning" | "error" | undefined
   text: string
@@ -16,20 +39,6 @@ export interface ExerciseTableColumn {
   type: string | null
   name: string
   is_multirow: boolean
-}
-
-export interface ExerciseTableData {
-  is_main: boolean
-  exercise_id: number
-  group_id: number
-  set_type: SetType
-  work_set_count: number
-  work_set_count_display: number
-  note: string | null
-  work_set_id: number
-  reps: number
-  intensity: string
-  rpe: number | null
 }
 
 export enum ExerciseUpdateType {
@@ -44,17 +53,19 @@ export enum SetType {
 }
 
 export interface ExerciseDiff {
-  id: number | null
+  id: number
   note: string | null
   rpe: number | null
   intensity: string | null
   reps: number | null
+  work_set_count: number | null
 }
 
-export interface WorkSetModel {
-  id: number
-  reps: number
-  intensity: string
-  rpe: number | null
+export interface ExerciseTableData extends WorkSet, Exercise {
+  is_main: boolean
+  work_set_count_display: number
+}
+
+export interface WorkSetModel extends WorkSet {
   exercise_id: number
 }

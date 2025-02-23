@@ -4,7 +4,7 @@ import {
   type ExerciseTableColumn,
   type ExerciseDiff,
 } from "@/types"
-import type { Exercise, ExerciseWorkSet } from "@/backendHelpers/exercise"
+import type { ExerciseGetResponse, ExerciseWorkSet } from "@/backendHelpers/exercise"
 
 export function deepClone(obj: unknown) {
   return JSON.parse(JSON.stringify(obj))
@@ -63,7 +63,7 @@ export function randomId(): string {
   return (Math.random() + 1).toString(36).substring(2)
 }
 
-export function exerciseToTableData(data: Exercise): ExerciseTableData[] {
+export function exerciseToTableData(data: ExerciseGetResponse): ExerciseTableData[] {
   return data.work_sets.map((e: ExerciseWorkSet, index: number): ExerciseTableData => {
     return {
       is_main: index === 0,
