@@ -55,6 +55,7 @@ export function getColumns(
 
 export async function increaseWorkSets(
   diff: WorkSetCountDiff,
+  oldCount: number,
   exercisesLive: Ref<ExerciseTableData[]>,
   exercisesCopy: ExerciseTableData[],
   exercisesOld: Map<number, ExerciseTableData>,
@@ -64,7 +65,7 @@ export async function increaseWorkSets(
   const indexStart = exercisesLive.value.indexOf(last_work_set) + 1
   const request = {
     id: diff.id,
-    work_set_count: diff.work_set_count,
+    count: diff.work_set_count - oldCount,
     work_set_template: {
       work_set_id: last_work_set.work_set_id,
       rpe: last_work_set.rpe,

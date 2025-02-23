@@ -59,8 +59,6 @@ const exerciseCountConnector = new ExerciseCountConnector()
 const timeslot_id = Number(route.params.id)
 
 function doUpdate<T extends Diff>(data: T, updateType: ExerciseUpdateType): Promise<unknown> {
-  switch (updateType) {
-  }
   if (updateType === ExerciseUpdateType.WorkSet && isWorkSetDiff(data)) {
     return workSetConnector.put(data)
   } else if (updateType === ExerciseUpdateType.Exercise && isExerciseDiff(data)) {
@@ -85,6 +83,7 @@ async function handleCountUpdate(diff: WorkSetCountDiff): Promise<unknown> {
   if (diff.work_set_count >= oldCount) {
     return increaseWorkSets(
       diff,
+      oldCount,
       exercises,
       exercisesCopy,
       exercisesOld,

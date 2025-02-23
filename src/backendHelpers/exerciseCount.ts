@@ -8,7 +8,7 @@ export interface ExerciseCountDeleteRequest {
 
 export interface ExerciseCountPutRequest {
   id: number
-  work_set_count: number
+  count: number
   work_set_template: WorkSet
 }
 
