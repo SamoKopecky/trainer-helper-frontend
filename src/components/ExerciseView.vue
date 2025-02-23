@@ -2,14 +2,12 @@
 import {
   deepClone,
   exerciseToTableData,
-  randomId,
-  tableDataDiff,
   getRowspan,
   getColumns,
-  isWorkSetDiff,
-  isExerciseDiff,
-  isWorkSetCountDiff,
-} from "@/utils/exercise"
+  randomId,
+  increaseWorkSets,
+  decreaseWorkSets,
+} from "@/utils/exerciseView"
 import { ref } from "vue"
 import { useRoute } from "vue-router"
 import { createVuetify } from "vuetify"
@@ -25,10 +23,8 @@ import {
 import { watchDebounced } from "@vueuse/core"
 import { ExerciseConnector } from "@/backendHelpers/exercise"
 import { WorkSetConnector } from "@/backendHelpers/worksets"
-import {
-  ExerciseCountConnector,
-  type ExerciseCountPutRequest,
-} from "@/backendHelpers/exerciseCount"
+import { ExerciseCountConnector } from "@/backendHelpers/exerciseCount"
+import { isExerciseDiff, isWorkSetCountDiff, isWorkSetDiff, tableDataDiff } from "@/utils/diff"
 
 function removeNotification(notificationId: string) {
   notifications.value.delete(notificationId)
@@ -76,74 +72,35 @@ function doUpdate<T extends Diff>(data: T, updateType: ExerciseUpdateType): Prom
   }
 }
 
-async function handleCountUpdate(data: WorkSetCountDiff): Promise<unknown> {
-  let exercisesCopy: ExerciseTableData[] = deepClone(exercises.value)
+async function handleCountUpdate(diff: WorkSetCountDiff): Promise<unknown> {
+  const exercisesCopy: ExerciseTableData[] = deepClone(exercises.value)
+  const exercise_work_sets = exercises.value.filter((e) => e.exercise_id === diff.id)
 
-  const work_sets_filtered = exercises.value.filter((e) => e.exercise_id === data.id)
-
-  if (work_sets_filtered.length === 0) {
-    throw new Error(`${data.id} no such exercise with id`)
+  if (exercise_work_sets.length === 0) {
+    throw new Error(`No such exercise with id ${diff.id}`)
   }
-  const last_work_set = work_sets_filtered[work_sets_filtered.length - 1]
-
+  const last_work_set = exercise_work_sets[exercise_work_sets.length - 1]
   const oldCount = exercisesOld.get(last_work_set.work_set_id)?.work_set_count as number
 
-  if (data.work_set_count >= oldCount) {
-    const indexStart = exercises.value.indexOf(last_work_set) + 1
-    const request: ExerciseCountPutRequest = {
-      id: data.id,
-      work_set_count: data.work_set_count,
-      work_set_template: {
-        work_set_id: last_work_set.work_set_id,
-        rpe: last_work_set.rpe,
-        reps: last_work_set.reps,
-        intensity: last_work_set.intensity,
-      } as WorkSet,
-    }
-    return exerciseCountConnector.put(request).then((response) => {
-      response.forEach((row, i) => {
-        const newRow = {
-          work_set_id: row.work_set_id,
-          intensity: row.intensity,
-          reps: row.reps,
-          rpe: row.rpe,
-          exercise_id: row.exercise_id,
-          note: last_work_set.note,
-          work_set_count: data.work_set_count,
-          group_id: last_work_set.group_id,
-          set_type: last_work_set.set_type,
-          is_main: false,
-          work_set_count_display: data.work_set_count,
-        } as ExerciseTableData
-        exercisesCopy.splice(indexStart + i, 0, newRow)
-        exercisesOld.set(newRow.work_set_id, newRow)
-      })
-      exercisesCopy
-        .filter((row) => row.exercise_id === data.id)
-        .forEach((row) => {
-          row.work_set_count_display = data.work_set_count
-          row.work_set_count = data.work_set_count
-          exercisesOld.set(row.work_set_id, row)
-        })
-      exercises.value = exercisesCopy
-    })
-  } else if (data.work_set_count < oldCount) {
-    const sorted = work_sets_filtered.sort((w) => w.work_set_id)
-    const toRemoveIds = sorted.slice(0, oldCount - data.work_set_count).map((w) => w.work_set_id)
-    return exerciseCountConnector.delete({ work_set_ids: toRemoveIds }).then((removed) => {
-      if (toRemoveIds.length !== removed) {
-        throw new Error(`Deleted ${removed} != ${toRemoveIds.length}`)
-      }
-      exercisesCopy = exercisesCopy.filter((e) => !toRemoveIds.includes(e.work_set_id))
-      exercisesCopy
-        .filter((row) => row.exercise_id === data.id)
-        .forEach((row) => {
-          row.work_set_count_display = data.work_set_count
-          row.work_set_count = data.work_set_count
-          exercisesOld.set(row.work_set_id, row)
-        })
-      exercises.value = exercisesCopy
-    })
+  if (diff.work_set_count >= oldCount) {
+    return increaseWorkSets(
+      diff,
+      exercises,
+      exercisesCopy,
+      exercisesOld,
+      last_work_set,
+      exerciseCountConnector,
+    )
+  } else if (diff.work_set_count < oldCount) {
+    return decreaseWorkSets(
+      diff,
+      oldCount,
+      exercises,
+      exercisesCopy,
+      exercisesOld,
+      exercise_work_sets,
+      exerciseCountConnector,
+    )
   } else {
     throw new Error("chaos")
   }
@@ -208,7 +165,6 @@ exerciseConnector.get(timeslot_id).then((exercise) => {
   exercises.value.forEach((row) => addWatchToRow(row))
 })
 
-// TODO: Clean up update count function
 // TODO: Send how much to create to api endpount, count can be removed from rust
 </script>
 
@@ -342,6 +298,7 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 input {

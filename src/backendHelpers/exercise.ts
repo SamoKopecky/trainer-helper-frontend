@@ -2,7 +2,7 @@ import type { Exercise, WorkSet } from "../types"
 import { BackendConnector, Method, Route } from "./base"
 
 export interface ExerciseGetResponse extends Exercise {
-  work_sets: WorkSet
+  work_sets: WorkSet[]
 }
 
 export interface ExercisePutRequest {

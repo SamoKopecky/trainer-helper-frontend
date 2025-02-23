@@ -1,17 +1,11 @@
 import {
   ExerciseUpdateType,
   type ExerciseTableData,
-  type ExerciseTableColumn,
   type ExerciseDiff,
   type Diff,
   type WorkSetDiff,
   type WorkSetCountDiff,
-} from "@/types"
-import type { ExerciseGetResponse, ExerciseWorkSet } from "@/backendHelpers/exercise"
-
-export function deepClone(obj: unknown) {
-  return JSON.parse(JSON.stringify(obj))
-}
+} from "../types"
 
 const DATA_DIFF_MAP: Record<keyof ExerciseTableData, ExerciseUpdateType | null> = {
   note: ExerciseUpdateType.Exercise,
@@ -72,44 +66,4 @@ export function tableDataDiff<T extends Diff>(
 
   res.id = newObj[updateIdKey] as number
   return [res as T, updateType]
-}
-
-export function randomId(): string {
-  return (Math.random() + 1).toString(36).substring(2)
-}
-
-export function exerciseToTableData(data: ExerciseGetResponse): ExerciseTableData[] {
-  return data.work_sets.map((e: ExerciseWorkSet, index: number): ExerciseTableData => {
-    return {
-      is_main: index === 0,
-      intensity: e.intensity,
-      rpe: e.rpe,
-      note: data.note,
-      reps: e.reps,
-      group_id: data.group_id,
-      set_type: data.set_type,
-      exercise_id: data.exercise_id,
-      work_set_id: e.work_set_id,
-      work_set_count: data.work_set_count,
-      // Needs to be updated manually
-      work_set_count_display: data.work_set_count,
-    }
-  })
-}
-
-export function getRowspan(row: ExerciseTableData, column: ExerciseTableColumn): number {
-  if (row.is_main && column.is_multirow) {
-    return row.work_set_count_display
-  }
-  return 1
-}
-
-export function getColumns(
-  columns: ExerciseTableColumn[],
-  row: ExerciseTableData,
-): ExerciseTableColumn[] {
-  if (!row.is_main) {
-    return columns.filter((row) => !row.is_multirow)
-  }
-  return columns
 }
