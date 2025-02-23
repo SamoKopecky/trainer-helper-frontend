@@ -20,5 +20,6 @@ export function workSetFactory({
     group_id: 1,
     exercise_id: 1,
     work_set_count: 4,
+    work_set_count_display: 4,
   }
 }

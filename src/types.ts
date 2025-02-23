@@ -24,6 +24,7 @@ export interface ExerciseTableData {
   group_id: number
   set_type: SetType
   work_set_count: number
+  work_set_count_display: number
   note: string | null
   work_set_id: number
   reps: number
@@ -34,6 +35,7 @@ export interface ExerciseTableData {
 export enum ExerciseUpdateType {
   Exercise = "Exercise",
   WorkSet = "WorkSet",
+  WorkSetCount = "WorkSetCount",
 }
 
 export enum SetType {
@@ -47,4 +49,12 @@ export interface ExerciseDiff {
   rpe: number | null
   intensity: string | null
   reps: number | null
+}
+
+export interface WorkSetModel {
+  id: number
+  reps: number
+  intensity: string
+  rpe: number | null
+  exercise_id: number
 }

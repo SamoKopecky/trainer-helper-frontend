@@ -1,4 +1,4 @@
-import type { SetType } from "@/types"
+import type { SetType } from "../types"
 import { BackendConnector, Route } from "./base"
 
 export interface Exercise {

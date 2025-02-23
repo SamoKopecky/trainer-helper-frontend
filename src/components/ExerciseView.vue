@@ -6,8 +6,7 @@ import {
   tableDataDiff,
   getRowspan,
   getColumns,
-} from "../utils/exercise"
-import { WorkSetConnector, type WorkSetPutRequest } from "../backend-helpers/worksets"
+} from "@/utils/exercise"
 import { ref } from "vue"
 import { useRoute } from "vue-router"
 import { createVuetify } from "vuetify"
@@ -17,9 +16,16 @@ import {
   type ExerciseTableData,
   type ExerciseTableColumn,
   type ExerciseDiff,
+  type WorkSetModel,
 } from "@/types"
 import { watchDebounced } from "@vueuse/core"
-import { ExerciseConnector, type ExercisePutRequest } from "@/backend-helpers/exercise"
+import { ExerciseConnector, type ExercisePutRequest } from "@/backendHelpers/exercise"
+import { WorkSetConnector, type WorkSetPutRequest } from "@/backendHelpers/worksets"
+import {
+  ExerciseCountConnector,
+  type ExerciseCountPutRequest,
+  type ExerciseCountPutResponse,
+} from "@/backendHelpers/exerciseCount"
 
 function removeNotification(notificationId: string) {
   notifications.value.delete(notificationId)
@@ -28,7 +34,7 @@ function removeNotification(notificationId: string) {
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "group_id", type: null, name: "Group", is_multirow: true },
   { key: "set_type", type: null, name: "Set Type", is_multirow: true },
-  { key: "work_set_count", type: null, name: "Set count", is_multirow: true },
+  { key: "work_set_count", type: "number", name: "Set count", is_multirow: true },
   { key: "reps", type: "number", name: "Repetitions", is_multirow: false },
   { key: "intensity", type: "text", name: "Intensity", is_multirow: false },
   { key: "rpe", type: "number", name: "RPE", is_multirow: false },
@@ -49,19 +55,38 @@ const notifications = ref<Map<string, ChangeNotification>>(new Map())
 
 const workSetConnector = new WorkSetConnector()
 const exerciseConnector = new ExerciseConnector()
+const exerciseCountConnector = new ExerciseCountConnector()
 
 const timeslot_id = Number(route.params.id)
+
+function putResponseToRow(update: WorkSetModel): ExerciseTableData {
+  const exerciseData = exercises.value.find((e) => e.exercise_id == update.exercise_id)
+  const res: ExerciseTableData = {
+    exercise_id: update.exercise_id,
+    rpe: update.rpe,
+    reps: update.reps,
+    is_main: false,
+    work_set_count_display: exerciseData?.work_set_count_display,
+  }
+  return res
+}
 
 function doUpdate(data: ExerciseDiff, updateType: ExerciseUpdateType): Promise<void> {
   if (updateType === ExerciseUpdateType.WorkSet) {
     return workSetConnector.put(data as WorkSetPutRequest)
-  } else {
+  } else if (updateType == ExerciseUpdateType.Exercise) {
     return exerciseConnector.put(data as ExercisePutRequest)
+  } else {
+    return new Promise(async () => {
+      const updates = await exerciseCountConnector.put_return(data as ExerciseCountPutRequest)
+      const newWorkSets: ExerciseTableData[] = []
+      exercises.value.push(...newWorkSets)
+    })
   }
 }
 
-function updateTable(row: ExerciseTableData) {
-  const [diff, updateType] = tableDataDiff(row, exercises_old[row.work_set_id])
+function updateTable(newRow: ExerciseTableData) {
+  const [diff, updateType] = tableDataDiff(newRow, exercises_old[newRow.work_set_id])
 
   if (!diff || !updateType) {
     return
@@ -85,7 +110,7 @@ function updateTable(row: ExerciseTableData) {
       setTimeout(() => removeNotification(notificationId), 2000)
     })
 
-  exercises_old[row.work_set_id] = deepClone(row)
+  exercises_old[newRow.work_set_id] = deepClone(newRow)
 }
 
 function addWatchToRow(row: ExerciseTableData) {

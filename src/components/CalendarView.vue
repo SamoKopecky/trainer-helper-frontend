@@ -3,8 +3,8 @@ import { ref } from "vue"
 import "vue-cal/dist/vuecal.css"
 import VueCal from "vue-cal"
 import { type Event } from "@/types"
-import { TimeslotConnector } from "@/backend-helpers/timeslots"
-import type { Timeslot, TimeslotPostRequest } from "@/backend-helpers/timeslots"
+import { TimeslotConnector } from "@/backendHelpers/timeslots"
+import type { Timeslot, TimeslotPostRequest } from "@/backendHelpers/timeslots"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
