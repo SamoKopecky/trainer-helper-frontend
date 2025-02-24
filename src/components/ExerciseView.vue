@@ -65,7 +65,9 @@ function doUpdate<T extends Diff>(data: T, updateType: ExerciseUpdateType): Prom
   } else if (updateType === ExerciseUpdateType.Exercise && isExerciseDiff(data)) {
     return exerciseConnector.put(data)
   } else if (updateType === ExerciseUpdateType.WorkSetCount && isWorkSetCountDiff(data)) {
-    return handleCountUpdate(data)
+    return handleCountUpdate(data).finally(() => {
+      exercises.value.forEach((e) => addWatchToRow(e))
+    })
   } else {
     return Promise.reject(new Error("Invalid data or update type"))
   }
@@ -131,6 +133,7 @@ function updateTable(newRow: ExerciseTableData) {
     newRow,
     exercisesOld.get(newRow.work_set_id) as ExerciseTableData,
   )
+  console.log(diff)
 
   if (!diff || !updateType) {
     return

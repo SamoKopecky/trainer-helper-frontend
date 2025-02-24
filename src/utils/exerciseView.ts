@@ -95,7 +95,7 @@ export async function increaseWorkSets(
       .forEach((row) => {
         row.work_set_count_display = diff.work_set_count
         row.work_set_count = diff.work_set_count
-        exercisesOld.set(row.work_set_id, row)
+        exercisesOld.set(row.work_set_id, deepClone(row))
       })
     exercisesLive.value = exercisesCopy
   })
@@ -122,7 +122,7 @@ export async function decreaseWorkSets(
       .forEach((row) => {
         row.work_set_count_display = diff.work_set_count
         row.work_set_count = diff.work_set_count
-        exercisesOld.set(row.work_set_id, row)
+        exercisesOld.set(row.work_set_id, deepClone(row))
       })
     exercisesLive.value = exercisesCopy
   })
