@@ -189,18 +189,7 @@ function addNewTableData(apiRow: ExerciseResponse) {
   })
 }
 exerciseConnector.get(timeslotId).then((exercise) => {
-  const exercise_data: ExerciseTableData[] = []
-  exercise.forEach((e) => {
-    exercise_data.push(...exerciseToTableData(e))
-  })
-
-  exercises.value = exercise_data
-  exercise_data.forEach((row: ExerciseTableData) => {
-    exercisesOld.set(row.work_set_id, deepClone(row))
-  })
-
-  // NOTE: Add persistent storage so that a reload doesn't cancel data
-  exercises.value.forEach((row) => addWatchToRow(row))
+  exercise.forEach((e) => addNewTableData(e))
 })
 </script>
 
