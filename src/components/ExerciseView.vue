@@ -25,15 +25,15 @@ import { ExerciseConnector, type ExerciseResponse } from "@/backendHelpers/exerc
 import { WorkSetConnector } from "@/backendHelpers/worksets"
 import { ExerciseCountConnector } from "@/backendHelpers/exerciseCount"
 import { isExerciseDiff, isWorkSetCountDiff, isWorkSetDiff, tableDataDiff } from "@/utils/diff"
-import { deepEqual } from "assert"
 
 function removeNotification(notificationId: string) {
   notifications.value.delete(notificationId)
 }
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
+  { key: "delete", type: "button", name: "", is_multirow: true },
   { key: "group_id", type: null, name: "Group", is_multirow: true },
-  { key: "set_type", type: "v-select", name: "Set Type", is_multirow: true },
+  { key: "set_type", type: "select", name: "Set Type", is_multirow: true },
   { key: "work_set_count", type: "number", name: "Set count", is_multirow: true },
   { key: "reps", type: "number", name: "Repetitions", is_multirow: false },
   { key: "intensity", type: "text", name: "Intensity", is_multirow: false },
@@ -133,7 +133,6 @@ function updateTable(newRow: ExerciseTableData) {
     newRow,
     exercisesOld.get(newRow.work_set_id) as ExerciseTableData,
   )
-  console.log(diff)
 
   if (!diff || !updateType) {
     return
@@ -160,11 +159,22 @@ function updateTable(newRow: ExerciseTableData) {
 }
 
 function addExercise() {
-  const groupId = exercises.value[exercises.value.length - 1].group_id + 1
+  const groupId =
+    exercises.value.length !== 0 ? exercises.value[exercises.value.length - 1].group_id + 1 : 0
   handlePromise(
     exerciseConnector
       .post({ group_id: groupId, timeslot_id: timeslotId })
       .then((response) => addNewTableData(response)),
+  )
+}
+
+function deleteExercise(groupId: number) {
+  handlePromise(
+    exerciseConnector.delete({ group_id: groupId, timeslot_id: timeslotId }).then(() => {
+      let exercisesCopy: ExerciseTableData[] = deepClone(exercises.value)
+      exercisesCopy = exercisesCopy.filter((e) => e.group_id !== groupId)
+      exercises.value = exercisesCopy
+    }),
   )
 }
 
@@ -234,12 +244,20 @@ exerciseConnector.get(timeslotId).then((exercise) => {
               @change="updateTable(row)"
             />
             <v-autocomplete
-              v-else-if="column.type === 'v-select'"
+              v-else-if="column.type === 'select'"
               variant="underlined"
               v-model="row[column.key]"
               :items="Object.values(SetType).filter((type) => type !== SetType.None)"
               @update:model-value="updateTable(row)"
             />
+            <v-icon
+              x-small
+              v-else-if="column.type === 'button'"
+              color="red"
+              @click="deleteExercise(row.group_id)"
+            >
+              <v-icon>mdi-close</v-icon>
+            </v-icon>
             <span v-else>{{ row[column.key] }}</span>
           </td>
         </tr>
@@ -250,6 +268,9 @@ exerciseConnector.get(timeslotId).then((exercise) => {
 </template>
 
 <style>
+.clickable-icon {
+  cursor: pointer; /* Makes the icon clickable */
+}
 .light {
   background-color: #ffffff;
   color: #000000;

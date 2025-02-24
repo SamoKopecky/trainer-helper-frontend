@@ -10,7 +10,7 @@ export interface ExercisePutRequest {
   note: string | null
 }
 
-export interface ExercisePostRequest {
+export interface ExercisePostDeleteRequest {
   timeslot_id: number
   group_id: number
 }
@@ -30,7 +30,11 @@ export class ExerciseConnector extends BackendConnector {
     this.handleRequest(body, Method.PUT)
   }
 
-  async post(body: ExercisePostRequest): Promise<ExerciseResponse> {
+  async post(body: ExercisePostDeleteRequest): Promise<ExerciseResponse> {
     return this.handleRequest(body, Method.POST) as Promise<ExerciseResponse>
+  }
+
+  async delete(body: ExercisePostDeleteRequest): Promise<void> {
+    this.handleRequest(body, Method.DELETE)
   }
 }

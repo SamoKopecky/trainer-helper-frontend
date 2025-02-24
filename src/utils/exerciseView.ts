@@ -113,6 +113,7 @@ export async function decreaseWorkSets(
   const sorted = exercise_work_sets.sort((w) => w.work_set_id)
   const toRemoveIds = sorted.slice(0, oldCount - diff.work_set_count).map((w) => w.work_set_id)
   return exerciseCountConnector.delete({ work_set_ids: toRemoveIds }).then((removed) => {
+    // TODO: Remove exercises from exercisesOld map
     if (toRemoveIds.length !== removed) {
       throw new Error(`Deleted ${removed} != ${toRemoveIds.length}`)
     }
