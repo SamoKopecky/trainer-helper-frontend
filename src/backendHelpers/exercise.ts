@@ -1,7 +1,7 @@
 import type { Exercise, WorkSet } from "../types"
 import { BackendConnector, Method, Route } from "./base"
 
-export interface ExerciseGetResponse extends Exercise {
+export interface ExerciseResponse extends Exercise {
   work_sets: WorkSet[]
 }
 
@@ -10,18 +10,27 @@ export interface ExercisePutRequest {
   note: string | null
 }
 
+export interface ExercisePostRequest {
+  timeslot_id: number
+  group_id: number
+}
+
 export class ExerciseConnector extends BackendConnector {
   route = Route.Exercise
 
   // TODO: Fix this
-  async get(timeslot_id: number): Promise<ExerciseGetResponse[]> {
+  async get(timeslot_id: number): Promise<ExerciseResponse[]> {
     const api_url = `${this.get_api_url()}/${timeslot_id}`
 
     const jsonRes: any[] = await (await fetch(api_url)).json()
-    return jsonRes.map((obj: any): ExerciseGetResponse => obj as ExerciseGetResponse)
+    return jsonRes.map((obj: any): ExerciseResponse => obj as ExerciseResponse)
   }
 
   async put(body: ExercisePutRequest): Promise<void> {
     this.handleRequest(body, Method.PUT)
+  }
+
+  async post(body: ExercisePostRequest): Promise<ExerciseResponse> {
+    return this.handleRequest(body, Method.POST) as Promise<ExerciseResponse>
   }
 }

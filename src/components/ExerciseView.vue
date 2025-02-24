@@ -16,15 +16,16 @@ import {
   type ChangeNotification,
   type ExerciseTableData,
   type ExerciseTableColumn,
-  type WorkSet,
   type Diff,
   type WorkSetCountDiff,
+  SetType,
 } from "@/types"
 import { watchDebounced } from "@vueuse/core"
-import { ExerciseConnector } from "@/backendHelpers/exercise"
+import { ExerciseConnector, type ExerciseResponse } from "@/backendHelpers/exercise"
 import { WorkSetConnector } from "@/backendHelpers/worksets"
 import { ExerciseCountConnector } from "@/backendHelpers/exerciseCount"
 import { isExerciseDiff, isWorkSetCountDiff, isWorkSetDiff, tableDataDiff } from "@/utils/diff"
+import { deepEqual } from "assert"
 
 function removeNotification(notificationId: string) {
   notifications.value.delete(notificationId)
@@ -32,7 +33,7 @@ function removeNotification(notificationId: string) {
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "group_id", type: null, name: "Group", is_multirow: true },
-  { key: "set_type", type: null, name: "Set Type", is_multirow: true },
+  { key: "set_type", type: "v-select", name: "Set Type", is_multirow: true },
   { key: "work_set_count", type: "number", name: "Set count", is_multirow: true },
   { key: "reps", type: "number", name: "Repetitions", is_multirow: false },
   { key: "intensity", type: "text", name: "Intensity", is_multirow: false },
@@ -56,7 +57,7 @@ const workSetConnector = new WorkSetConnector()
 const exerciseConnector = new ExerciseConnector()
 const exerciseCountConnector = new ExerciseCountConnector()
 
-const timeslot_id = Number(route.params.id)
+const timeslotId = Number(route.params.id)
 
 function doUpdate<T extends Diff>(data: T, updateType: ExerciseUpdateType): Promise<unknown> {
   if (updateType === ExerciseUpdateType.WorkSet && isWorkSetDiff(data)) {
@@ -105,6 +106,26 @@ async function handleCountUpdate(diff: WorkSetCountDiff): Promise<unknown> {
   }
 }
 
+function handlePromise(promise: Promise<unknown>) {
+  const notificationId = randomId()
+  promise
+    .then(() => {
+      notifications.value.set(notificationId, {
+        text: "Update succesful",
+        type: "success",
+      })
+    })
+    .catch((error: Error) => {
+      notifications.value.set(notificationId, {
+        text: error.message,
+        type: "error",
+      })
+    })
+    .finally(() => {
+      setTimeout(() => removeNotification(notificationId), 2000)
+    })
+}
+
 function updateTable(newRow: ExerciseTableData) {
   const [diff, updateType] = tableDataDiff(
     newRow,
@@ -135,6 +156,15 @@ function updateTable(newRow: ExerciseTableData) {
     })
 }
 
+function addExercise() {
+  const groupId = exercises.value[exercises.value.length - 1].group_id + 1
+  handlePromise(
+    exerciseConnector
+      .post({ group_id: groupId, timeslot_id: timeslotId })
+      .then((response) => addNewTableData(response)),
+  )
+}
+
 function addWatchToRow(row: ExerciseTableData) {
   watchDebounced(
     row,
@@ -149,7 +179,16 @@ function addWatchToRow(row: ExerciseTableData) {
   )
 }
 
-exerciseConnector.get(timeslot_id).then((exercise) => {
+function addNewTableData(apiRow: ExerciseResponse) {
+  const tableData = exerciseToTableData(apiRow)
+  tableData.forEach((row) => {
+    exercises.value.push(row)
+    exercisesOld.set(row.work_set_id, deepClone(row))
+    // NOTE: Add persistent storage so that a reload doesn't cancel data
+    addWatchToRow(exercises.value[exercises.value.length - 1])
+  })
+}
+exerciseConnector.get(timeslotId).then((exercise) => {
   const exercise_data: ExerciseTableData[] = []
   exercise.forEach((e) => {
     exercise_data.push(...exerciseToTableData(e))
@@ -163,8 +202,6 @@ exerciseConnector.get(timeslot_id).then((exercise) => {
   // NOTE: Add persistent storage so that a reload doesn't cancel data
   exercises.value.forEach((row) => addWatchToRow(row))
 })
-
-// TODO: Send how much to create to api endpount, count can be removed from rust
 </script>
 
 <template>
@@ -199,16 +236,24 @@ exerciseConnector.get(timeslot_id).then((exercise) => {
           >
             <input
               :class="[column.key === 'note' ? 'large-input' : 'normal-input']"
-              v-if="column.type"
+              v-if="column.type === 'number' || column.type === 'text'"
               v-model="row[column.key]"
               :type="column.type"
               @change="updateTable(row)"
+            />
+            <v-autocomplete
+              v-else-if="column.type === 'v-select'"
+              variant="underlined"
+              v-model="row[column.key]"
+              :items="Object.values(SetType).filter((type) => type !== SetType.None)"
+              @update:model-value="updateTable(row)"
             />
             <span v-else>{{ row[column.key] }}</span>
           </td>
         </tr>
       </tbody>
     </table>
+    <v-btn text="Add exercise" @click="addExercise()" />
   </div>
 </template>
 

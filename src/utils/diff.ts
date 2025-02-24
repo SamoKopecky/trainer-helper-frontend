@@ -14,7 +14,7 @@ const DATA_DIFF_MAP: Record<keyof ExerciseTableData, ExerciseUpdateType | null> 
   rpe: ExerciseUpdateType.WorkSet,
   is_main: null,
   group_id: null,
-  set_type: null,
+  set_type: ExerciseUpdateType.Exercise,
   exercise_id: null,
   work_set_id: null,
   work_set_count: ExerciseUpdateType.WorkSetCount,
@@ -32,7 +32,7 @@ export function isWorkSetDiff(data: Diff): data is WorkSetDiff {
 }
 
 export function isExerciseDiff(data: Diff): data is ExerciseDiff {
-  return "note" in data
+  return "note" in data || "set_type" in data
 }
 
 export function isWorkSetCountDiff(data: Diff): data is WorkSetCountDiff {

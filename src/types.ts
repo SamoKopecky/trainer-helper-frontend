@@ -50,6 +50,8 @@ export enum ExerciseUpdateType {
 export enum SetType {
   Squat = "Squat",
   Rdl = "Rdl",
+  Deadlift = "Deadlift",
+  None = "None",
 }
 
 export interface Diff {
@@ -58,6 +60,7 @@ export interface Diff {
 
 export interface ExerciseDiff extends Diff {
   note: string | null
+  set_type: SetType | null
 }
 
 export interface WorkSetDiff extends Diff {
