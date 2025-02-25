@@ -2,10 +2,9 @@ import {
   type ExerciseTableData,
   type ExerciseTableColumn,
   type WorkSet,
-  type WorkSetDiff,
   type WorkSetCountDiff,
 } from "@/types"
-import type { ExerciseGetResponse } from "@/backendHelpers/exercise"
+import type { ExerciseResponse } from "@/backendHelpers/exercise"
 import type { ExerciseCountConnector } from "@/backendHelpers/exerciseCount"
 import type { Ref } from "vue"
 
@@ -17,7 +16,7 @@ export function randomId(): string {
   return (Math.random() + 1).toString(36).substring(2)
 }
 
-export function exerciseToTableData(data: ExerciseGetResponse): ExerciseTableData[] {
+export function exerciseToTableData(data: ExerciseResponse): ExerciseTableData[] {
   return data.work_sets.map((e: WorkSet, index: number): ExerciseTableData => {
     return {
       is_main: index === 0,

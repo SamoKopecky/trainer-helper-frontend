@@ -1,0 +1,18 @@
+services:
+  frontend:
+    environment:
+      NODE_ENV: "production"
+    build:
+      context: .
+      args:
+        VITE_APP_BACKEND: "http://localhost:2001"
+    ports:
+      - '2002:2002'
+    command:
+      - "serve"
+      - "-l"
+      - "2002"
+      - "-s"
+      - "dist/"
+
+
