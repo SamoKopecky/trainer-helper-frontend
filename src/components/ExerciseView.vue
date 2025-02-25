@@ -186,8 +186,8 @@ function addWatchToRow(row: ExerciseTableData) {
     },
     {
       deep: true,
-      debounce: 1000,
-      maxWait: 5000,
+      debounce: 10000,
+      maxWait: 10000,
     },
   )
 }
@@ -220,7 +220,7 @@ exerciseConnector.get(timeslotId).then((exercise) => {
       >
     </v-slide-y-transition>
   </div>
-  <div>
+  <div class="table-container">
     <table class="custom-table">
       <thead>
         <tr>
@@ -244,8 +244,11 @@ exerciseConnector.get(timeslotId).then((exercise) => {
               @change="updateTable(row)"
             />
             <v-autocomplete
+              class="input"
               v-else-if="column.type === 'select'"
               variant="underlined"
+              dense
+              outlined
               v-model="row[column.key]"
               :items="Object.values(SetType).filter((type) => type !== SetType.None)"
               @update:model-value="updateTable(row)"
@@ -271,6 +274,9 @@ exerciseConnector.get(timeslotId).then((exercise) => {
 .clickable-icon {
   cursor: pointer; /* Makes the icon clickable */
 }
+.input {
+  width: 100px;
+}
 .light {
   background-color: #ffffff;
   color: #000000;
@@ -279,6 +285,12 @@ exerciseConnector.get(timeslotId).then((exercise) => {
 .dark {
   background-color: #121212;
   color: #ffffff;
+}
+
+.table-container {
+  overflow-x: auto; /* Enable horizontal scrolling */
+  max-width: 100%; /* Limit the container width to fit the parent */
+  margin-bottom: 1rem; /* Space below the table */
 }
 
 .custom-table {
