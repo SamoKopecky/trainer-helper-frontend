@@ -20,8 +20,8 @@ import { WorkSetConnector } from "@/backendHelpers/worksets"
 import { ExerciseCountConnector } from "@/backendHelpers/exerciseCount"
 import { isExerciseDiff, isWorkSetCountDiff, isWorkSetDiff, tableDataDiff } from "@/utils/diff"
 import { useNotifications } from "@/composables/useNotifications"
-import NotificationFloat from "./NotificationFloat.vue"
-import ExerciseTable from "./ExerciseTable.vue"
+import NotificationFloat from "../components/NotificationFloat.vue"
+import ExerciseTable from "../components/ExerciseTable.vue"
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "delete", type: "button", name: "", is_multirow: true },
@@ -51,7 +51,7 @@ const exerciseCountConnector = new ExerciseCountConnector()
 
 const timeslotId = Number(route.params.id)
 
-function doUpdate<T extends Diff>(data: T, updateType: ExerciseUpdateType): Promise<unknown> {
+async function doUpdate<T extends Diff>(data: T, updateType: ExerciseUpdateType): Promise<unknown> {
   if (updateType === ExerciseUpdateType.WorkSet && isWorkSetDiff(data)) {
     return workSetConnector.put(data)
   } else if (updateType === ExerciseUpdateType.Exercise && isExerciseDiff(data)) {
@@ -172,7 +172,6 @@ exerciseConnector.get(timeslotId).then((exercise) => {
 
 <template>
   <NotificationFloat :notifications="notifications" />
-
   <ExerciseTable
     :columns="EXERCISE_COLUMNS"
     :exercises="exercises"

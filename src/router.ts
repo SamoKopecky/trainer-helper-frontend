@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router"
-import CalendarView from "@/components/CalendarView.vue"
-import HomeView from "@/components/HomeView.vue"
-import ExerciseView from "@/components/ExerciseView.vue"
+import CalendarView from "@/views/CalendarView.vue"
+import HomeView from "@/views/HomeView.vue"
+import ExerciseView from "@/views/ExerciseView.vue"
 
 const routes = [
   { path: "/", component: HomeView, name: "Home" },

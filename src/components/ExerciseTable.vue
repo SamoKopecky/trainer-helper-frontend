@@ -25,6 +25,9 @@ function deleteExercise(groupId: number) {
   emit("delete-exercise", groupId)
 }
 
+const emit = defineEmits(["update-table", "delete-exercise"])
+const vuetify = ref(createVuetify())
+
 defineProps({
   columns: {
     type: Array<ExerciseTableColumn>,
@@ -35,9 +38,6 @@ defineProps({
     required: true,
   },
 })
-
-const emit = defineEmits(["update-table", "delete-exercise"])
-const vuetify = ref(createVuetify())
 </script>
 
 <template>
