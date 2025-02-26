@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-  deepClone,
-  exerciseToTableData,
-  increaseWorkSets,
-  decreaseWorkSets,
-} from "@/utils/exerciseView"
+import { deepClone, exerciseToTableData } from "@/utils/exerciseView"
 import { ref } from "vue"
 import { useRoute } from "vue-router"
 import {
@@ -13,8 +8,8 @@ import {
   type ExerciseTableColumn,
   type Diff,
   type WorkSetCountDiff,
+  type WorkSet,
 } from "@/types"
-import { watchDebounced } from "@vueuse/core"
 import { ExerciseConnector, type ExerciseResponse } from "@/backendHelpers/exercise"
 import { WorkSetConnector } from "@/backendHelpers/worksets"
 import { ExerciseCountConnector } from "@/backendHelpers/exerciseCount"
@@ -57,12 +52,80 @@ async function doUpdate<T extends Diff>(data: T, updateType: ExerciseUpdateType)
   } else if (updateType === ExerciseUpdateType.Exercise && isExerciseDiff(data)) {
     return exerciseConnector.put(data)
   } else if (updateType === ExerciseUpdateType.WorkSetCount && isWorkSetCountDiff(data)) {
-    return handleCountUpdate(data).finally(() => {
-      exercises.value.forEach((e) => addWatchToRow(e))
-    })
+    return handleCountUpdate(data)
   } else {
     return Promise.reject(new Error("Invalid data or update type"))
   }
+}
+
+async function increaseWorkSets(
+  diff: WorkSetCountDiff,
+  oldCount: number,
+  exercisesCopy: ExerciseTableData[],
+  last_work_set: ExerciseTableData,
+): Promise<void> {
+  const indexStart = exercises.value.indexOf(last_work_set) + 1
+  const request = {
+    id: diff.id,
+    count: diff.work_set_count - oldCount,
+    work_set_template: {
+      work_set_id: last_work_set.work_set_id,
+      rpe: last_work_set.rpe,
+      reps: last_work_set.reps,
+      intensity: last_work_set.intensity,
+    } as WorkSet,
+  }
+  return exerciseCountConnector.put(request).then((response) => {
+    response.forEach((row, i) => {
+      const newRow: ExerciseTableData = {
+        work_set_id: row.work_set_id,
+        intensity: row.intensity,
+        reps: row.reps,
+        rpe: row.rpe,
+        exercise_id: row.exercise_id,
+        note: last_work_set.note,
+        work_set_count: diff.work_set_count,
+        group_id: last_work_set.group_id,
+        set_type: last_work_set.set_type,
+        is_main: false,
+        work_set_count_display: diff.work_set_count,
+      }
+      exercisesCopy.splice(indexStart + i, 0, newRow)
+    })
+    exercisesCopy
+      .filter((row) => row.exercise_id === diff.id)
+      .forEach((row) => {
+        row.work_set_count_display = diff.work_set_count
+        row.work_set_count = diff.work_set_count
+        exercisesOld.set(row.work_set_id, deepClone(row))
+      })
+    exercises.value = exercisesCopy
+  })
+}
+
+async function decreaseWorkSets(
+  diff: WorkSetCountDiff,
+  oldCount: number,
+  exercisesCopy: ExerciseTableData[],
+  exercise_work_sets: ExerciseTableData[],
+): Promise<void> {
+  const sorted = exercise_work_sets.sort((w) => w.work_set_id)
+  const toRemoveIds = sorted.slice(0, oldCount - diff.work_set_count).map((w) => w.work_set_id)
+  return exerciseCountConnector.delete({ work_set_ids: toRemoveIds }).then((removed) => {
+    // TODO: Remove exercises from exercisesOld map
+    if (toRemoveIds.length !== removed) {
+      throw new Error(`Deleted ${removed} != ${toRemoveIds.length}`)
+    }
+    exercisesCopy = exercisesCopy.filter((e) => !toRemoveIds.includes(e.work_set_id))
+    exercisesCopy
+      .filter((row) => row.exercise_id === diff.id)
+      .forEach((row) => {
+        row.work_set_count_display = diff.work_set_count
+        row.work_set_count = diff.work_set_count
+        exercisesOld.set(row.work_set_id, deepClone(row))
+      })
+    exercises.value = exercisesCopy
+  })
 }
 
 async function handleCountUpdate(diff: WorkSetCountDiff): Promise<unknown> {
@@ -76,25 +139,9 @@ async function handleCountUpdate(diff: WorkSetCountDiff): Promise<unknown> {
   const oldCount = exercisesOld.get(last_work_set.work_set_id)?.work_set_count as number
 
   if (diff.work_set_count >= oldCount) {
-    return increaseWorkSets(
-      diff,
-      oldCount,
-      exercises,
-      exercisesCopy,
-      exercisesOld,
-      last_work_set,
-      exerciseCountConnector,
-    )
+    return increaseWorkSets(diff, oldCount, exercisesCopy, last_work_set)
   } else if (diff.work_set_count < oldCount) {
-    return decreaseWorkSets(
-      diff,
-      oldCount,
-      exercises,
-      exercisesCopy,
-      exercisesOld,
-      exercise_work_sets,
-      exerciseCountConnector,
-    )
+    return decreaseWorkSets(diff, oldCount, exercisesCopy, exercise_work_sets)
   } else {
     throw new Error("chaos")
   }
@@ -142,27 +189,11 @@ function deleteExercise(groupId: number) {
   )
 }
 
-function addWatchToRow(row: ExerciseTableData) {
-  watchDebounced(
-    row,
-    async () => {
-      updateTable(row)
-    },
-    {
-      deep: true,
-      debounce: 10000,
-      maxWait: 10000,
-    },
-  )
-}
-
 function addNewTableData(apiRow: ExerciseResponse) {
   const tableData = exerciseToTableData(apiRow)
   tableData.forEach((row) => {
     exercises.value.push(row)
     exercisesOld.set(row.work_set_id, deepClone(row))
-    // NOTE: Add persistent storage so that a reload doesn't cancel data
-    addWatchToRow(exercises.value[exercises.value.length - 1])
   })
 }
 exerciseConnector.get(timeslotId).then((exercise) => {
