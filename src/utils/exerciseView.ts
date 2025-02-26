@@ -31,23 +31,6 @@ export function exerciseToTableData(data: ExerciseResponse): ExerciseTableData[]
   })
 }
 
-export function getRowspan(row: ExerciseTableData, column: ExerciseTableColumn): number {
-  if (row.is_main && column.is_multirow) {
-    return row.work_set_count_display
-  }
-  return 1
-}
-
-export function getColumns(
-  columns: ExerciseTableColumn[],
-  row: ExerciseTableData,
-): ExerciseTableColumn[] {
-  if (!row.is_main) {
-    return columns.filter((row) => !row.is_multirow)
-  }
-  return columns
-}
-
 export async function increaseWorkSets(
   diff: WorkSetCountDiff,
   oldCount: number,

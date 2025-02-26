@@ -2,21 +2,17 @@
 import {
   deepClone,
   exerciseToTableData,
-  getRowspan,
-  getColumns,
   increaseWorkSets,
   decreaseWorkSets,
 } from "@/utils/exerciseView"
 import { ref } from "vue"
 import { useRoute } from "vue-router"
-import { createVuetify } from "vuetify"
 import {
   ExerciseUpdateType,
   type ExerciseTableData,
   type ExerciseTableColumn,
   type Diff,
   type WorkSetCountDiff,
-  SetType,
 } from "@/types"
 import { watchDebounced } from "@vueuse/core"
 import { ExerciseConnector, type ExerciseResponse } from "@/backendHelpers/exercise"
@@ -25,6 +21,7 @@ import { ExerciseCountConnector } from "@/backendHelpers/exerciseCount"
 import { isExerciseDiff, isWorkSetCountDiff, isWorkSetDiff, tableDataDiff } from "@/utils/diff"
 import { useNotifications } from "@/composables/useNotifications"
 import NotificationFloat from "./NotificationFloat.vue"
+import ExerciseTable from "./ExerciseTable.vue"
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "delete", type: "button", name: "", is_multirow: true },
@@ -42,7 +39,6 @@ defineProps({
 })
 
 const route = useRoute()
-const vuetify = ref(createVuetify())
 
 const exercises = ref<ExerciseTableData[]>([])
 const exercisesOld: Map<number, ExerciseTableData> = new Map()
@@ -175,147 +171,13 @@ exerciseConnector.get(timeslotId).then((exercise) => {
 </script>
 
 <template>
-  <div :class="vuetify.theme.name" />
-
   <NotificationFloat :notifications="notifications" />
 
-  <div class="table-container">
-    <table class="custom-table">
-      <thead>
-        <tr>
-          <th v-for="column in EXERCISE_COLUMNS" :key="column.key">
-            {{ column.name }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in exercises" :key="row.work_set_id">
-          <td
-            v-for="column in getColumns(EXERCISE_COLUMNS, row)"
-            :key="column.key"
-            :rowspan="getRowspan(row, column)"
-          >
-            <input
-              :class="[column.key === 'note' ? 'large-input' : 'normal-input']"
-              v-if="column.type === 'number' || column.type === 'text'"
-              v-model="row[column.key]"
-              :type="column.type"
-              @change="updateTable(row)"
-            />
-            <v-autocomplete
-              class="input"
-              v-else-if="column.type === 'select'"
-              variant="underlined"
-              dense
-              outlined
-              v-model="row[column.key]"
-              :items="Object.values(SetType).filter((type) => type !== SetType.None)"
-              @update:model-value="updateTable(row)"
-            />
-            <v-icon
-              x-small
-              v-else-if="column.type === 'button'"
-              color="red"
-              @click="deleteExercise(row.group_id)"
-            >
-              <v-icon>mdi-close</v-icon>
-            </v-icon>
-            <span v-else>{{ row[column.key] }}</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <v-btn text="Add exercise" @click="addExercise()" />
-  </div>
+  <ExerciseTable
+    :columns="EXERCISE_COLUMNS"
+    :exercises="exercises"
+    @update-table="updateTable"
+    @delete-exercise="deleteExercise"
+  />
+  <v-btn text="Add exercise" @click="addExercise()" />
 </template>
-
-<style>
-.clickable-icon {
-  cursor: pointer; /* Makes the icon clickable */
-}
-.input {
-  width: 100px;
-}
-.light {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.dark {
-  background-color: #121212;
-  color: #ffffff;
-}
-
-.table-container {
-  overflow-x: auto; /* Enable horizontal scrolling */
-  max-width: 100%; /* Limit the container width to fit the parent */
-  margin-bottom: 1rem; /* Space below the table */
-}
-
-.custom-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.custom-table th,
-.custom-table td {
-  padding: 12px 15px;
-  text-align: left;
-}
-
-.light .custom-table th {
-  background-color: #f5f5f5;
-  color: #424242;
-}
-
-.dark .custom-table th {
-  background-color: #333333;
-  color: #ffffff;
-}
-
-.custom-table tr {
-  border-bottom: 1px solid #e0e0e0;
-  transition: background-color 0.3s;
-}
-
-.light .custom-table tr:hover {
-  background-color: #f1f1f1;
-}
-
-.dark .custom-table tr:hover {
-  background-color: #333333;
-}
-
-.custom-table td {
-  font-size: 0.9rem;
-}
-
-.custom-table tr:last-child {
-  border-bottom: none;
-}
-
-/* Chrome, Safari, Edge, Opera */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Firefox */
-input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-
-input {
-  box-sizing: border-box; /* Include padding and border in width calculation */
-}
-
-.large-input {
-  width: 100%;
-  /* TODO: Fix this later */
-  height: 100%;
-}
-</style>
