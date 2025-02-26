@@ -4,7 +4,6 @@ import {
   exerciseToTableData,
   getRowspan,
   getColumns,
-  randomId,
   increaseWorkSets,
   decreaseWorkSets,
 } from "@/utils/exerciseView"
@@ -13,7 +12,6 @@ import { useRoute } from "vue-router"
 import { createVuetify } from "vuetify"
 import {
   ExerciseUpdateType,
-  type ChangeNotification,
   type ExerciseTableData,
   type ExerciseTableColumn,
   type Diff,
@@ -25,10 +23,8 @@ import { ExerciseConnector, type ExerciseResponse } from "@/backendHelpers/exerc
 import { WorkSetConnector } from "@/backendHelpers/worksets"
 import { ExerciseCountConnector } from "@/backendHelpers/exerciseCount"
 import { isExerciseDiff, isWorkSetCountDiff, isWorkSetDiff, tableDataDiff } from "@/utils/diff"
-
-function removeNotification(notificationId: string) {
-  notifications.value.delete(notificationId)
-}
+import { useNotifications } from "@/composables/useNotifications"
+import NotificationFloat from "./NotificationFloat.vue"
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "delete", type: "button", name: "", is_multirow: true },
@@ -51,7 +47,7 @@ const vuetify = ref(createVuetify())
 const exercises = ref<ExerciseTableData[]>([])
 const exercisesOld: Map<number, ExerciseTableData> = new Map()
 
-const notifications = ref<Map<string, ChangeNotification>>(new Map())
+const { notifications, addNotification } = useNotifications()
 
 const workSetConnector = new WorkSetConnector()
 const exerciseConnector = new ExerciseConnector()
@@ -109,23 +105,9 @@ async function handleCountUpdate(diff: WorkSetCountDiff): Promise<unknown> {
 }
 
 function handlePromise(promise: Promise<unknown>) {
-  const notificationId = randomId()
   promise
-    .then(() => {
-      notifications.value.set(notificationId, {
-        text: "Update succesful",
-        type: "success",
-      })
-    })
-    .catch((error: Error) => {
-      notifications.value.set(notificationId, {
-        text: error.message,
-        type: "error",
-      })
-    })
-    .finally(() => {
-      setTimeout(() => removeNotification(notificationId), 2000)
-    })
+    .then(() => addNotification("Update succesful", "success"))
+    .catch((error: Error) => addNotification(error.message, "error"))
 }
 
 function updateTable(newRow: ExerciseTableData) {
@@ -138,24 +120,10 @@ function updateTable(newRow: ExerciseTableData) {
     return
   }
 
-  const notificationId = randomId()
   doUpdate(diff, updateType)
-    .then(() => {
-      notifications.value.set(notificationId, {
-        text: "Update succesful",
-        type: "success",
-      })
-    })
-    .catch((error: Error) => {
-      notifications.value.set(notificationId, {
-        text: error.message,
-        type: "error",
-      })
-    })
-    .finally(() => {
-      exercisesOld.set(newRow.work_set_id, deepClone(newRow))
-      setTimeout(() => removeNotification(notificationId), 2000)
-    })
+    .then(() => addNotification("Update succesful", "success"))
+    .catch((error: Error) => addNotification(error.message, "error"))
+    .finally(() => exercisesOld.set(newRow.work_set_id, deepClone(newRow)))
 }
 
 function addExercise() {
@@ -208,18 +176,9 @@ exerciseConnector.get(timeslotId).then((exercise) => {
 
 <template>
   <div :class="vuetify.theme.name" />
-  <div class="notification">
-    <v-slide-y-transition group>
-      <v-alert
-        v-for="notification in notifications"
-        class="top-alert"
-        closable
-        :key="notification[0]"
-        :type="notification[1].type"
-        >{{ notification[1].text }}</v-alert
-      >
-    </v-slide-y-transition>
-  </div>
+
+  <NotificationFloat :notifications="notifications" />
+
   <div class="table-container">
     <table class="custom-table">
       <thead>
@@ -335,26 +294,6 @@ exerciseConnector.get(timeslotId).then((exercise) => {
 
 .custom-table tr:last-child {
   border-bottom: none;
-}
-
-.notification {
-  position: relative; /* Make the container a positioned element */
-}
-
-.top-alert {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 1000; /* Ensure the alert is above other content */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 20px;
-  margin-top: 10px;
-  max-width: 100%; /* Ensure it doesn't overflow the container */
-  padding: 16px; /* Add padding for content spacing */
-  background-color: #f0f0f0; /* Optional: Set a background color */
 }
 
 /* Chrome, Safari, Edge, Opera */

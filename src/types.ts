@@ -29,8 +29,10 @@ export interface Timeslot {
   start: Date
 }
 
+export type NotificationType = "success" | "info" | "warning" | "error" | undefined
+
 export interface ChangeNotification {
-  type: "success" | "info" | "warning" | "error" | undefined
+  type: NotificationType
   text: string
 }
 

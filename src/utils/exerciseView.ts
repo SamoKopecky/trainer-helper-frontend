@@ -12,10 +12,6 @@ export function deepClone(obj: unknown) {
   return JSON.parse(JSON.stringify(obj))
 }
 
-export function randomId(): string {
-  return (Math.random() + 1).toString(36).substring(2)
-}
-
 export function exerciseToTableData(data: ExerciseResponse): ExerciseTableData[] {
   return data.work_sets.map((e: WorkSet, index: number): ExerciseTableData => {
     return {
