@@ -1,5 +1,5 @@
 import { type ExerciseTableData, type WorkSet, type WorkSetModel } from "@/types"
-import type { ExerciseResponse } from "@/backendHelpers/exercise"
+import type { ExerciseResponse } from "@/services/exercise"
 
 export function deepClone(obj: unknown) {
   return JSON.parse(JSON.stringify(obj))

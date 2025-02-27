@@ -12,9 +12,9 @@ import {
   type WorkSetCountDiff,
   type NotificationType,
 } from "@/types"
-import { ExerciseConnector, type ExerciseResponse } from "@/backendHelpers/exercise"
-import { WorkSetConnector } from "@/backendHelpers/worksets"
-import { ExerciseCountConnector } from "@/backendHelpers/exerciseCount"
+import { ExerciseService, type ExerciseResponse } from "@/services/exercise"
+import { WorkSetService } from "@/services/worksets"
+import { ExerciseCountService } from "@/services/exerciseCount"
 import { isExerciseDiff, isWorkSetCountDiff, isWorkSetDiff, tableDataDiff } from "@/utils/diff"
 import { onMounted } from "vue"
 
@@ -22,9 +22,9 @@ export function useExercises(
   timeslotId: number,
   addNotification: (text: string, type: NotificationType) => void,
 ) {
-  const workSetConnector = new WorkSetConnector()
-  const exerciseConnector = new ExerciseConnector()
-  const exerciseCountConnector = new ExerciseCountConnector()
+  const workSetService = new WorkSetService()
+  const exerciseService = new ExerciseService()
+  const exerciseCountService = new ExerciseCountService()
 
   const exercises = ref<ExerciseTableData[]>([])
   const exercisesOld: Map<number, ExerciseTableData> = new Map()
@@ -34,9 +34,9 @@ export function useExercises(
     updateType: ExerciseUpdateType,
   ): Promise<unknown> {
     if (updateType === ExerciseUpdateType.WorkSet && isWorkSetDiff(data)) {
-      return workSetConnector.put(data)
+      return workSetService.put(data)
     } else if (updateType === ExerciseUpdateType.Exercise && isExerciseDiff(data)) {
-      return exerciseConnector.put(data)
+      return exerciseService.put(data)
     } else if (updateType === ExerciseUpdateType.WorkSetCount && isWorkSetCountDiff(data)) {
       return countUpdate(data)
     } else {
@@ -57,7 +57,7 @@ export function useExercises(
     }
 
     // This is kind of inneficient, can be reworked to be faster
-    return exerciseCountConnector.put(request).then((response) => {
+    return exerciseCountService.put(request).then((response) => {
       response.forEach((row, i) =>
         exercises.value.splice(
           indexStart + i,
@@ -82,7 +82,7 @@ export function useExercises(
   ): Promise<void> {
     const sorted = exercise_work_sets.sort((w) => w.work_set_id)
     const toRemoveIds = sorted.slice(0, oldCount - diff.work_set_count).map((w) => w.work_set_id)
-    return exerciseCountConnector.delete({ work_set_ids: toRemoveIds }).then((removed) => {
+    return exerciseCountService.delete({ work_set_ids: toRemoveIds }).then((removed) => {
       if (toRemoveIds.length !== removed) {
         throw new Error(`Deleted ${removed} != ${toRemoveIds.length}`)
       }
@@ -123,16 +123,14 @@ export function useExercises(
   }
 
   onMounted(() => {
-    exerciseConnector
-      .get(timeslotId)
-      .then((exercise) => exercise.forEach((e) => addNewTableData(e)))
+    exerciseService.get(timeslotId).then((exercise) => exercise.forEach((e) => addNewTableData(e)))
   })
 
   function addExercise() {
     const groupId =
       exercises.value.length !== 0 ? exercises.value[exercises.value.length - 1].group_id + 1 : 0
     handlePromise(
-      exerciseConnector
+      exerciseService
         .post({ group_id: groupId, timeslot_id: timeslotId })
         .then((response) => addNewTableData(response)),
     )
@@ -140,7 +138,7 @@ export function useExercises(
 
   function deleteExercise(groupId: number) {
     handlePromise(
-      exerciseConnector.delete({ group_id: groupId, timeslot_id: timeslotId }).then(() => {
+      exerciseService.delete({ group_id: groupId, timeslot_id: timeslotId }).then(() => {
         exercises.value = exercises.value.filter((e) => e.group_id !== groupId)
       }),
     )

@@ -14,7 +14,7 @@ export enum Method {
   DELETE = "DELETE",
 }
 
-export abstract class BackendConnector {
+export abstract class Service {
   abstract route: Route
 
   protected get_api_url() {

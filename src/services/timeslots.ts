@@ -1,5 +1,5 @@
 import type { Timeslot } from "@/types"
-import { BackendConnector, Route, Method } from "./base"
+import { Service, Route, Method } from "./base"
 import { isArray } from "./utils"
 
 export interface TimeslotPostRequest {
@@ -8,7 +8,7 @@ export interface TimeslotPostRequest {
   end_date: string
 }
 
-export class TimeslotConnector extends BackendConnector {
+export class TimeslotService extends Service {
   route = Route.Timeslot
 
   private parseTimeslots(obj: unknown): Timeslot[] {

@@ -1,5 +1,5 @@
 import type { WorkSet, WorkSetModel } from "../types"
-import { BackendConnector, Method, Route } from "./base"
+import { Service, Method, Route } from "./base"
 import { isArray } from "./utils"
 
 export interface ExerciseCountDeleteRequest {
@@ -12,7 +12,7 @@ export interface ExerciseCountPutRequest {
   work_set_template: WorkSet
 }
 
-export class ExerciseCountConnector extends BackendConnector {
+export class ExerciseCountService extends Service {
   route = Route.ExerciseCount
 
   private parseWorkSetModels(obj: unknown): WorkSetModel[] {
