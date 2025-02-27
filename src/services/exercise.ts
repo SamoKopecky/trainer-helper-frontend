@@ -1,5 +1,5 @@
 import type { Exercise, WorkSet } from "../types"
-import { BackendConnector, Method, Route } from "./base"
+import { Service, Method, Route } from "./base"
 
 export interface ExerciseResponse extends Exercise {
   work_sets: WorkSet[]
@@ -15,7 +15,7 @@ export interface ExercisePostDeleteRequest {
   group_id: number
 }
 
-export class ExerciseConnector extends BackendConnector {
+export class ExerciseService extends Service {
   route = Route.Exercise
 
   // TODO: Fix this
