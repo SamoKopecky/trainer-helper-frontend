@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type ChangeNotification } from "@/types"
+import type { ChangeNotification } from "@/types"
 
 defineProps({
   notifications: {
@@ -14,9 +14,9 @@ defineProps({
     <v-slide-y-transition group>
       <v-alert
         v-for="notification in notifications"
+        :key="notification[0]"
         class="top-alert"
         closable
-        :key="notification[0]"
         :type="notification[1].type"
         >{{ notification[1].text }}</v-alert
       >

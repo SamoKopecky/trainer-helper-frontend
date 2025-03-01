@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SetType, type ExerciseTableColumn, type ExerciseTableData } from "@/types"
+import { SetType, type ExerciseTableColumn, type ExerciseTableData } from "../types"
 import { ref } from "vue"
 import { createVuetify } from "vuetify"
 
@@ -59,25 +59,25 @@ defineProps({
             :rowspan="getRowspan(row, column)"
           >
             <input
-              :class="[column.key === 'note' ? 'large-input' : 'normal-input']"
               v-if="column.type === 'number' || column.type === 'text'"
               v-model="row[column.key]"
+              :class="[column.key === 'note' ? 'large-input' : 'normal-input']"
               :type="column.type"
               @change="updateTable(row)"
             />
             <v-autocomplete
-              class="input"
               v-else-if="column.type === 'select'"
+              v-model="row[column.key]"
+              class="input"
               variant="underlined"
               dense
               outlined
-              v-model="row[column.key]"
               :items="Object.values(SetType).filter((type) => type !== SetType.None)"
               @update:model-value="updateTable(row)"
             />
             <v-icon
-              x-small
               v-else-if="column.type === 'button'"
+              x-small
               color="red"
               @click="deleteExercise(row.group_id)"
             >

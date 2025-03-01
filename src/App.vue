@@ -9,12 +9,12 @@ const route = useRoute()
 <template>
   <v-app>
     <v-navigation-drawer v-model="drawer">
-      <v-list-item link title="Home" to="/"> </v-list-item>
-      <v-list-item link title="Time schedule" to="/calendar"> </v-list-item>
+      <v-list-item link title="Home" to="/" />
+      <v-list-item link title="Time schedule" to="/calendar" />
     </v-navigation-drawer>
 
     <v-app-bar>
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="drawer = !drawer" />
 
       <v-app-bar-title>{{ route.name }}</v-app-bar-title>
     </v-app-bar>
