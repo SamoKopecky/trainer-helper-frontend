@@ -78,7 +78,7 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
       </thead>
       <tbody>
         <tr
-          v-for="(row, index) in exercises"
+          v-for="row in exercises"
           :key="row.work_set_id"
           :class="{ 'last-border': drawWhen.includes(row.work_set_id) }"
         >
@@ -86,25 +86,21 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
             v-for="column in getColumns(columns, row)"
             :key="column.key"
             :rowspan="getRowspan(row, column)"
-            :class="{
-              'last-border':
-                ['rpe', 'intensity', 'reps'].includes(column.key) && index !== exercises.length - 1,
-            }"
+            :class="`col-${column.key.replace(/\_/g, '-')}`"
           >
             <input
               v-if="column.type === 'number' || column.type === 'text'"
               v-model="row[column.key]"
-              :class="[column.key === 'note' ? 'large-input' : 'normal-input']"
               :type="column.type"
               @change="updateTable(row)"
             />
             <v-autocomplete
               v-else-if="column.type === 'select'"
               v-model="row[column.key]"
-              class="input"
-              variant="underlined"
-              dense
-              outlined
+              class="autocomplete-input"
+              variant="plain"
+              density="compact"
+              hide-details="auto"
               :items="selectItems.get(column.key)"
               @update:model-value="updateTable(row)"
             />
@@ -116,6 +112,11 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
             >
               <v-icon>mdi-close</v-icon>
             </v-icon>
+            <textarea
+              v-else-if="column.type === 'textarea'"
+              v-model="row[column.key]"
+              @change="updateTable(row)"
+            />
             <span v-else>{{ row[column.key] }}</span>
           </td>
         </tr>
@@ -128,9 +129,19 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
 .clickable-icon {
   cursor: pointer; /* Makes the icon clickable */
 }
-.input {
+
+.autocomplete-input {
   width: 100px;
 }
+
+textarea {
+  border: none;
+  width: 100%;
+  -webkit-box-sizing: border-box; /* <=iOS4, <= Android  2.3 */
+  -moz-box-sizing: border-box; /* FF1+ */
+  box-sizing: border-box; /* Chrome, IE8, Opera, Safari 5.1*/
+}
+
 .light {
   background-color: #ffffff;
   color: #000000;
@@ -144,6 +155,7 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
 .table-container {
   overflow-x: auto; /* Enable horizontal scrolling */
   max-width: 100%; /* Limit the container width to fit the parent */
+  max-height: 100%;
   margin-bottom: 1rem; /* Space below the table */
 }
 
@@ -156,7 +168,7 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
 
 .custom-table th,
 .custom-table td {
-  padding: 12px 15px;
+  padding: 3px 10px;
   text-align: left;
 }
 
@@ -186,10 +198,6 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
   background-color: #333333;
 }
 
-.custom-table td {
-  font-size: 0.9rem;
-}
-
 .custom-table tr:last-child {
   border-bottom: none;
 }
@@ -209,11 +217,36 @@ input[type="number"] {
 
 input {
   box-sizing: border-box; /* Include padding and border in width calculation */
+  width: 100%;
 }
 
-.large-input {
-  width: 100%;
-  /* TODO: Fix this later */
-  height: 100%;
+.col-reps {
+  width: 6%;
+}
+
+.col-rpe {
+  width: 5%;
+}
+
+.col-work-set-count {
+  width: 7%;
+}
+
+.col-intensity {
+  width: 5%;
+}
+
+.col-group-id {
+  width: 5%;
+}
+
+.col-set-type {
+  width: 10%;
+}
+
+.col-delete {
+  width: 2%;
+  text-align: center;
+  align-items: center;
 }
 </style>

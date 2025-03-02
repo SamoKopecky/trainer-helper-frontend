@@ -14,7 +14,7 @@ const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "reps", type: "number", name: "Repetitions", is_multirow: false },
   { key: "intensity", type: "text", name: "Intensity", is_multirow: false },
   { key: "rpe", type: "number", name: "RPE", is_multirow: false },
-  { key: "note", type: "text", name: "Note", is_multirow: true },
+  { key: "note", type: "textarea", name: "Note", is_multirow: true },
 ]
 
 defineProps({
