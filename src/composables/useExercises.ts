@@ -11,12 +11,20 @@ import {
   type Diff,
   type WorkSetCountDiff,
   type NotificationType,
+  type GroupIdDiff,
 } from "@/types"
 import { ExerciseService, type ExerciseResponse } from "@/services/exercise"
 import { WorkSetService } from "@/services/worksets"
 import { ExerciseCountService } from "@/services/exerciseCount"
-import { isExerciseDiff, isWorkSetCountDiff, isWorkSetDiff, tableDataDiff } from "@/utils/diff"
+import {
+  isExerciseDiff,
+  isGroupIdDiff,
+  isWorkSetCountDiff,
+  isWorkSetDiff,
+  tableDataDiff,
+} from "@/utils/diff"
 import { onMounted } from "vue"
+import { sortRows } from "@/utils/exerciseTable"
 
 export function useExercises(
   timeslotId: number,
@@ -39,6 +47,8 @@ export function useExercises(
       return exerciseService.put(data)
     } else if (updateType === ExerciseUpdateType.WorkSetCount && isWorkSetCountDiff(data)) {
       return countUpdate(data)
+    } else if (updateType === ExerciseUpdateType.GroupId && isGroupIdDiff(data)) {
+      return groupIdUpdate(data)
     } else {
       return Promise.reject(new Error("Invalid data or update type"))
     }
@@ -99,6 +109,15 @@ export function useExercises(
     })
   }
 
+  async function groupIdUpdate(diff: GroupIdDiff): Promise<void> {
+    return exerciseService.put(diff).then(() => {
+      exercises.value
+        .filter((e) => e.exercise_id === diff.id)
+        .forEach((e) => (e.group_id = diff.group_id as number))
+      exercises.value.sort((a, b) => sortRows(a, b))
+    })
+  }
+
   async function countUpdate(diff: WorkSetCountDiff): Promise<void> {
     const exercise_work_sets = exercises.value.filter((e) => e.exercise_id === diff.id)
 
@@ -123,7 +142,12 @@ export function useExercises(
   }
 
   onMounted(() => {
-    exerciseService.get(timeslotId).then((exercise) => exercise.forEach((e) => addNewTableData(e)))
+    exerciseService
+      .get(timeslotId)
+      .then((exercise) => exercise.forEach((e) => addNewTableData(e)))
+      .finally(() => {
+        exercises.value.sort((a, b) => sortRows(a, b))
+      })
   })
 
   function addExercise() {
@@ -138,6 +162,7 @@ export function useExercises(
 
   function deleteExercise(groupId: number) {
     handlePromise(
+      // TODO: Delete by exercise
       exerciseService.delete({ group_id: groupId, timeslot_id: timeslotId }).then(() => {
         exercises.value = exercises.value.filter((e) => e.group_id !== groupId)
       }),

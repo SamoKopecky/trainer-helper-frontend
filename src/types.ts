@@ -45,6 +45,7 @@ export interface ExerciseTableColumn {
 
 export enum ExerciseUpdateType {
   Exercise = "Exercise",
+  GroupId = "GroupId",
   WorkSet = "WorkSet",
   WorkSetCount = "WorkSetCount",
 }
@@ -61,7 +62,7 @@ export interface Diff {
 }
 
 export interface ExerciseDiff extends Diff {
-  note: string | null
+  note?: string
   set_type: SetType | null
 }
 
@@ -69,6 +70,10 @@ export interface WorkSetDiff extends Diff {
   rpe: number | null
   intensity: string | null
   reps: number | null
+}
+
+export interface GroupIdDiff extends Diff {
+  group_id?: number
 }
 
 export interface WorkSetCountDiff extends Diff {

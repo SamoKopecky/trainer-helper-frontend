@@ -8,7 +8,7 @@ import { useExercises } from "@/composables/useExercises"
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "delete", type: "button", name: "", is_multirow: true },
-  { key: "group_id", type: null, name: "Group", is_multirow: true },
+  { key: "group_id", type: "select", name: "Group", is_multirow: true },
   { key: "set_type", type: "select", name: "Set Type", is_multirow: true },
   { key: "work_set_count", type: "number", name: "Set count", is_multirow: true },
   { key: "reps", type: "number", name: "Repetitions", is_multirow: false },

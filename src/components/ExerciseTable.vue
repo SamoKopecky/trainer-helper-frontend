@@ -1,21 +1,19 @@
 <script setup lang="ts">
-import { SetType, type ExerciseTableColumn, type ExerciseTableData } from "../types"
-import { ref } from "vue"
+import { type ExerciseTableColumn, type ExerciseTableData } from "../types"
+import { ref, watch } from "vue"
 import { createVuetify } from "vuetify"
+import { generateGroupIds, generateSetTypes, getColumns, getRowspan } from "../utils/exerciseTable"
 
-function getColumns(columns: ExerciseTableColumn[], row: ExerciseTableData): ExerciseTableColumn[] {
-  if (!row.is_main) {
-    return columns.filter((row) => !row.is_multirow)
-  }
-  return columns
-}
-
-function getRowspan(row: ExerciseTableData, column: ExerciseTableColumn): number {
-  if (row.is_main && column.is_multirow) {
-    return row.work_set_count_display
-  }
-  return 1
-}
+const { columns, exercises } = defineProps({
+  columns: {
+    type: Array<ExerciseTableColumn>,
+    required: true,
+  },
+  exercises: {
+    type: Array<ExerciseTableData>,
+    required: true,
+  },
+})
 
 function updateTable(row: ExerciseTableData) {
   emit("update-table", row)
@@ -27,17 +25,16 @@ function deleteExercise(groupId: number) {
 
 const emit = defineEmits(["update-table", "delete-exercise"])
 const vuetify = ref(createVuetify())
+const selectItems = ref<Map<string, (string | number)[]>>(new Map())
+selectItems.value.set("set_type", generateSetTypes())
 
-defineProps({
-  columns: {
-    type: Array<ExerciseTableColumn>,
-    required: true,
+watch(
+  () => exercises,
+  (newExercises) => {
+    selectItems.value.set("group_id", generateGroupIds(newExercises))
   },
-  exercises: {
-    type: Array<ExerciseTableData>,
-    required: true,
-  },
-})
+  { deep: true },
+)
 </script>
 
 <template>
@@ -72,7 +69,7 @@ defineProps({
               variant="underlined"
               dense
               outlined
-              :items="Object.values(SetType).filter((type) => type !== SetType.None)"
+              :items="selectItems.get(column.key)"
               @update:model-value="updateTable(row)"
             />
             <v-icon

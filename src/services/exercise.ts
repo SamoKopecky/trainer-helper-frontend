@@ -7,7 +7,8 @@ export interface ExerciseResponse extends Exercise {
 
 export interface ExercisePutRequest {
   id: number
-  note: string | null
+  note?: string
+  group_id?: number
 }
 
 export interface ExercisePostDeleteRequest {
