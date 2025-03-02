@@ -26,8 +26,8 @@ function updateTable(row: ExerciseTableData) {
   emit("update-table", row)
 }
 
-function deleteExercise(groupId: number) {
-  emit("delete-exercise", groupId)
+function deleteExercise(exerciseId: number) {
+  emit("delete-exercise", exerciseId)
 }
 
 const emit = defineEmits(["update-table", "delete-exercise"])
@@ -112,7 +112,7 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
               v-else-if="column.type === 'button'"
               x-small
               color="red"
-              @click="deleteExercise(row.group_id)"
+              @click="deleteExercise(row.exercise_id)"
             >
               <v-icon>mdi-close</v-icon>
             </v-icon>

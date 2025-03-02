@@ -160,11 +160,10 @@ export function useExercises(
     )
   }
 
-  function deleteExercise(groupId: number) {
+  function deleteExercise(exerciseId: number) {
     handlePromise(
-      // TODO: Delete by exercise
-      exerciseService.delete({ group_id: groupId, timeslot_id: timeslotId }).then(() => {
-        exercises.value = exercises.value.filter((e) => e.group_id !== groupId)
+      exerciseService.delete({ exercise_id: exerciseId, timeslot_id: timeslotId }).then(() => {
+        exercises.value = exercises.value.filter((e) => e.exercise_id !== exerciseId)
       }),
     )
   }

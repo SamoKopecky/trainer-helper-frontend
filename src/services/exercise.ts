@@ -11,9 +11,14 @@ export interface ExercisePutRequest {
   group_id?: number
 }
 
-export interface ExercisePostDeleteRequest {
+export interface ExercisePostRequest {
   timeslot_id: number
   group_id: number
+}
+
+export interface ExerciseDeleteRequest {
+  timeslot_id: number
+  exercise_id: number
 }
 
 export class ExerciseService extends Service {
@@ -31,11 +36,11 @@ export class ExerciseService extends Service {
     this.handleRequest(body, Method.PUT)
   }
 
-  async post(body: ExercisePostDeleteRequest): Promise<ExerciseResponse> {
+  async post(body: ExercisePostRequest): Promise<ExerciseResponse> {
     return this.handleRequest(body, Method.POST) as Promise<ExerciseResponse>
   }
 
-  async delete(body: ExercisePostDeleteRequest): Promise<void> {
+  async delete(body: ExerciseDeleteRequest): Promise<void> {
     this.handleRequest(body, Method.DELETE)
   }
 }
