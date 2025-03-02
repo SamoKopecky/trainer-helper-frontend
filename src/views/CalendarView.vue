@@ -2,15 +2,15 @@
 import { ref } from "vue"
 import "vue-cal/dist/vuecal.css"
 import VueCal from "vue-cal"
-import { type Event, type Timeslot } from "@/types"
+import { type CalendarEvent, type Timeslot } from "@/types"
 import { TimeslotService } from "@/services/timeslots"
 import type { TimeslotPostRequest } from "@/services/timeslots"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
-const selectedEvent = ref<Event | null>(null)
+const selectedEvent = ref<CalendarEvent | null>(null)
 const showDialog = ref(false)
-const events = ref<Array<Event>>([])
+const events = ref<Array<CalendarEvent>>([])
 const timeslotService = new TimeslotService()
 const request: TimeslotPostRequest = {
   start_date: "2025-01-20T12:00:00",
@@ -24,7 +24,7 @@ function addMinutes(date: Date, minutes: number): Date {
 
 timeslotService.post(request).then((timeslots) => {
   events.value = timeslots.map((timeslot: Timeslot) => {
-    const event: Event = {
+    const event: CalendarEvent = {
       start: timeslot.start.toString(),
       end: addMinutes(timeslot.start, timeslot.duration).toString(),
       title: timeslot.id.toString(),
@@ -35,7 +35,7 @@ timeslotService.post(request).then((timeslots) => {
   })
 })
 
-function onEventClick(event: Event, e: any) {
+function onEventClick(event: CalendarEvent, e: Event) {
   router.push({ path: `/exercise/${event.timeslot_id}` })
 
   e.stopPropagation()

@@ -1,6 +1,6 @@
 import type { WorkSet, WorkSetModel } from "../types"
 import { Service, Method, Route } from "./base"
-import { isArray } from "./utils"
+import { isArray } from "../utils/serviceUtils"
 
 export interface ExerciseCountDeleteRequest {
   work_set_ids: number[]

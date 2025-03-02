@@ -1,6 +1,6 @@
 import type { Timeslot } from "@/types"
 import { Service, Route, Method } from "./base"
-import { isArray } from "./utils"
+import { isArray } from "../utils/serviceUtils"
 
 export interface TimeslotPostRequest {
   // TODO: Make date jsonify correcly
