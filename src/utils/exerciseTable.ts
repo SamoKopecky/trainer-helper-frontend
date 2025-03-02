@@ -18,17 +18,14 @@ export function getRowspan(row: ExerciseTableData, column: ExerciseTableColumn):
 }
 
 export function range(x: number): number[] {
-  if (x === 0) {
-    return []
-  }
-  const res = Array(x)
+  const res = Array(x + 1)
     .fill(1)
     .map((x, y) => x + y)
   res.splice(0, 0, 0)
   return res
 }
 
-export function generateGroupIds(exercises: ExerciseTableData[]): number[] {
+export function getAllGroupIds(exercises: ExerciseTableData[]): number[] {
   const maxGroupId = Math.max(...exercises.map((e) => e.group_id))
   return Array.from(new Set(range(maxGroupId)).values())
 }
@@ -53,4 +50,18 @@ export function sortRows(a: ExerciseTableData, b: ExerciseTableData): number {
   }
 
   return a.work_set_id - b.work_set_id
+}
+
+export function groupBy<T>(list: ExerciseTableData[], keyGetter: (data: ExerciseTableData) => T) {
+  const map: Map<T, ExerciseTableData[]> = new Map()
+  list.forEach((item) => {
+    const key = keyGetter(item)
+    const collection = map.get(key)
+    if (!collection) {
+      map.set(key, [item])
+    } else {
+      collection.push(item)
+    }
+  })
+  return map
 }

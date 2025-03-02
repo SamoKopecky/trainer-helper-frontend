@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { type ExerciseTableColumn, type ExerciseTableData } from "../types"
-import { ref, watch } from "vue"
+import { ref, watch, type ComputedRef } from "vue"
 import { createVuetify } from "vuetify"
-import { generateGroupIds, generateSetTypes, getColumns, getRowspan } from "../utils/exerciseTable"
+import {
+  getAllGroupIds,
+  generateSetTypes,
+  getColumns,
+  getRowspan,
+  groupBy,
+} from "../utils/exerciseTable"
+import { computed } from "vue"
 
 const { columns, exercises } = defineProps({
   columns: {
@@ -31,10 +38,31 @@ selectItems.value.set("set_type", generateSetTypes())
 watch(
   () => exercises,
   (newExercises) => {
-    selectItems.value.set("group_id", generateGroupIds(newExercises))
+    selectItems.value.set("group_id", getAllGroupIds(newExercises))
   },
   { deep: true },
 )
+
+const drawWhen: ComputedRef<number[]> = computed(() => {
+  const res: number[] = []
+  const exercisesByGroupId = groupBy(exercises, (exercise) => exercise.group_id)
+  const exercisesByExerciseId = groupBy(exercises, (exercise) => exercise.exercise_id)
+
+  exercisesByExerciseId.forEach((exerciseGroup) => {
+    exerciseGroup.forEach((row, index) => {
+      const group = exercisesByGroupId.get(row.group_id) as ExerciseTableData[]
+      if (
+        index === exerciseGroup.length - 1 &&
+        exerciseGroup.length !== group.length &&
+        group[group.length - 1].exercise_id !== row.exercise_id
+      ) {
+        return
+      }
+      res.push(row.work_set_id)
+    })
+  })
+  return res
+})
 </script>
 
 <template>
@@ -49,11 +77,19 @@ watch(
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in exercises" :key="row.work_set_id">
+        <tr
+          v-for="(row, index) in exercises"
+          :key="row.work_set_id"
+          :class="{ 'last-border': drawWhen.includes(row.work_set_id) }"
+        >
           <td
             v-for="column in getColumns(columns, row)"
             :key="column.key"
             :rowspan="getRowspan(row, column)"
+            :class="{
+              'last-border':
+                ['rpe', 'intensity', 'reps'].includes(column.key) && index !== exercises.length - 1,
+            }"
           >
             <input
               v-if="column.type === 'number' || column.type === 'text'"
@@ -135,8 +171,11 @@ watch(
 }
 
 .custom-table tr {
-  border-bottom: 1px solid #e0e0e0;
   transition: background-color 0.3s;
+}
+
+.last-border {
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .light .custom-table tr:hover {
