@@ -28,10 +28,14 @@ export class ExerciseCountService extends Service {
   }
 
   async put(body: ExerciseCountPutRequest): Promise<WorkSetModel[]> {
-    return this.handleRequest(body, Method.PUT, this.parseWorkSetModels) as Promise<WorkSetModel[]>
+    return this.handleRequest({
+      body,
+      method: Method.PUT,
+      toRes: this.parseWorkSetModels,
+    }) as Promise<WorkSetModel[]>
   }
 
   async delete(body: ExerciseCountDeleteRequest): Promise<number> {
-    return this.handleRequest(body, Method.DELETE) as Promise<number>
+    return this.handleRequest({ body, method: Method.DELETE }) as Promise<number>
   }
 }

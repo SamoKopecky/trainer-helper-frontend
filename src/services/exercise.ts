@@ -24,23 +24,22 @@ export interface ExerciseDeleteRequest {
 export class ExerciseService extends Service {
   route = Route.Exercise
 
-  // TODO: Fix this
   async get(timeslot_id: number): Promise<ExerciseResponse[]> {
-    const api_url = `${this.get_api_url()}/${timeslot_id}`
-
-    const jsonRes: any[] = await (await fetch(api_url)).json()
-    return jsonRes.map((obj: any): ExerciseResponse => obj as ExerciseResponse)
+    return this.handleRequest({
+      method: Method.GET,
+      url: `${this.get_api_url()}/${timeslot_id}`,
+    }) as Promise<ExerciseResponse[]>
   }
 
   async put(body: ExercisePutRequest): Promise<void> {
-    this.handleRequest(body, Method.PUT)
+    this.handleRequest({ body, method: Method.PUT })
   }
 
   async post(body: ExercisePostRequest): Promise<ExerciseResponse> {
-    return this.handleRequest(body, Method.POST) as Promise<ExerciseResponse>
+    return this.handleRequest({ body, method: Method.POST }) as Promise<ExerciseResponse>
   }
 
   async delete(body: ExerciseDeleteRequest): Promise<void> {
-    this.handleRequest(body, Method.DELETE)
+    this.handleRequest({ body, method: Method.DELETE })
   }
 }

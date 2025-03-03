@@ -19,7 +19,7 @@
     "@vue/typescript-plugin": "^2.2.0",
     "@vueuse/core": "^12.7.0",
     "vue": "^3.5.13",
-    "vue-cal": "^4.10.2",
+    "vue-cal": "^5.0.1-rc.0",
     "vue-router": "^4.5.0",
     "vuetify": "^3.7.9"
   },
@@ -47,7 +47,6 @@
     "vite": "^6.0.11",
     "vite-plugin-vue-devtools": "^7.7.0",
     "vitest": "^3.0.5",
-    "vue-cal": "^4.10.2",
     "vue-tsc": "^2.2.0"
   }
 }

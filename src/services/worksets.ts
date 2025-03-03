@@ -11,6 +11,6 @@ export class WorkSetService extends Service {
   route = Route.WorkSet
 
   async put(body: WorkSetPutRequest): Promise<void> {
-    return this.handleRequest(body, Method.PUT)
+    return this.handleRequest({ body, method: Method.PUT })
   }
 }

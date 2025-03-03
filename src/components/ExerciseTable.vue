@@ -89,6 +89,7 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
             :class="`col-${column.key.replace(/\_/g, '-')}`"
           >
             <input
+              onfocus="this.value=''"
               v-if="column.type === 'number' || column.type === 'text'"
               v-model="row[column.key]"
               :type="column.type"
@@ -242,6 +243,11 @@ input {
 
 .col-set-type {
   width: 10%;
+}
+
+.col-note {
+  width: 50%;
+  min-width: 200px;
 }
 
 .col-delete {

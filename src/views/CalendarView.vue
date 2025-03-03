@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue"
-import "vue-cal/dist/vuecal.css"
-import VueCal from "vue-cal"
+import "vue-cal/style"
+import { VueCal } from "vue-cal"
 import { type CalendarEvent, type Timeslot } from "@/types"
 import { TimeslotService } from "@/services/timeslots"
-import type { TimeslotPostRequest } from "@/services/timeslots"
+import type { TimeslotGetRequest } from "@/services/timeslots"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
@@ -12,7 +12,7 @@ const selectedEvent = ref<CalendarEvent | null>(null)
 const showDialog = ref(false)
 const events = ref<Array<CalendarEvent>>([])
 const timeslotService = new TimeslotService()
-const request: TimeslotPostRequest = {
+const request: TimeslotGetRequest = {
   start_date: "2025-01-20T12:00:00",
   end_date: "2026-02-28T20:15:00",
 }
@@ -22,7 +22,7 @@ function addMinutes(date: Date, minutes: number): Date {
   return new Date(date.getTime() + msToAdd)
 }
 
-timeslotService.post(request).then((timeslots) => {
+timeslotService.get(request).then((timeslots) => {
   events.value = timeslots.map((timeslot: Timeslot) => {
     const event: CalendarEvent = {
       start: timeslot.start.toString(),
@@ -35,19 +35,22 @@ timeslotService.post(request).then((timeslots) => {
   })
 })
 
-function onEventClick(event: CalendarEvent, e: Event) {
-  router.push({ path: `/exercise/${event.timeslot_id}` })
+const onEventClick = (data: { e: Event; event: CalendarEvent }) => {
+  router.push({ path: `/exercise/${data.event.timeslot_id}` })
 
-  e.stopPropagation()
+  data.e.stopPropagation()
 }
 </script>
 
 <template>
   <vue-cal
+    dark
+    editable-events
+    snap-to-interval="30"
     :events="events"
     style="height: 100%"
-    :on-event-click="onEventClick"
-    :disable-views="['years', 'year']"
+    @event-click="onEventClick"
+    :views="['day', 'week', 'month', 'year']"
     :time-from="8 * 60"
     :time-to="22 * 60"
     :time-step="30"

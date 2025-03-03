@@ -2,7 +2,7 @@ import type { Timeslot } from "@/types"
 import { Service, Route, Method } from "./base"
 import { isArray } from "../utils/serviceUtils"
 
-export interface TimeslotPostRequest {
+export interface TimeslotGetRequest {
   // TODO: Make date jsonify correcly
   start_date: string
   end_date: string
@@ -22,7 +22,14 @@ export class TimeslotService extends Service {
     })
   }
 
-  async post(body: TimeslotPostRequest): Promise<Timeslot[]> {
-    return this.handleRequest(body, Method.POST, this.parseTimeslots) as Promise<Timeslot[]>
+  async get(body: TimeslotGetRequest): Promise<Timeslot[]> {
+    const requestUrl = new URL(this.get_api_url())
+    requestUrl.searchParams.append("start_date", body.start_date)
+    requestUrl.searchParams.append("end_date", body.end_date)
+    return this.handleRequest({
+      method: Method.GET,
+      toRes: this.parseTimeslots,
+      url: requestUrl.toString(),
+    }) as Promise<Timeslot[]>
   }
 }
