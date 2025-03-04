@@ -36,9 +36,25 @@ timeslotService.get(request).then((timeslots) => {
 })
 
 const onEventClick = (data: { e: Event; event: CalendarEvent }) => {
-  router.push({ path: `/exercise/${data.event.timeslot_id}` })
+  selectedEvent.value = data.event
+  showDialog.value = true
+}
 
-  data.e.stopPropagation()
+function redirectExercise(event: CalendarEvent | null) {
+  router.push({ path: `/exercise/${event?.timeslot_id}` })
+}
+
+function deleteExercise(event: CalendarEvent | null) {
+  console.log("Delete!", event)
+  showDialog.value = false
+}
+
+const createEvent = ({ event, resolve }) => {
+  resolve({
+    ...event,
+    title: "new event",
+    timeslot_id: "42",
+  })
 }
 </script>
 
@@ -46,10 +62,12 @@ const onEventClick = (data: { e: Event; event: CalendarEvent }) => {
   <vue-cal
     dark
     editable-events
-    snap-to-interval="30"
+    :snap-to-interval="30"
     :events="events"
+    @cell-click="false"
     style="height: 100%"
     @event-click="onEventClick"
+    @event-create="createEvent"
     :views="['day', 'week', 'month', 'year']"
     :time-from="8 * 60"
     :time-to="22 * 60"
@@ -60,11 +78,17 @@ const onEventClick = (data: { e: Event; event: CalendarEvent }) => {
     <v-card>
       <v-card-title>
         <v-card-text>
-          <p>{{ selectedEvent?.title }}</p>
+          <p>Event titled {{ selectedEvent?.title }}</p>
+          <v-btn text="Go exericse" @click="redirectExercise(selectedEvent)" />
+          <v-btn text="Delete timeslot" @click="deleteExercise(selectedEvent)" />
         </v-card-text>
       </v-card-title>
     </v-card>
   </v-dialog>
 </template>
 
-<style></style>
+<style>
+.vuecal--default-theme .vuecal__cell--selected::before {
+  background-color: transparent;
+}
+</style>
