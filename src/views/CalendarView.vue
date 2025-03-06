@@ -6,6 +6,8 @@ import { type CalendarEvent, type Timeslot } from "@/types"
 import { TimeslotService } from "@/services/timeslots"
 import type { TimeslotGetRequest } from "@/services/timeslots"
 import { useRouter } from "vue-router"
+import { useChangeEvents } from "@/composables/useChangeEvents"
+import { CalendarChange, CalendarChangeEvent } from "@/utils/changeEvent"
 
 const router = useRouter()
 const selectedEvent = ref<CalendarEvent | null>(null)
@@ -16,6 +18,7 @@ const request: TimeslotGetRequest = {
   start_date: "2025-01-20T12:00:00",
   end_date: "2026-02-28T20:15:00",
 }
+const { addChangeEvent, popChangeEvent } = useChangeEvents()
 
 function addMinutes(date: Date, minutes: number): Date {
   const msToAdd = minutes * 60 * 1000
@@ -45,16 +48,29 @@ function redirectExercise(event: CalendarEvent | null) {
 }
 
 function deleteExercise(event: CalendarEvent | null) {
+  if (!event) {
+    return
+  }
   console.log("Delete!", event)
   showDialog.value = false
+  const changeEvent = new CalendarChangeEvent(event, events.value, CalendarChange.DELETE)
+  addChangeEvent(changeEvent)
 }
 
 const createEvent = ({ event, resolve }) => {
-  resolve({
+  console.log("create")
+  const newEvent = {
     ...event,
     title: "new event",
     timeslot_id: "42",
-  })
+  }
+  resolve(newEvent)
+  const changeEvent = new CalendarChangeEvent(newEvent, events.value, CalendarChange.CREATE)
+  addChangeEvent(changeEvent)
+}
+
+const undoClick = () => {
+  popChangeEvent()
 }
 </script>
 
@@ -81,6 +97,7 @@ const createEvent = ({ event, resolve }) => {
           <p>Event titled {{ selectedEvent?.title }}</p>
           <v-btn text="Go exericse" @click="redirectExercise(selectedEvent)" />
           <v-btn text="Delete timeslot" @click="deleteExercise(selectedEvent)" />
+          <v-btn text="undo" @click="undoClick" />
         </v-card-text>
       </v-card-title>
     </v-card>

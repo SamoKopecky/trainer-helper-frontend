@@ -14,7 +14,7 @@ export enum Method {
   DELETE = "DELETE",
 }
 
-export abstract class Service {
+export abstract class ServiceI {
   abstract route: Route
 
   protected get_api_url() {

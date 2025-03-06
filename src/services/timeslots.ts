@@ -1,5 +1,5 @@
 import type { Timeslot } from "@/types"
-import { Service, Route, Method } from "./base"
+import { ServiceI, Route, Method } from "./base"
 import { isArray } from "../utils/serviceUtils"
 
 export interface TimeslotGetRequest {
@@ -8,7 +8,7 @@ export interface TimeslotGetRequest {
   end_date: string
 }
 
-export class TimeslotService extends Service {
+export class TimeslotService extends ServiceI {
   route = Route.Timeslot
 
   private parseTimeslots(obj: unknown): Timeslot[] {
