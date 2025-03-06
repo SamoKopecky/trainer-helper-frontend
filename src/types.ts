@@ -1,9 +1,12 @@
-export interface CalendarEvent {
+export interface CalendarEvent extends NewCalendarEvent {
+  timeslot_id: number
+}
+
+export interface NewCalendarEvent {
   start: string
   end: string
   title: string
   content: string
-  timeslot_id: number
 }
 
 export interface WorkSet {

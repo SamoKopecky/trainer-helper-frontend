@@ -8,6 +8,16 @@ export interface TimeslotGetRequest {
   end_date: string
 }
 
+export interface TimeslotPostRequest {
+  trainer_id: number
+  start: string
+  duration: number
+}
+
+export interface TimeslotDeleteRequest {
+  timeslot_id: number
+}
+
 export class TimeslotService extends ServiceI {
   route = Route.Timeslot
 
@@ -31,5 +41,13 @@ export class TimeslotService extends ServiceI {
       toRes: this.parseTimeslots,
       url: requestUrl.toString(),
     }) as Promise<Timeslot[]>
+  }
+
+  async post(body: TimeslotPostRequest): Promise<Timeslot> {
+    return this.handleRequest({ method: Method.POST, body }) as Promise<Timeslot>
+  }
+
+  async delete(body: TimeslotDeleteRequest): Promise<Timeslot> {
+    return this.handleRequest({ method: Method.DELETE, body }) as Promise<Timeslot>
   }
 }
