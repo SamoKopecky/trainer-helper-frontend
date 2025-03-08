@@ -1,4 +1,4 @@
-import type { ChangeEvent } from "@/utils/changeEvent"
+import type { ChangeEvent } from "@/changeEvents/base"
 import { ref } from "vue"
 
 export function useChangeEvents() {

@@ -4,22 +4,21 @@ import "vue-cal/style"
 import { VueCal } from "vue-cal"
 import { TimeslotService } from "@/services/timeslots"
 import type { TimeslotGetRequest } from "@/services/timeslots"
-import { useRouter } from "vue-router"
 import { useChangeEvents } from "@/composables/useChangeEvents"
-import { CalendarCreateEvent } from "@/utils/changeEvent"
 import type { AppTimeslot, CalTimeslot } from "@/types/calendar"
 import type { UnresolvedCalTimeslot, UnresolvedVueCalTimeslot, VueCalRef } from "@/types/vuecal"
 import type { Timeslot } from "@/types/other"
+import { useEventDialog } from "@/composables/useEventDialog"
+import EventDialog from "@/components/EventDialog.vue"
+import { CalendarCreateEvent } from "@/changeEvents/calendarCreate"
 
-const router = useRouter()
-const selectedEvent = ref<CalTimeslot | null>(null)
-const showDialog = ref(false)
 const timeslotService = new TimeslotService()
 const request: TimeslotGetRequest = {
   start_date: "2025-01-20T12:00:00",
   end_date: "2026-02-28T20:15:00",
 }
 const { addChangeEvent, popChangeEvent } = useChangeEvents()
+const { showDialog, selectedEvent } = useEventDialog()
 const vueCalRef = ref<VueCalRef | null>()
 const events = ref<Array<CalTimeslot>>([])
 
@@ -46,10 +45,6 @@ timeslotService.get(request).then((timeslots) => {
 function onCalTimeslotClick(data: { e: Event; event: CalTimeslot }) {
   selectedEvent.value = data.event
   showDialog.value = true
-}
-
-function redirectExercise(event: CalTimeslot | null) {
-  router.push({ path: `/exercise/${event?.timeslot_id}` })
 }
 
 function deleteCalTimeslot(event: CalTimeslot | null) {
@@ -81,30 +76,25 @@ function createCalTimeslot(data: {
   <v-btn text="undo" @click="popChangeEvent" style="margin: 10px" />
   <VueCal
     dark
+    style="height: 100%"
     ref="vueCalRef"
-    editable-events
+    :editable-events="{ create: true, resize: false, drag: true, delete: true }"
     :events="events"
     :snap-to-interval="30"
-    style="height: 100%"
-    @event-click="onCalTimeslotClick"
-    @event-create="createCalTimeslot"
     :views="['day', 'week', 'month', 'year']"
     :time-from="8 * 60"
     :time-to="22 * 60"
     :time-step="30"
+    @event-click="onCalTimeslotClick"
+    @event-create="createCalTimeslot"
   ></VueCal>
 
-  <v-dialog v-model="showDialog">
-    <v-card>
-      <v-card-title>
-        <v-card-text>
-          <p>Event titled {{ selectedEvent?.title }}</p>
-          <v-btn text="Go exericse" @click="redirectExercise(selectedEvent)" />
-          <v-btn text="Delete timeslot" @click="deleteCalTimeslot(selectedEvent)" />
-        </v-card-text>
-      </v-card-title>
-    </v-card>
-  </v-dialog>
+  <EventDialog
+    :selected-event="selectedEvent"
+    @delete-cal-timeslot="deleteCalTimeslot"
+    v-model="showDialog"
+  >
+  </EventDialog>
 </template>
 
 <style>
