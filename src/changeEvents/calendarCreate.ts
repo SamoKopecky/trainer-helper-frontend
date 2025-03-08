@@ -19,7 +19,7 @@ export class CalendarCreateEvent implements ChangeEvent {
     this.service = new TimeslotService()
   }
 
-  public async up() {
+  public up() {
     this.service
       .post({
         // TODO: Adjust trainer ids and user ids, make colors based on user ids

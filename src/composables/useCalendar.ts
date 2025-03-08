@@ -1,10 +1,11 @@
 import type { ChangeEvent } from "@/changeEvents/base"
 import { CalendarCreateEvent } from "@/changeEvents/calendarCreate"
+import { CalendarDeleteEvent } from "@/changeEvents/calendarDelete"
 import { TimeslotService, type TimeslotGetRequest } from "@/services/timeslots"
-import type { CalTimeslot, AppTimeslot } from "@/types/calendar"
+import type { CalTimeslot } from "@/types/calendar"
 import type { Timeslot } from "@/types/other"
 import type { UnresolvedCalTimeslot, UnresolvedVueCalTimeslot, VueCalRef } from "@/types/vuecal"
-import { isoToLocal } from "@/utils/date"
+import { timeslotToAppTimeslot } from "@/utils/tranformators"
 import { onMounted, ref, type Ref } from "vue"
 
 export function useCalendar(
@@ -26,8 +27,8 @@ export function useCalendar(
   }
 
   function deleteTimeslot(event: CalTimeslot | null) {
-    if (event) {
-      timeslotService.delete({ timeslot_id: event.timeslot_id }).then(() => event.delete(3))
+    if (event && vueCalRef.value) {
+      addChangeEvent(new CalendarDeleteEvent(event, vueCalRef.value.view))
     }
     showDialog.value = false
   }
@@ -45,13 +46,7 @@ export function useCalendar(
         if (!vueCalRef.value) {
           throw new Error("Invalid vueCalRef")
         }
-        vueCalRef.value.view.createEvent({
-          start: isoToLocal(timeslot.start.toString()),
-          end: isoToLocal(timeslot.end.toString()),
-          title: timeslot.id.toString(),
-          content: `trainer id: ${timeslot.trainer_id}`,
-          timeslot_id: timeslot.id,
-        } as AppTimeslot)
+        vueCalRef.value.view.createEvent(timeslotToAppTimeslot(timeslot))
       })
     })
   })

@@ -1,6 +1,8 @@
 import type { ExerciseResponse } from "@/services/exercise"
+import type { AppTimeslot } from "@/types/calendar"
 import type { ExerciseTableData } from "@/types/exercises"
-import type { WorkSet, WorkSetModel } from "@/types/other"
+import type { Timeslot, WorkSet, WorkSetModel } from "@/types/other"
+import { isoToLocal } from "./date"
 
 export function deepClone(obj: unknown) {
   return JSON.parse(JSON.stringify(obj))
@@ -45,5 +47,15 @@ export function mergeTableDataAndWorkSetModel(
     is_main: is_main,
     work_set_count: count,
     work_set_count_display: count,
+  }
+}
+
+export function timeslotToAppTimeslot(timeslot: Timeslot): AppTimeslot {
+  return {
+    start: isoToLocal(timeslot.start.toString()),
+    end: isoToLocal(timeslot.end.toString()),
+    title: timeslot.id.toString(),
+    content: `trainer id: ${timeslot.trainer_id}`,
+    timeslot_id: timeslot.id,
   }
 }
