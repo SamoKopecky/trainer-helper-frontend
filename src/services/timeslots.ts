@@ -1,6 +1,6 @@
-import type { Timeslot } from "@/types"
-import { Service, Route, Method } from "./base"
+import { ServiceI, Route, Method } from "./base"
 import { isArray } from "../utils/serviceUtils"
+import type { Timeslot } from "@/types/other"
 
 export interface TimeslotGetRequest {
   // TODO: Make date jsonify correcly
@@ -8,7 +8,17 @@ export interface TimeslotGetRequest {
   end_date: string
 }
 
-export class TimeslotService extends Service {
+export interface TimeslotPostRequest {
+  trainer_id: number
+  start: string
+  duration: number
+}
+
+export interface TimeslotDeleteRequest {
+  timeslot_id: number
+}
+
+export class TimeslotService extends ServiceI {
   route = Route.Timeslot
 
   private parseTimeslots(obj: unknown): Timeslot[] {
@@ -31,5 +41,13 @@ export class TimeslotService extends Service {
       toRes: this.parseTimeslots,
       url: requestUrl.toString(),
     }) as Promise<Timeslot[]>
+  }
+
+  async post(body: TimeslotPostRequest): Promise<Timeslot> {
+    return this.handleRequest({ method: Method.POST, body }) as Promise<Timeslot>
+  }
+
+  async delete(body: TimeslotDeleteRequest): Promise<Timeslot> {
+    return this.handleRequest({ method: Method.DELETE, body }) as Promise<Timeslot>
   }
 }

@@ -1,4 +1,4 @@
-import { Service, Method, Route } from "./base"
+import { ServiceI, Method, Route } from "./base"
 
 export interface WorkSetPutRequest {
   id: number
@@ -7,7 +7,7 @@ export interface WorkSetPutRequest {
   rpe: number | null
 }
 
-export class WorkSetService extends Service {
+export class WorkSetService extends ServiceI {
   route = Route.WorkSet
 
   async put(body: WorkSetPutRequest): Promise<void> {

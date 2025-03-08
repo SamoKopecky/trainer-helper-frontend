@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router"
-import { type ExerciseTableColumn } from "@/types"
 import { useNotifications } from "@/composables/useNotifications"
 import NotificationFloat from "../components/NotificationFloat.vue"
 import ExerciseTable from "../components/ExerciseTable.vue"
 import { useExercises } from "@/composables/useExercises"
+import type { ExerciseTableColumn } from "@/types/exercises"
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "delete", type: "button", name: "", is_multirow: true },

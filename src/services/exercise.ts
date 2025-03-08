@@ -1,5 +1,5 @@
-import type { Exercise, WorkSet } from "../types"
-import { Service, Method, Route } from "./base"
+import type { Exercise, WorkSet } from "@/types/other"
+import { ServiceI, Method, Route } from "./base"
 
 export interface ExerciseResponse extends Exercise {
   work_sets: WorkSet[]
@@ -21,7 +21,7 @@ export interface ExerciseDeleteRequest {
   exercise_id: number
 }
 
-export class ExerciseService extends Service {
+export class ExerciseService extends ServiceI {
   route = Route.Exercise
 
   async get(timeslot_id: number): Promise<ExerciseResponse[]> {

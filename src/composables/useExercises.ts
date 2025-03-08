@@ -5,14 +5,6 @@ import {
   tableDataToWorkSet,
 } from "@/utils/tranformators"
 import { ref } from "vue"
-import {
-  ExerciseUpdateType,
-  type ExerciseTableData,
-  type Diff,
-  type WorkSetCountDiff,
-  type NotificationType,
-  type GroupIdDiff,
-} from "@/types"
 import { ExerciseService, type ExerciseResponse } from "@/services/exercise"
 import { WorkSetService } from "@/services/worksets"
 import { ExerciseCountService } from "@/services/exerciseCount"
@@ -25,6 +17,14 @@ import {
 } from "@/utils/diff"
 import { onMounted } from "vue"
 import { sortRows } from "@/utils/exerciseTable"
+import {
+  type ExerciseTableData,
+  type Diff,
+  type WorkSetCountDiff,
+  type GroupIdDiff,
+  ExerciseUpdateType,
+} from "@/types/exercises"
+import type { NotificationType } from "@/types/other"
 
 export function useExercises(
   timeslotId: number,

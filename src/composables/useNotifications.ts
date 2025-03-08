@@ -1,4 +1,4 @@
-import type { ChangeNotification, NotificationType } from "@/types"
+import type { ChangeNotification, NotificationType } from "@/types/other"
 import { ref } from "vue"
 
 function randomId(): string {
