@@ -24,19 +24,19 @@ export function useCalendar(
     end_date: "2026-02-28T20:15:00",
   }
 
-  function onCalTimeslotClick(data: { e: Event; event: CalTimeslot }) {
+  function clickTimeslot(data: { e: Event; event: CalTimeslot }) {
     selectedEvent.value = data.event
     showDialog.value = true
   }
 
-  function deleteCalTimeslot(event: CalTimeslot | null) {
+  function deleteTimeslot(event: CalTimeslot | null) {
     if (event) {
       timeslotService.delete({ timeslot_id: event.timeslot_id }).then(() => event.delete(3))
     }
     showDialog.value = false
   }
 
-  function createCalTimeslot(data: {
+  function createTimeslot(data: {
     event: UnresolvedVueCalTimeslot
     resolve: (event: UnresolvedCalTimeslot) => void
   }) {
@@ -70,5 +70,11 @@ export function useCalendar(
     })
   })
 
-  return { events, vueCalRef, onCalTimeslotClick, deleteCalTimeslot, createCalTimeslot }
+  return {
+    events,
+    vueCalRef,
+    clickTimeslot,
+    deleteTimeslot,
+    createTimeslot,
+  }
 }

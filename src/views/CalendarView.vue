@@ -8,7 +8,7 @@ import { useCalendar } from "@/composables/useCalendar"
 
 const { addChangeEvent, popChangeEvent } = useChangeEvents()
 const { showDialog, selectedEvent } = useEventDialog()
-const { events, vueCalRef, createCalTimeslot, deleteCalTimeslot, onCalTimeslotClick } = useCalendar(
+const { events, vueCalRef, createTimeslot, deleteTimeslot, clickTimeslot } = useCalendar(
   selectedEvent,
   showDialog,
   addChangeEvent,
@@ -28,13 +28,13 @@ const { events, vueCalRef, createCalTimeslot, deleteCalTimeslot, onCalTimeslotCl
     :time-from="8 * 60"
     :time-to="22 * 60"
     :time-step="30"
-    @event-click="onCalTimeslotClick"
-    @event-create="createCalTimeslot"
+    @event-click="clickTimeslot"
+    @event-create="createTimeslot"
   ></VueCal>
 
   <EventDialog
     :selected-event="selectedEvent"
-    @delete-cal-timeslot="deleteCalTimeslot"
+    @delete-cal-timeslot="deleteTimeslot"
     v-model="showDialog"
   >
   </EventDialog>
