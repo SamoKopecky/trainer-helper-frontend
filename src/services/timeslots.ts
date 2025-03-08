@@ -44,7 +44,6 @@ export class TimeslotService extends ServiceI {
   }
 
   async post(body: TimeslotPostRequest): Promise<Timeslot> {
-    console.log(body)
     return this.handleRequest({ method: Method.POST, body }) as Promise<Timeslot>
   }
 

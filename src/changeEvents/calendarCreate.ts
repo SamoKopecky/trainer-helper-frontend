@@ -15,8 +15,6 @@ export class CalendarCreateEvent implements ChangeEvent {
   }
 
   public async up<Timeslot>(): Promise<Timeslot> {
-    console.log(getISODateString(this.timeslot.start))
-    console.log(this.timeslot.start)
     return this.service
       .post({
         trainer_id: 1,
