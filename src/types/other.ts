@@ -23,7 +23,7 @@ export interface Timeslot {
   id: number
   trainer_id: number
   user_id: number | null
-  duration: number
+  end: Date
   start: Date
 }
 

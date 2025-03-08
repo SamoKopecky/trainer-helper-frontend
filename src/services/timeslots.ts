@@ -11,7 +11,7 @@ export interface TimeslotGetRequest {
 export interface TimeslotPostRequest {
   trainer_id: number
   start: string
-  duration: number
+  end: string
 }
 
 export interface TimeslotDeleteRequest {
@@ -44,6 +44,7 @@ export class TimeslotService extends ServiceI {
   }
 
   async post(body: TimeslotPostRequest): Promise<Timeslot> {
+    console.log(body)
     return this.handleRequest({ method: Method.POST, body }) as Promise<Timeslot>
   }
 
