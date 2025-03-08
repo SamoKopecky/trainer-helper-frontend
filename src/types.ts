@@ -1,13 +1,33 @@
-export interface CalendarEvent extends NewCalendarEvent {
+export interface VueCalView {
+  createEvent(event: AppTimeslot): void
+}
+
+export interface VueCalRef {
+  view: VueCalView
+}
+
+export interface VueCalDate extends Date {
+  toISOString(): string
+}
+
+export interface UnresolvedVueCalTimeslot {
+  start: VueCalDate
+  end: VueCalDate
+}
+
+export interface VueCalTimeslot extends UnresolvedVueCalTimeslot {
+  delete(type: number): void
+}
+
+export interface AppTimeslot {
+  title: string
+  content: string
   timeslot_id: number
 }
 
-export interface NewCalendarEvent {
-  start: string
-  end: string
-  title: string
-  content: string
-}
+export interface UnresolvedCalTimeslot extends UnresolvedVueCalTimeslot, AppTimeslot {}
+
+export interface CalTimeslot extends VueCalTimeslot, AppTimeslot {}
 
 export interface WorkSet {
   work_set_id: number

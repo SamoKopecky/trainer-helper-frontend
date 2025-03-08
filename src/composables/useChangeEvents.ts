@@ -4,9 +4,9 @@ import { ref } from "vue"
 export function useChangeEvents() {
   const changeEvents = ref<ChangeEvent[]>([])
 
-  function addChangeEvent(event: ChangeEvent): Promise<void> {
+  function addChangeEvent<T>(event: ChangeEvent): Promise<T> {
     changeEvents.value.push(event)
-    return event.up()
+    return event.up<T>()
   }
 
   function popChangeEvent() {
