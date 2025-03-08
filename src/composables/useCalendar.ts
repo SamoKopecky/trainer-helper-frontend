@@ -4,12 +4,8 @@ import { TimeslotService, type TimeslotGetRequest } from "@/services/timeslots"
 import type { CalTimeslot, AppTimeslot } from "@/types/calendar"
 import type { Timeslot } from "@/types/other"
 import type { UnresolvedCalTimeslot, UnresolvedVueCalTimeslot, VueCalRef } from "@/types/vuecal"
+import { isoToLocal } from "@/utils/date"
 import { onMounted, ref, type Ref } from "vue"
-
-function addMinutes(date: Date, minutes: number): Date {
-  const msToAdd = minutes * 60 * 1000
-  return new Date(date.getTime() + msToAdd)
-}
 
 export function useCalendar(
   selectedEvent: Ref<CalTimeslot | null>,
@@ -60,8 +56,8 @@ export function useCalendar(
           throw new Error("Invalid vueCalRef")
         }
         vueCalRef.value.view.createEvent({
-          start: new Date(timeslot.start.toString()),
-          end: new Date(addMinutes(timeslot.start, timeslot.duration).toString()),
+          start: isoToLocal(timeslot.start.toString()),
+          end: isoToLocal(timeslot.end.toString()),
           title: timeslot.id.toString(),
           content: `trainer id: ${timeslot.trainer_id}`,
           timeslot_id: timeslot.id,

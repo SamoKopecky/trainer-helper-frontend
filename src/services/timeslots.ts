@@ -11,7 +11,7 @@ export interface TimeslotGetRequest {
 export interface TimeslotPostRequest {
   trainer_id: number
   start: string
-  duration: number
+  end: string
 }
 
 export interface TimeslotDeleteRequest {

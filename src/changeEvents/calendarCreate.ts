@@ -1,6 +1,7 @@
 import { TimeslotService } from "@/services/timeslots"
 import type { UnresolvedVueCalTimeslot, VueCalTimeslot } from "@/types/vuecal"
 import type { ChangeEvent } from "./base"
+import { getISODateString } from "@/utils/date"
 
 export class CalendarCreateEvent implements ChangeEvent {
   private timeslot: UnresolvedVueCalTimeslot
@@ -17,8 +18,8 @@ export class CalendarCreateEvent implements ChangeEvent {
     return this.service
       .post({
         trainer_id: 1,
-        start: this.timeslot.start.toISOString().split(".")[0],
-        duration: 60,
+        start: getISODateString(this.timeslot.start),
+        end: getISODateString(this.timeslot.end),
       })
       .then((res) => {
         this.timeslotId = res.id
