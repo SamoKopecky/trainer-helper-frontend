@@ -10,7 +10,7 @@ import { onMounted, ref, type Ref } from "vue"
 export function useCalendar(
   selectedEvent: Ref<CalTimeslot | null>,
   showDialog: Ref<boolean, boolean>,
-  addChangeEvent: <T>(event: ChangeEvent) => Promise<T>,
+  addChangeEvent: (event: ChangeEvent) => void,
 ) {
   const vueCalRef = ref<VueCalRef | null>()
   const events = ref<Array<CalTimeslot>>([])
@@ -36,17 +36,7 @@ export function useCalendar(
     event: UnresolvedVueCalTimeslot
     resolve: (event: UnresolvedCalTimeslot) => void
   }) {
-    const changeEvent = new CalendarCreateEvent(data.event)
-    addChangeEvent<Timeslot>(changeEvent).then((res) => {
-      const unresolved: UnresolvedCalTimeslot = {
-        ...data.event,
-        title: res.id.toString(),
-        content: `trainer id: ${res.trainer_id}`,
-        timeslot_id: res.id,
-      }
-      data.resolve(unresolved)
-      changeEvent.resolvedTimeslot = unresolved as CalTimeslot
-    })
+    addChangeEvent(new CalendarCreateEvent(data.event, data.resolve))
   }
 
   onMounted(() => {
