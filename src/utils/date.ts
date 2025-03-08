@@ -1,6 +1,4 @@
-import type { VueCalDate } from "@/types/vuecal"
-
-export function getISODateString(date: VueCalDate): string {
+export function getISODateString(date: Date): string {
   return date.toISOString().split(".")[0]
 }
 

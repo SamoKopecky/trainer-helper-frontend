@@ -1,4 +1,4 @@
 export interface ChangeEvent {
-  up<T>(): Promise<T>
+  up(): void
   down(): void
 }

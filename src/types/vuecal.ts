@@ -8,13 +8,9 @@ export interface VueCalRef {
   view: VueCalView
 }
 
-export interface VueCalDate extends Date {
-  toISOString(): string
-}
-
 export interface UnresolvedVueCalTimeslot {
-  start: VueCalDate
-  end: VueCalDate
+  start: Date
+  end: Date
 }
 
 export interface VueCalTimeslot extends UnresolvedVueCalTimeslot {
