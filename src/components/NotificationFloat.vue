@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ChangeNotification } from "@/types"
+import type { ChangeNotification } from "@/types/other"
 
 defineProps({
   notifications: {

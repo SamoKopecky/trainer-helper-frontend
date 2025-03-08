@@ -1,4 +1,4 @@
-import type { Exercise, WorkSet } from "../types"
+import type { Exercise, WorkSet } from "@/types/other"
 import { ServiceI, Method, Route } from "./base"
 
 export interface ExerciseResponse extends Exercise {

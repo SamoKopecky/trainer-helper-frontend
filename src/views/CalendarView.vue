@@ -2,19 +2,14 @@
 import { ref } from "vue"
 import "vue-cal/style"
 import { VueCal } from "vue-cal"
-import {
-  type AppTimeslot,
-  type CalTimeslot,
-  type Timeslot,
-  type UnresolvedCalTimeslot,
-  type UnresolvedVueCalTimeslot,
-  type VueCalRef,
-} from "@/types"
 import { TimeslotService } from "@/services/timeslots"
 import type { TimeslotGetRequest } from "@/services/timeslots"
 import { useRouter } from "vue-router"
 import { useChangeEvents } from "@/composables/useChangeEvents"
 import { CalendarCreateEvent } from "@/utils/changeEvent"
+import type { AppTimeslot, CalTimeslot } from "@/types/calendar"
+import type { UnresolvedCalTimeslot, UnresolvedVueCalTimeslot, VueCalRef } from "@/types/vuecal"
+import type { Timeslot } from "@/types/other"
 
 const router = useRouter()
 const selectedEvent = ref<CalTimeslot | null>(null)

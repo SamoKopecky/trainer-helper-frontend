@@ -1,6 +1,6 @@
-import type { Timeslot } from "@/types"
 import { ServiceI, Route, Method } from "./base"
 import { isArray } from "../utils/serviceUtils"
+import type { Timeslot } from "@/types/other"
 
 export interface TimeslotGetRequest {
   // TODO: Make date jsonify correcly

@@ -1,4 +1,4 @@
-import { SetType, type ExerciseTableData } from "./types"
+import { type ExerciseTableData, SetType } from "./types/exercises"
 
 export function workSetFactory({
   work_set_id,

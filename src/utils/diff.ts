@@ -1,12 +1,12 @@
 import {
   ExerciseUpdateType,
-  type ExerciseTableData,
-  type ExerciseDiff,
   type Diff,
-  type WorkSetDiff,
-  type WorkSetCountDiff,
+  type ExerciseDiff,
+  type ExerciseTableData,
   type GroupIdDiff,
-} from "../types"
+  type WorkSetCountDiff,
+  type WorkSetDiff,
+} from "@/types/exercises"
 
 const DATA_DIFF_MAP: Record<keyof ExerciseTableData, ExerciseUpdateType | null> = {
   note: ExerciseUpdateType.Exercise,

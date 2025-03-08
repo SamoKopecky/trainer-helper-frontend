@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { type ExerciseTableColumn, type ExerciseTableData } from "../types"
 import { ref, watch, type ComputedRef } from "vue"
 import { createVuetify } from "vuetify"
 import {
@@ -10,6 +9,7 @@ import {
   groupBy,
 } from "../utils/exerciseTable"
 import { computed } from "vue"
+import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercises"
 
 const { columns, exercises } = defineProps({
   columns: {

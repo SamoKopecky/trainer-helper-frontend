@@ -1,5 +1,5 @@
 import { TimeslotService } from "@/services/timeslots"
-import type { UnresolvedVueCalTimeslot, VueCalTimeslot } from "@/types"
+import type { UnresolvedVueCalTimeslot, VueCalTimeslot } from "@/types/vuecal"
 
 export interface ChangeEvent {
   up<T>(): Promise<T>
