@@ -144,7 +144,10 @@ export function useExercises(
   onMounted(() => {
     exerciseService
       .get(timeslotId)
-      .then((exercise) => exercise.forEach((e) => addNewTableData(e)))
+      .then((res) => {
+        console.log(res)
+        res.exercises.forEach((e) => addNewTableData(e))
+      })
       .finally(() => {
         exercises.value.sort((a, b) => sortRows(a, b))
       })
