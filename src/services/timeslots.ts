@@ -1,5 +1,5 @@
 import { ServiceI, Route, Method } from "./base"
-import { isArray } from "../utils/serviceUtils"
+import { isArray } from "@/utils/service"
 import type { Timeslot } from "@/types/other"
 
 export interface TimeslotGetRequest {

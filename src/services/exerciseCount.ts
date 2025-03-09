@@ -1,5 +1,5 @@
 import { ServiceI, Method, Route } from "./base"
-import { isArray } from "../utils/serviceUtils"
+import { isArray } from "@/utils/service"
 import type { WorkSet, WorkSetModel } from "@/types/other"
 
 export interface ExerciseCountDeleteRequest {
