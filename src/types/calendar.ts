@@ -1,10 +1,8 @@
+import type { Timeslot } from "./other"
 import type { VueCalTimeslot } from "./vuecal"
 
-export interface AppTimeslot {
-  start: Date
-  end: Date
+export interface AppTimeslot extends Timeslot {
   title: string
-  timeslot_id: number
 }
 
 export interface CalTimeslot extends VueCalTimeslot, AppTimeslot {}

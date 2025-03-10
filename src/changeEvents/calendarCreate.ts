@@ -31,9 +31,8 @@ export class CalendarCreateEvent implements ChangeEvent {
       .then((res) => {
         const appTimeslot = timeslotToAppTimeslot(res)
         const unresolved: UnresolvedCalTimeslot = {
-          ...this.timeslot,
-          title: appTimeslot.title,
-          timeslot_id: res.id,
+          ...appTimeslot,
+          id: res.id,
         }
         this.eventResolver(unresolved)
         this.resolvedTimeslot = unresolved as CalTimeslot
@@ -44,7 +43,7 @@ export class CalendarCreateEvent implements ChangeEvent {
     if (!this.resolvedTimeslot) {
       throw new Error("Missing timeslot id")
     }
-    this.service.delete({ timeslot_id: this.resolvedTimeslot?.timeslot_id }).then(() => {
+    this.service.delete({ timeslot_id: this.resolvedTimeslot?.id }).then(() => {
       this.resolvedTimeslot?.delete(3)
     })
   }

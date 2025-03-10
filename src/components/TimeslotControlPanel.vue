@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { FullExerciseResponse } from "@/services/exercise"
+import type { AppTimeslot } from "@/types/calendar"
 import type { PropType } from "vue"
 
 const emit = defineEmits(["add-exercise"])
 
 defineProps({
-  timeslotInfo: {
-    type: Object as PropType<FullExerciseResponse> | null,
+  appTimeslot: {
+    type: Object as PropType<AppTimeslot>,
     required: false,
-    default: { name: "loading..." } as FullExerciseResponse,
+    default: undefined,
   },
 })
 
@@ -21,10 +21,10 @@ function addExercise() {
   <v-card
     class="mx-auto"
     prepend-icon="mdi-account"
-    :title="timeslotInfo?.user_id ?? 'No user'"
+    :title="appTimeslot?.title ?? 'loading...'"
     variant="text"
   >
-    <v-card-text>{{ timeslotInfo?.name ?? "-" }}</v-card-text>
+    <v-card-text>{{ appTimeslot?.name ?? "loading..." }}</v-card-text>
   </v-card>
   <slot />
   <v-btn text="Add exercise" @click="addExercise" />

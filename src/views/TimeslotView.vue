@@ -9,6 +9,7 @@ import type { ExerciseTableColumn } from "@/types/exercises"
 import { ExerciseService, type FullExerciseResponse } from "@/services/exercise"
 import { ref } from "vue"
 import { onMounted } from "vue"
+import { timeslotToAppTimeslot } from "@/utils/tranformators"
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "delete", type: "button", name: "", is_multirow: true },
@@ -46,7 +47,10 @@ const { exercises, addExercise, deleteExercise, updateTable } = useExercises(
 
 <template>
   <NotificationFloat :notifications="notifications" />
-  <TimeslotControlPanel :timeslot-info="exercisesRes" @add-exercise="addExercise">
+  <TimeslotControlPanel
+    :app-timeslot="exercisesRes ? timeslotToAppTimeslot(exercisesRes.timeslot) : undefined"
+    @add-exercise="addExercise"
+  >
     <ExerciseTable
       :columns="EXERCISE_COLUMNS"
       :exercises="exercises"

@@ -1,10 +1,9 @@
-import type { Exercise, WorkSet } from "@/types/other"
+import type { Exercise, Timeslot, WorkSet } from "@/types/other"
 import { ServiceI, Method, Route } from "./base"
 
 export interface FullExerciseResponse {
   exercises: ExerciseResponse[]
-  name: string
-  user_id: number | null
+  timeslot: Timeslot
 }
 
 export interface ExerciseResponse extends Exercise {

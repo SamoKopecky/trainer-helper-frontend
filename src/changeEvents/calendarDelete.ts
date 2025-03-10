@@ -17,9 +17,7 @@ export class CalendarDeleteEvent implements ChangeEvent {
   }
 
   public async up() {
-    this.service
-      .delete({ timeslot_id: this.timeslot.timeslot_id })
-      .then(() => this.timeslot.delete(3))
+    this.service.delete({ timeslot_id: this.timeslot.id }).then(() => this.timeslot.delete(3))
   }
 
   public down() {

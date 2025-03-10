@@ -3,6 +3,7 @@ import type { AppTimeslot } from "@/types/calendar"
 import type { ExerciseTableData } from "@/types/exercises"
 import type { Timeslot, WorkSet, WorkSetModel } from "@/types/other"
 import { isoToLocal } from "./date"
+import { EMPTY_USER } from "@/constants"
 
 export function deepClone(obj: unknown) {
   return JSON.parse(JSON.stringify(obj))
@@ -52,9 +53,9 @@ export function mergeTableDataAndWorkSetModel(
 
 export function timeslotToAppTimeslot(timeslot: Timeslot): AppTimeslot {
   return {
+    ...timeslot,
+    title: timeslot.user_id?.toString() ?? EMPTY_USER,
     start: isoToLocal(timeslot.start.toString()),
     end: isoToLocal(timeslot.end.toString()),
-    title: timeslot.user_id?.toString() ?? "no user",
-    timeslot_id: timeslot.id,
   }
 }
