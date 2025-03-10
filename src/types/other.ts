@@ -23,6 +23,7 @@ export interface Timeslot {
   id: number
   trainer_id: number
   user_id: number | null
+  name: string
   end: Date
   start: Date
 }

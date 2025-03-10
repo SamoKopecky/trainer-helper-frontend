@@ -3,6 +3,7 @@ import type { UnresolvedCalTimeslot, UnresolvedVueCalTimeslot } from "@/types/vu
 import type { ChangeEvent } from "./base"
 import { getISODateString } from "@/utils/date"
 import type { CalTimeslot } from "@/types/calendar"
+import { timeslotToAppTimeslot } from "@/utils/tranformators"
 
 export class CalendarCreateEvent implements ChangeEvent {
   private timeslot: UnresolvedVueCalTimeslot
@@ -28,10 +29,10 @@ export class CalendarCreateEvent implements ChangeEvent {
         end: getISODateString(this.timeslot.end),
       })
       .then((res) => {
+        const appTimeslot = timeslotToAppTimeslot(res)
         const unresolved: UnresolvedCalTimeslot = {
           ...this.timeslot,
-          title: res.id.toString(),
-          content: `trainer id: ${res.trainer_id}`,
+          title: appTimeslot.title,
           timeslot_id: res.id,
         }
         this.eventResolver(unresolved)

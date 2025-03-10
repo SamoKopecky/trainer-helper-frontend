@@ -157,13 +157,11 @@ textarea {
   overflow-x: auto; /* Enable horizontal scrolling */
   max-width: 100%; /* Limit the container width to fit the parent */
   max-height: 100%;
-  margin-bottom: 1rem; /* Space below the table */
 }
 
 .custom-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 1.5rem;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 

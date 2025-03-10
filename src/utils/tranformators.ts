@@ -54,8 +54,7 @@ export function timeslotToAppTimeslot(timeslot: Timeslot): AppTimeslot {
   return {
     start: isoToLocal(timeslot.start.toString()),
     end: isoToLocal(timeslot.end.toString()),
-    title: timeslot.id.toString(),
-    content: `trainer id: ${timeslot.trainer_id}`,
+    title: timeslot.user_id?.toString() ?? "no user",
     timeslot_id: timeslot.id,
   }
 }

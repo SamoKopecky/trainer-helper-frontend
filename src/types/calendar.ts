@@ -4,7 +4,6 @@ export interface AppTimeslot {
   start: Date
   end: Date
   title: string
-  content: string
   timeslot_id: number
 }
 

@@ -5,7 +5,11 @@ import {
   tableDataToWorkSet,
 } from "@/utils/tranformators"
 import { ref } from "vue"
-import { ExerciseService, type ExerciseResponse } from "@/services/exercise"
+import {
+  ExerciseService,
+  type ExerciseResponse,
+  type FullExerciseResponse,
+} from "@/services/exercise"
 import { WorkSetService } from "@/services/worksets"
 import { ExerciseCountService } from "@/services/exerciseCount"
 import {
@@ -15,7 +19,6 @@ import {
   isWorkSetDiff,
   tableDataDiff,
 } from "@/utils/diff"
-import { onMounted } from "vue"
 import { sortRows } from "@/utils/exerciseTable"
 import {
   type ExerciseTableData,
@@ -25,9 +28,12 @@ import {
   ExerciseUpdateType,
 } from "@/types/exercises"
 import type { NotificationType } from "@/types/other"
+import type { Ref } from "vue"
+import { watchOnce } from "@vueuse/core"
 
 export function useExercises(
   timeslotId: number,
+  exercisesRes: Ref<FullExerciseResponse | undefined>,
   addNotification: (text: string, type: NotificationType) => void,
 ) {
   const workSetService = new WorkSetService()
@@ -141,16 +147,11 @@ export function useExercises(
     })
   }
 
-  onMounted(() => {
-    exerciseService
-      .get(timeslotId)
-      .then((res) => {
-        console.log(res)
-        res.exercises.forEach((e) => addNewTableData(e))
-      })
-      .finally(() => {
-        exercises.value.sort((a, b) => sortRows(a, b))
-      })
+  watchOnce(exercisesRes, () => {
+    if (exercisesRes.value) {
+      exercisesRes.value.exercises.forEach((e) => addNewTableData(e))
+      exercises.value.sort((a, b) => sortRows(a, b))
+    }
   })
 
   function addExercise() {
