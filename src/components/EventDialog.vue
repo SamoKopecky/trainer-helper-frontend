@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CalTimeslot } from "@/types/calendar"
 import { useRouter } from "vue-router"
-import { ref, watch, type PropType } from "vue"
+import { ref, useTemplateRef, watch, watchEffect, type PropType } from "vue"
 import { EMPTY_USER } from "@/constants"
 import type { Person } from "@/types/other"
 import { onMounted } from "vue"
@@ -33,6 +33,15 @@ const titleEditable = ref(false)
 const router = useRouter()
 const emit = defineEmits(["delete-cal-timeslot", "update:modelValue", "update-person"])
 const personService = new PersonService()
+const input = useTemplateRef("input")
+
+watchEffect(() => {
+  if (input.value) {
+    input.value.focus()
+  } else {
+    // not mounted yet, or the element was unmounted (e.g. by v-if)
+  }
+})
 
 function redirectExercise(timeslot: CalTimeslot | null) {
   router.push({ path: `/exercise/${timeslot?.id}` })
@@ -65,12 +74,11 @@ onMounted(() => {
       <v-card-title>
         <div style="display: flex; align-items: center; width: 100%">
           <!-- Static Title -->
-          <span v-if="!titleEditable" style="flex: 1" class="title-text">
-            {{ selectedEvent?.title }}</span
-          >
+          <span v-if="!titleEditable" style="flex: 1"> {{ selectedEvent?.title }}</span>
 
           <!-- Editable Title -->
           <v-autocomplete
+            ref="input"
             v-if="titleEditable"
             v-model="selectedId"
             :items="persons"

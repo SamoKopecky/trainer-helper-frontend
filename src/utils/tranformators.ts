@@ -52,7 +52,6 @@ export function mergeTableDataAndWorkSetModel(
 }
 
 export function timeslotToAppTimeslot(timeslot: Timeslot): AppTimeslot {
-  console.log(timeslot)
   return {
     ...timeslot,
     title: timeslot.person_name?.toString() ?? EMPTY_USER,

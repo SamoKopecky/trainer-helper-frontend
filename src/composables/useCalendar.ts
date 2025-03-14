@@ -44,9 +44,7 @@ export function useCalendar(
     console.log("updated person")
     if (selectedEvent.value && person) {
       selectedEvent.value.title = person.name
-      timeslotService
-        .put({ id: selectedEvent.value.id, user_id: person.id })
-        .then(() => console.log("done"))
+      timeslotService.put({ id: selectedEvent.value.id, user_id: person.id })
     }
   }
 

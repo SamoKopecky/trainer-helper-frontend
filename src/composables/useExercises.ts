@@ -30,6 +30,7 @@ import {
 import type { NotificationType } from "@/types/other"
 import type { Ref } from "vue"
 import { watchOnce } from "@vueuse/core"
+import { TimeslotService } from "@/services/timeslots"
 
 export function useExercises(
   timeslotId: number,
@@ -38,6 +39,7 @@ export function useExercises(
 ) {
   const workSetService = new WorkSetService()
   const exerciseService = new ExerciseService()
+  const timeslotService = new TimeslotService()
   const exerciseCountService = new ExerciseCountService()
 
   const exercises = ref<ExerciseTableData[]>([])
@@ -195,5 +197,12 @@ export function useExercises(
       .catch((error: Error) => addNotification(error.message, "error"))
   }
 
-  return { exercises, addExercise, deleteExercise, updateTable }
+  function updateTitle(title: string | undefined) {
+    if (exerciseRes.value && title) {
+      exerciseRes.value.timeslot.name = title
+      timeslotService.put({ id: timeslotId, name: title })
+    }
+  }
+
+  return { exercises, addExercise, deleteExercise, updateTable, updateTitle }
 }

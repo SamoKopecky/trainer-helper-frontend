@@ -29,18 +29,18 @@ defineProps({
 const route = useRoute()
 const timeslotId = Number(route.params.id)
 const exerciseService = new ExerciseService()
-const exercisesRes = ref<FullExerciseResponse | undefined>()
+const exerciseRes = ref<FullExerciseResponse | undefined>()
 
 onMounted(() => {
   exerciseService.get(timeslotId).then((res) => {
-    exercisesRes.value = res
+    exerciseRes.value = res
   })
 })
 
 const { notifications, addNotification } = useNotifications()
-const { exercises, addExercise, deleteExercise, updateTable } = useExercises(
+const { exercises, addExercise, deleteExercise, updateTable, updateTitle } = useExercises(
   timeslotId,
-  exercisesRes,
+  exerciseRes,
   addNotification,
 )
 </script>
@@ -48,8 +48,9 @@ const { exercises, addExercise, deleteExercise, updateTable } = useExercises(
 <template>
   <NotificationFloat :notifications="notifications" />
   <TimeslotControlPanel
-    :app-timeslot="exercisesRes ? timeslotToAppTimeslot(exercisesRes.timeslot) : undefined"
+    :app-timeslot="exerciseRes ? timeslotToAppTimeslot(exerciseRes.timeslot) : undefined"
     @add-exercise="addExercise"
+    @update-title="updateTitle"
   >
     <ExerciseTable
       :columns="EXERCISE_COLUMNS"
