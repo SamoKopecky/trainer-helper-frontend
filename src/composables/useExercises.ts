@@ -33,7 +33,7 @@ import { watchOnce } from "@vueuse/core"
 
 export function useExercises(
   timeslotId: number,
-  exercisesRes: Ref<FullExerciseResponse | undefined>,
+  exerciseRes: Ref<FullExerciseResponse | undefined>,
   addNotification: (text: string, type: NotificationType) => void,
 ) {
   const workSetService = new WorkSetService()
@@ -147,9 +147,9 @@ export function useExercises(
     })
   }
 
-  watchOnce(exercisesRes, () => {
-    if (exercisesRes.value) {
-      exercisesRes.value.exercises.forEach((e) => addNewTableData(e))
+  watchOnce(exerciseRes, () => {
+    if (exerciseRes.value) {
+      exerciseRes.value.exercises.forEach((e) => addNewTableData(e))
       exercises.value.sort((a, b) => sortRows(a, b))
     }
   })

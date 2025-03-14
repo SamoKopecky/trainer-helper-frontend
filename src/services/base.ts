@@ -5,6 +5,7 @@ export enum Route {
   WorkSet = "/workset",
   Exercise = "/exercise",
   ExerciseCount = "/exercise/count",
+  Person = "/person",
 }
 
 export enum Method {

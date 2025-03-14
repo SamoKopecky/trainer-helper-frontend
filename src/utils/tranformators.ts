@@ -52,9 +52,10 @@ export function mergeTableDataAndWorkSetModel(
 }
 
 export function timeslotToAppTimeslot(timeslot: Timeslot): AppTimeslot {
+  console.log(timeslot)
   return {
     ...timeslot,
-    title: timeslot.user_id?.toString() ?? EMPTY_USER,
+    title: timeslot.person_name?.toString() ?? EMPTY_USER,
     start: isoToLocal(timeslot.start.toString()),
     end: isoToLocal(timeslot.end.toString()),
   }

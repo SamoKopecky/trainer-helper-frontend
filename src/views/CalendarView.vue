@@ -8,11 +8,8 @@ import { useCalendar } from "@/composables/useCalendar"
 
 const { addChangeEvent, popChangeEvent } = useChangeEvents()
 const { showDialog, selectedEvent } = useEventDialog()
-const { events, vueCalRef, createTimeslot, deleteTimeslot, clickTimeslot } = useCalendar(
-  selectedEvent,
-  showDialog,
-  addChangeEvent,
-)
+const { events, vueCalRef, createTimeslot, deleteTimeslot, clickTimeslot, updateEventPerson } =
+  useCalendar(selectedEvent, showDialog, addChangeEvent)
 </script>
 
 <template>
@@ -35,6 +32,7 @@ const { events, vueCalRef, createTimeslot, deleteTimeslot, clickTimeslot } = use
   <EventDialog
     :selected-event="selectedEvent"
     @delete-cal-timeslot="deleteTimeslot"
+    @update-person="updateEventPerson"
     v-model="showDialog"
   >
   </EventDialog>

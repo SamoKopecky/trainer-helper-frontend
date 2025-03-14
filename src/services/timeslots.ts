@@ -14,6 +14,12 @@ export interface TimeslotPostRequest {
   end: string
 }
 
+export interface TimeslotPutRequest {
+  id: number
+  name?: string
+  user_id?: number
+}
+
 export interface TimeslotDeleteRequest {
   timeslot_id: number
 }
@@ -45,6 +51,10 @@ export class TimeslotService extends ServiceI {
 
   async post(body: TimeslotPostRequest): Promise<Timeslot> {
     return this.handleRequest({ method: Method.POST, body }) as Promise<Timeslot>
+  }
+
+  async put(body: TimeslotPutRequest): Promise<void> {
+    return this.handleRequest({ method: Method.PUT, body })
   }
 
   async delete(body: TimeslotDeleteRequest): Promise<Timeslot> {

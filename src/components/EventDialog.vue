@@ -3,6 +3,9 @@ import type { CalTimeslot } from "@/types/calendar"
 import { useRouter } from "vue-router"
 import { ref, watch, type PropType } from "vue"
 import { EMPTY_USER } from "@/constants"
+import type { Person } from "@/types/other"
+import { onMounted } from "vue"
+import { PersonService } from "../services/person"
 
 const { selectedEvent, modelValue } = defineProps({
   selectedEvent: {
@@ -19,14 +22,17 @@ const { selectedEvent, modelValue } = defineProps({
 watch(
   () => selectedEvent,
   () => {
-    console.log("now")
+    selectedId.value = undefined
     titleEditable.value = selectedEvent?.title === EMPTY_USER
   },
 )
 
+const selectedId = ref<number | undefined>()
+const persons = ref<Person[]>()
 const titleEditable = ref(false)
 const router = useRouter()
-const emit = defineEmits(["delete-cal-timeslot", "update:modelValue"])
+const emit = defineEmits(["delete-cal-timeslot", "update:modelValue", "update-person"])
+const personService = new PersonService()
 
 function redirectExercise(timeslot: CalTimeslot | null) {
   router.push({ path: `/exercise/${timeslot?.id}` })
@@ -39,6 +45,18 @@ function deleteCalTimeslot(event: CalTimeslot | null) {
 function closeDialog() {
   emit("update:modelValue", false)
 }
+
+function buttonClick() {
+  titleEditable.value = !titleEditable.value
+  emit(
+    "update-person",
+    persons.value?.find((p) => p.id === selectedId.value),
+  )
+}
+
+onMounted(() => {
+  personService.get().then((res) => (persons.value = res))
+})
 </script>
 
 <template>
@@ -47,23 +65,31 @@ function closeDialog() {
       <v-card-title>
         <div style="display: flex; align-items: center; width: 100%">
           <!-- Static Title -->
-          <span v-if="!titleEditable" style="flex: 1"> {{ selectedEvent?.title }}</span>
+          <span v-if="!titleEditable" style="flex: 1" class="title-text">
+            {{ selectedEvent?.title }}</span
+          >
 
           <!-- Editable Title -->
           <v-autocomplete
             v-if="titleEditable"
+            v-model="selectedId"
+            :items="persons"
+            item-title="name"
+            item-value="id"
             placeholder="Enter name"
             variant="plain"
             density="compact"
             hide-details="auto"
+            @keydown.enter="buttonClick"
           />
 
           <!-- Edit Icon -->
-          <v-icon small class="ml-2" @click="titleEditable = !titleEditable">
+          <v-icon small class="ml-2" @click="buttonClick">
             {{ titleEditable ? "mdi-check" : "mdi-pencil" }}
           </v-icon>
         </div>
       </v-card-title>
+      <v-divider />
       <v-card-text>
         <p style="padding-bottom: 1rem">{{ selectedEvent?.name }}</p>
         <v-btn

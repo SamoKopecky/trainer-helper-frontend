@@ -3,7 +3,7 @@ import { CalendarCreateEvent } from "@/changeEvents/calendarCreate"
 import { CalendarDeleteEvent } from "@/changeEvents/calendarDelete"
 import { TimeslotService, type TimeslotGetRequest } from "@/services/timeslots"
 import type { CalTimeslot } from "@/types/calendar"
-import type { Timeslot } from "@/types/other"
+import type { Person, Timeslot } from "@/types/other"
 import type { UnresolvedCalTimeslot, UnresolvedVueCalTimeslot, VueCalRef } from "@/types/vuecal"
 import { timeslotToAppTimeslot } from "@/utils/tranformators"
 import { onMounted, ref, type Ref } from "vue"
@@ -40,6 +40,16 @@ export function useCalendar(
     addChangeEvent(new CalendarCreateEvent(data.event, data.resolve))
   }
 
+  function updateEventPerson(person: Person | undefined) {
+    console.log("updated person")
+    if (selectedEvent.value && person) {
+      selectedEvent.value.title = person.name
+      timeslotService
+        .put({ id: selectedEvent.value.id, user_id: person.id })
+        .then(() => console.log("done"))
+    }
+  }
+
   onMounted(() => {
     timeslotService.get(request).then((timeslots) => {
       timeslots.forEach((timeslot: Timeslot) => {
@@ -57,5 +67,6 @@ export function useCalendar(
     clickTimeslot,
     deleteTimeslot,
     createTimeslot,
+    updateEventPerson,
   }
 }
