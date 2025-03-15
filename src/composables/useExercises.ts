@@ -4,7 +4,7 @@ import {
   responseToTableData,
   tableDataToWorkSet,
 } from "@/utils/tranformators"
-import { ref } from "vue"
+import { ref, watch } from "vue"
 import {
   ExerciseService,
   type ExerciseResponse,
@@ -29,7 +29,6 @@ import {
 } from "@/types/exercises"
 import type { NotificationType } from "@/types/other"
 import type { Ref } from "vue"
-import { watchOnce } from "@vueuse/core"
 import { TimeslotService } from "@/services/timeslots"
 
 export function useExercises(
@@ -149,8 +148,14 @@ export function useExercises(
     })
   }
 
-  watchOnce(exerciseRes, () => {
+  function clearExercises() {
+    exercises.value = []
+    exercisesOld.clear()
+  }
+
+  watch(exerciseRes, () => {
     if (exerciseRes.value) {
+      clearExercises()
       exerciseRes.value.exercises.forEach((e) => addNewTableData(e))
       exercises.value.sort((a, b) => sortRows(a, b))
     }

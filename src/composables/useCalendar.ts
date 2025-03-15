@@ -41,9 +41,9 @@ export function useCalendar(
   }
 
   function updateEventPerson(person: Person | undefined) {
-    console.log("updated person")
     if (selectedEvent.value && person) {
       selectedEvent.value.title = person.name
+      selectedEvent.value.class = "assigned"
       timeslotService.put({ id: selectedEvent.value.id, user_id: person.id })
     }
   }

@@ -38,8 +38,6 @@ const input = useTemplateRef("input")
 watchEffect(() => {
   if (input.value) {
     input.value.focus()
-  } else {
-    // not mounted yet, or the element was unmounted (e.g. by v-if)
   }
 })
 
@@ -69,7 +67,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-dialog max-width="500" :model-value="modelValue" @update:model-value="closeDialog">
+  <v-dialog :model-value="modelValue" @update:model-value="closeDialog">
     <v-card>
       <v-card-title>
         <div style="display: flex; align-items: center; width: 100%">

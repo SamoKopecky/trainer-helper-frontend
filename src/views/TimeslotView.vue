@@ -10,6 +10,7 @@ import { ExerciseService, type FullExerciseResponse } from "@/services/exercise"
 import { ref } from "vue"
 import { onMounted } from "vue"
 import { timeslotToAppTimeslot } from "@/utils/tranformators"
+import { ExerciseDuplicateService } from "@/services/exerciseDuplicate"
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "delete", type: "button", name: "", is_multirow: true },
@@ -29,6 +30,7 @@ defineProps({
 const route = useRoute()
 const timeslotId = Number(route.params.id)
 const exerciseService = new ExerciseService()
+const exerciseDuplicateService = new ExerciseDuplicateService()
 const exerciseRes = ref<FullExerciseResponse | undefined>()
 
 onMounted(() => {
@@ -43,6 +45,16 @@ const { exercises, addExercise, deleteExercise, updateTable, updateTitle } = use
   exerciseRes,
   addNotification,
 )
+
+function duplicateTimeslot(duplicateFrom: number | undefined) {
+  if (duplicateFrom) {
+    exerciseDuplicateService
+      .post({ copy_timeslot_id: duplicateFrom, timeslot_id: timeslotId })
+      .then((res) => {
+        exerciseRes.value = res
+      })
+  }
+}
 </script>
 
 <template>
@@ -51,6 +63,7 @@ const { exercises, addExercise, deleteExercise, updateTable, updateTitle } = use
     :app-timeslot="exerciseRes ? timeslotToAppTimeslot(exerciseRes.timeslot) : undefined"
     @add-exercise="addExercise"
     @update-title="updateTitle"
+    @duplicate-timeslot="duplicateTimeslot"
   >
     <ExerciseTable
       :columns="EXERCISE_COLUMNS"

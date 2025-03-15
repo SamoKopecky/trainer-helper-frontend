@@ -1,11 +1,18 @@
 <script setup lang="ts">
 import type { AppTimeslot } from "@/types/calendar"
-import { useTemplateRef, watchEffect } from "vue"
+import type { Timeslot } from "@/types/other"
+import { onMounted } from "vue"
+import { computed } from "vue"
+import { useTemplateRef, watch, watchEffect } from "vue"
 import { ref, type PropType } from "vue"
+import { TimeslotService } from "@/services/timeslots"
+import { deepClone } from "@/utils/tranformators"
+import { useRouter } from "vue-router"
 
-const emit = defineEmits(["add-exercise", "update-title"])
+const emit = defineEmits(["add-exercise", "update-title", "duplicate-timeslot"])
+const timeslotService = new TimeslotService()
 
-defineProps({
+const { appTimeslot } = defineProps({
   appTimeslot: {
     type: Object as PropType<AppTimeslot>,
     required: false,
@@ -13,24 +20,72 @@ defineProps({
   },
 })
 
-const titleEditable = ref(false)
-const title = ref<string | unknown>()
-const input = useTemplateRef("input")
+const router = useRouter()
+const nameEditable = ref(false)
+const dialogEnabled = ref(false)
+const timeslotName = ref<string | unknown>()
+const nameInput = useTemplateRef("nameInput")
+const duplicateInput = useTemplateRef("duplicateInput")
+const duplicateTimeslotId = ref<number | undefined>()
+const duplicateTimeslots = ref<Timeslot[]>([])
+
+const computedDuplicateTimeslots = computed(() => {
+  return duplicateTimeslots.value.map((timeslot) => {
+    const timeslotCopy = deepClone(timeslot)
+    timeslotCopy.name = `${timeslot.start.toLocaleDateString()} | ${timeslot.name}`
+    return timeslotCopy
+  })
+})
 
 watchEffect(() => {
-  if (input.value) {
-    input.value.focus()
-  } else {
-    // not mounted yet, or the element was unmounted (e.g. by v-if)
+  if (nameInput.value) {
+    nameInput.value.focus()
   }
 })
+
+watchEffect(() => {
+  if (duplicateInput.value) {
+    duplicateInput.value.focus()
+  }
+})
+
+watch(
+  // Fill in input field with old name
+  () => appTimeslot,
+  () => {
+    timeslotName.value = appTimeslot?.name
+  },
+)
+
+onMounted(() => {
+  const request = {
+    // TODO: Adjust start_date
+    start_date: "2025-01-20T12:00:00",
+    end_date: "2026-02-28T20:15:00",
+  }
+  timeslotService.get(request).then((res) => (duplicateTimeslots.value = res))
+})
+
+function duplicate() {
+  dialogEnabled.value = true
+}
+
 function buttonClick() {
-  titleEditable.value = !titleEditable.value
-  emit("update-title", title.value)
+  nameEditable.value = !nameEditable.value
+  emit("update-title", timeslotName.value)
 }
 
 function addExercise() {
   emit("add-exercise")
+}
+
+function submitDuplicate() {
+  dialogEnabled.value = false
+  emit("duplicate-timeslot", duplicateTimeslotId.value)
+}
+
+function backToCalendar() {
+  router.push({ path: "/calendar" })
 }
 </script>
 
@@ -45,21 +100,20 @@ function addExercise() {
       <v-row no-gutters>
         <v-col cols="12" sm="4" class="d-inline-flex align-center">
           <v-text-field
-            ref="input"
-            v-if="titleEditable"
-            v-model="title"
+            ref="nameInput"
+            v-if="nameEditable"
+            v-model="timeslotName"
             type="text"
             variant="plain"
             density="compact"
-            placeholder="Enter new title"
             hide-details
             @keydown.enter="buttonClick"
           />
-          <span v-if="!titleEditable">
+          <span v-if="!nameEditable">
             {{ appTimeslot?.name ?? "Title" }}
           </span>
           <v-icon small class="ml-2" @click="buttonClick">
-            {{ titleEditable ? "mdi-check" : "mdi-pencil" }}
+            {{ nameEditable ? "mdi-check" : "mdi-pencil" }}
           </v-icon>
         </v-col>
       </v-row>
@@ -67,10 +121,31 @@ function addExercise() {
   </v-card>
   <slot />
   <v-btn text="Add exercise" @click="addExercise" />
+  <v-btn text="Go back" @click="backToCalendar" />
+  <v-btn text="Duplicate from another timeslot" @click="duplicate" />
+  <v-dialog v-model="dialogEnabled">
+    <v-card title="Duplicate timeslot">
+      <v-card-text>
+        <v-autocomplete
+          ref="duplicateInput"
+          v-model="duplicateTimeslotId"
+          :items="computedDuplicateTimeslots"
+          item-title="name"
+          item-value="id"
+          hide-details="auto"
+          placeholder="Select timelost to duplicate"
+          @keydown.enter="submitDuplicate"
+        />
+        <span>Warning: this will override your current exercises</span>
+        <br />
+        <v-btn text="Confirm" @click="submitDuplicate"></v-btn>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped>
 .v-btn {
-  margin: 10px 0px 10px 10px;
+  margin: 1rem 0px 10px 1rem;
 }
 </style>
