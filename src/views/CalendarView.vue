@@ -8,11 +8,8 @@ import { useCalendar } from "@/composables/useCalendar"
 
 const { addChangeEvent, popChangeEvent } = useChangeEvents()
 const { showDialog, selectedEvent } = useEventDialog()
-const { events, vueCalRef, createTimeslot, deleteTimeslot, clickTimeslot } = useCalendar(
-  selectedEvent,
-  showDialog,
-  addChangeEvent,
-)
+const { events, vueCalRef, createTimeslot, deleteTimeslot, clickTimeslot, updateEventPerson } =
+  useCalendar(selectedEvent, showDialog, addChangeEvent)
 </script>
 
 <template>
@@ -21,6 +18,7 @@ const { events, vueCalRef, createTimeslot, deleteTimeslot, clickTimeslot } = use
     dark
     style="height: 100%"
     ref="vueCalRef"
+    events-on-month-view
     :editable-events="{ create: true, resize: false, drag: true, delete: true }"
     :events="events"
     :snap-to-interval="30"
@@ -35,6 +33,7 @@ const { events, vueCalRef, createTimeslot, deleteTimeslot, clickTimeslot } = use
   <EventDialog
     :selected-event="selectedEvent"
     @delete-cal-timeslot="deleteTimeslot"
+    @update-person="updateEventPerson"
     v-model="showDialog"
   >
   </EventDialog>
@@ -43,5 +42,30 @@ const { events, vueCalRef, createTimeslot, deleteTimeslot, clickTimeslot } = use
 <style>
 .vuecal--default-theme .vuecal__cell--selected::before {
   background-color: transparent;
+}
+.vuecal__event.no-user {
+  background-color: #79797a;
+}
+.vuecal {
+  .vuecal__scrollable--month-view {
+    .vuecal__cell {
+      display: flex;
+      min-height: 4rem;
+    }
+    .vuecal__event {
+      height: 15px;
+      margin-top: 1px;
+    }
+    .vuecal__event-details {
+      font-size: 12px;
+      white-space: nowrap;
+      padding: 0;
+    }
+    .vuecal__cell--has-events {
+      flex-direction: row-reverse;
+      overflow: hidden;
+      justify-content: flex-start;
+    }
+  }
 }
 </style>

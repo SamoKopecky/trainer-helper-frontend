@@ -4,8 +4,12 @@ import {
   responseToTableData,
   tableDataToWorkSet,
 } from "@/utils/tranformators"
-import { ref } from "vue"
-import { ExerciseService, type ExerciseResponse } from "@/services/exercise"
+import { ref, watch } from "vue"
+import {
+  ExerciseService,
+  type ExerciseResponse,
+  type FullExerciseResponse,
+} from "@/services/exercise"
 import { WorkSetService } from "@/services/worksets"
 import { ExerciseCountService } from "@/services/exerciseCount"
 import {
@@ -15,7 +19,6 @@ import {
   isWorkSetDiff,
   tableDataDiff,
 } from "@/utils/diff"
-import { onMounted } from "vue"
 import { sortRows } from "@/utils/exerciseTable"
 import {
   type ExerciseTableData,
@@ -25,13 +28,17 @@ import {
   ExerciseUpdateType,
 } from "@/types/exercises"
 import type { NotificationType } from "@/types/other"
+import type { Ref } from "vue"
+import { TimeslotService } from "@/services/timeslots"
 
 export function useExercises(
   timeslotId: number,
+  exerciseRes: Ref<FullExerciseResponse | undefined>,
   addNotification: (text: string, type: NotificationType) => void,
 ) {
   const workSetService = new WorkSetService()
   const exerciseService = new ExerciseService()
+  const timeslotService = new TimeslotService()
   const exerciseCountService = new ExerciseCountService()
 
   const exercises = ref<ExerciseTableData[]>([])
@@ -141,13 +148,17 @@ export function useExercises(
     })
   }
 
-  onMounted(() => {
-    exerciseService
-      .get(timeslotId)
-      .then((exercise) => exercise.forEach((e) => addNewTableData(e)))
-      .finally(() => {
-        exercises.value.sort((a, b) => sortRows(a, b))
-      })
+  function clearExercises() {
+    exercises.value = []
+    exercisesOld.clear()
+  }
+
+  watch(exerciseRes, () => {
+    if (exerciseRes.value) {
+      clearExercises()
+      exerciseRes.value.exercises.forEach((e) => addNewTableData(e))
+      exercises.value.sort((a, b) => sortRows(a, b))
+    }
   })
 
   function addExercise() {
@@ -191,5 +202,12 @@ export function useExercises(
       .catch((error: Error) => addNotification(error.message, "error"))
   }
 
-  return { exercises, addExercise, deleteExercise, updateTable }
+  function updateTitle(title: string | undefined) {
+    if (exerciseRes.value && title) {
+      exerciseRes.value.timeslot.name = title
+      timeslotService.put({ id: timeslotId, name: title })
+    }
+  }
+
+  return { exercises, addExercise, deleteExercise, updateTable, updateTitle }
 }

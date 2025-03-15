@@ -26,6 +26,9 @@ export function range(x: number): number[] {
 }
 
 export function getAllGroupIds(exercises: ExerciseTableData[]): number[] {
+  if (exercises.length === 0) {
+    return []
+  }
   const maxGroupId = Math.max(...exercises.map((e) => e.group_id))
   return Array.from(new Set(range(maxGroupId)).values())
 }

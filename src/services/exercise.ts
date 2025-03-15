@@ -1,5 +1,10 @@
-import type { Exercise, WorkSet } from "@/types/other"
+import type { Exercise, Timeslot, WorkSet } from "@/types/other"
 import { ServiceI, Method, Route } from "./base"
+
+export interface FullExerciseResponse {
+  exercises: ExerciseResponse[]
+  timeslot: Timeslot
+}
 
 export interface ExerciseResponse extends Exercise {
   work_sets: WorkSet[]
@@ -24,11 +29,11 @@ export interface ExerciseDeleteRequest {
 export class ExerciseService extends ServiceI {
   route = Route.Exercise
 
-  async get(timeslot_id: number): Promise<ExerciseResponse[]> {
+  async get(timeslot_id: number): Promise<FullExerciseResponse> {
     return this.handleRequest({
       method: Method.GET,
       url: `${this.get_api_url()}/${timeslot_id}`,
-    }) as Promise<ExerciseResponse[]>
+    }) as Promise<FullExerciseResponse>
   }
 
   async put(body: ExercisePutRequest): Promise<void> {

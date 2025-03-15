@@ -24,6 +24,11 @@ import {
   VSpacer,
   VAutocomplete,
   VBtn,
+  VDivider,
+  VRow,
+  VCol,
+  VTextField,
+  VContainer,
 } from "vuetify/components"
 import router from "./router"
 
@@ -47,6 +52,11 @@ const vuetify = createVuetify({
     VSlideYTransition,
     VAutocomplete,
     VBtn,
+    VDivider,
+    VRow,
+    VCol,
+    VTextField,
+    VContainer,
   },
   directives,
   icons: {

@@ -23,8 +23,16 @@ export interface Timeslot {
   id: number
   trainer_id: number
   user_id: number | null
+  person_name: string | null
+  name: string
   end: Date
   start: Date
+}
+
+export interface Person {
+  id: number
+  name: string
+  email: string
 }
 
 export type NotificationType = "success" | "info" | "warning" | "error" | undefined
