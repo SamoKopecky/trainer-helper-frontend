@@ -6,14 +6,21 @@ import { useEventDialog } from "@/composables/useEventDialog"
 import EventDialog from "@/components/EventDialog.vue"
 import { useCalendar } from "@/composables/useCalendar"
 
-const { addChangeEvent, popChangeEvent } = useChangeEvents()
+const { addChangeEvent, popChangeEvent, undoActive } = useChangeEvents()
 const { showDialog, selectedEvent } = useEventDialog()
-const { events, vueCalRef, createTimeslot, deleteTimeslot, clickTimeslot, updateEventPerson } =
-  useCalendar(selectedEvent, showDialog, addChangeEvent)
+const {
+  events,
+  vueCalRef,
+  createTimeslot,
+  deleteTimeslot,
+  clickTimeslot,
+  updateEventPerson,
+  eventMove,
+} = useCalendar(selectedEvent, showDialog, addChangeEvent)
 </script>
 
 <template>
-  <v-btn text="undo" @click="popChangeEvent" style="margin: 10px" />
+  <v-btn text="undo" @click="popChangeEvent" style="margin: 10px" :disabled="!undoActive" />
   <VueCal
     dark
     style="height: 100%"
@@ -28,6 +35,7 @@ const { events, vueCalRef, createTimeslot, deleteTimeslot, clickTimeslot, update
     :time-step="30"
     @event-click="clickTimeslot"
     @event-create="createTimeslot"
+    @event-drop="eventMove"
   ></VueCal>
 
   <EventDialog

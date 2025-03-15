@@ -1,7 +1,9 @@
 import type { ChangeEvent } from "@/changeEvents/base"
-import { CalendarCreateEvent } from "@/changeEvents/calendarCreate"
-import { CalendarDeleteEvent } from "@/changeEvents/calendarDelete"
+import { TimeslotCreateEvent } from "@/changeEvents/timeslotCreate"
+import { TimelostDeleteEvent } from "@/changeEvents/timeslotDelete"
+import { TimeslotMoveEvent } from "@/changeEvents/timestlotMove"
 import { TimeslotService, type TimeslotGetRequest } from "@/services/timeslots"
+import type { AppTimeslot } from "@/types/calendar"
 import type { CalTimeslot } from "@/types/calendar"
 import type { Person, Timeslot } from "@/types/other"
 import type { UnresolvedCalTimeslot, UnresolvedVueCalTimeslot, VueCalRef } from "@/types/vuecal"
@@ -15,6 +17,7 @@ export function useCalendar(
 ) {
   const vueCalRef = ref<VueCalRef | null>()
   const events = ref<Array<CalTimeslot>>([])
+  const oldEvents: Map<number, AppTimeslot> = new Map()
   const timeslotService = new TimeslotService()
   const request: TimeslotGetRequest = {
     start_date: "2025-01-20T12:00:00",
@@ -28,7 +31,7 @@ export function useCalendar(
 
   function deleteTimeslot(event: CalTimeslot | null) {
     if (event && vueCalRef.value) {
-      addChangeEvent(new CalendarDeleteEvent(event, vueCalRef.value.view))
+      addChangeEvent(new TimelostDeleteEvent(event, vueCalRef.value.view, oldEvents))
     }
     showDialog.value = false
   }
@@ -37,7 +40,7 @@ export function useCalendar(
     event: UnresolvedVueCalTimeslot
     resolve: (event: UnresolvedCalTimeslot) => void
   }) {
-    addChangeEvent(new CalendarCreateEvent(data.event, data.resolve))
+    addChangeEvent(new TimeslotCreateEvent(data.event, data.resolve, oldEvents, events.value))
   }
 
   function updateEventPerson(person: Person | undefined) {
@@ -48,13 +51,19 @@ export function useCalendar(
     }
   }
 
+  function eventMove(data: { e: Event; event: CalTimeslot; cell: unknown }) {
+    addChangeEvent(new TimeslotMoveEvent(oldEvents, data.event, events.value))
+  }
+
   onMounted(() => {
     timeslotService.get(request).then((timeslots) => {
       timeslots.forEach((timeslot: Timeslot) => {
         if (!vueCalRef.value) {
           throw new Error("Invalid vueCalRef")
         }
-        vueCalRef.value.view.createEvent(timeslotToAppTimeslot(timeslot))
+        const appTimeslot = timeslotToAppTimeslot(timeslot)
+        vueCalRef.value.view.createEvent(appTimeslot)
+        oldEvents.set(timeslot.id, appTimeslot)
       })
     })
   })
@@ -66,5 +75,6 @@ export function useCalendar(
     deleteTimeslot,
     createTimeslot,
     updateEventPerson,
+    eventMove,
   }
 }
