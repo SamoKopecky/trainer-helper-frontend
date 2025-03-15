@@ -19,7 +19,7 @@
     "@vue/typescript-plugin": "^2.2.0",
     "@vueuse/core": "^12.7.0",
     "vue": "^3.5.13",
-    "vue-cal": "^5.0.1-rc.7",
+    "vue-cal": "^5.0.1-rc.8",
     "vue-router": "^4.5.0",
     "vuetify": "^3.7.9"
   },

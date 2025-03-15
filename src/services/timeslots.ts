@@ -18,6 +18,8 @@ export interface TimeslotPutRequest {
   id: number
   name?: string
   user_id?: number
+  start?: string
+  end?: string
 }
 
 export interface TimeslotDeleteRequest {

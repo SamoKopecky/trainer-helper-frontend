@@ -1,22 +1,29 @@
 import { TimeslotService } from "@/services/timeslots"
 import type { ChangeEvent } from "./base"
-import type { CalTimeslot } from "@/types/calendar"
+import type { AppTimeslot, CalTimeslot } from "@/types/calendar"
 import { getISODateString } from "@/utils/date"
 import type { VueCalView } from "@/types/vuecal"
 import { timeslotToAppTimeslot } from "@/utils/tranformators"
 
-export class CalendarDeleteEvent implements ChangeEvent {
+export class TimelostDeleteEvent implements ChangeEvent {
   private timeslot: CalTimeslot
   private calendarView: VueCalView
   private service: TimeslotService
+  private eventsCopy: Map<number, AppTimeslot>
 
-  constructor(timeslot: CalTimeslot, calendarView: VueCalView) {
+  constructor(
+    timeslot: CalTimeslot,
+    calendarView: VueCalView,
+    eventsCopy: Map<number, AppTimeslot>,
+  ) {
     this.timeslot = timeslot
     this.calendarView = calendarView
     this.service = new TimeslotService()
+    this.eventsCopy = eventsCopy
   }
 
   public async up() {
+    this.eventsCopy.delete(this.timeslot.id)
     this.service.delete({ timeslot_id: this.timeslot.id }).then(() => this.timeslot.delete(3))
   }
 
@@ -28,7 +35,9 @@ export class CalendarDeleteEvent implements ChangeEvent {
         end: getISODateString(this.timeslot.end),
       })
       .then((timeslot) => {
-        this.calendarView.createEvent(timeslotToAppTimeslot(timeslot))
+        const appTimeslot = timeslotToAppTimeslot(timeslot)
+        this.eventsCopy.set(appTimeslot.id, appTimeslot)
+        this.calendarView.createEvent(appTimeslot)
       })
   }
 }
