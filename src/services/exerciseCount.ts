@@ -1,6 +1,5 @@
 import { ServiceI, Method, Route } from "./base"
-import { isArray } from "@/utils/service"
-import type { WorkSet, WorkSetModel } from "@/types/other"
+import type { WorkSet } from "@/types/other"
 
 export interface ExerciseCountDeleteRequest {
   work_set_ids: number[]
@@ -15,24 +14,11 @@ export interface ExerciseCountPutRequest {
 export class ExerciseCountService extends ServiceI {
   route = Route.ExerciseCount
 
-  private parseWorkSetModels(obj: unknown): WorkSetModel[] {
-    if (!isArray(obj)) {
-      throw new Error("Invalid response: expected an array")
-    }
-
-    return obj.map((o: any): WorkSetModel => {
-      o["work_set_id"] = o["id"]
-      delete o["id"]
-      return o
-    })
-  }
-
-  async put(body: ExerciseCountPutRequest): Promise<WorkSetModel[]> {
+  async put(body: ExerciseCountPutRequest): Promise<WorkSet[]> {
     return this.handleRequest({
       body,
       method: Method.PUT,
-      toRes: this.parseWorkSetModels,
-    }) as Promise<WorkSetModel[]>
+    }) as Promise<WorkSet[]>
   }
 
   async delete(body: ExerciseCountDeleteRequest): Promise<number> {

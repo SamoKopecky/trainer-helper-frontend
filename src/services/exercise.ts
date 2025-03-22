@@ -28,9 +28,6 @@ export interface ExerciseDeleteRequest {
 
 export class ExerciseService extends ServiceI {
   route = Route.Exercise
-  protected get_api_url() {
-    return `http://localhost:1323${this.route}`
-  }
 
   async get(timeslot_id: number): Promise<FullExerciseResponse> {
     return this.handleRequest({

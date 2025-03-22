@@ -29,10 +29,6 @@ export interface TimeslotDeleteRequest {
 export class TimeslotService extends ServiceI {
   route = Route.Timeslot
 
-  protected get_api_url() {
-    return `http://localhost:1323${this.route}`
-  }
-
   private parseTimeslots(obj: unknown): Timeslot[] {
     if (!isArray(obj)) {
       throw new Error("Invalid response: expected an array")

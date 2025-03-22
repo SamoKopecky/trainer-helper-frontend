@@ -1,7 +1,7 @@
 import type { ExerciseResponse } from "@/services/exercise"
 import type { AppTimeslot } from "@/types/calendar"
 import type { ExerciseTableData } from "@/types/exercises"
-import type { Timeslot, WorkSet, WorkSetModel } from "@/types/other"
+import type { Timeslot, WorkSet } from "@/types/other"
 import { EMPTY_USER } from "@/constants"
 
 export function deepClone(obj: unknown) {
@@ -9,14 +9,18 @@ export function deepClone(obj: unknown) {
 }
 
 export function responseToTableData(response: ExerciseResponse): ExerciseTableData[] {
+  console.log(response)
   return response.work_sets.map(
     (work_set: WorkSet, index: number): ExerciseTableData => ({
-      ...work_set,
+      work_set_id: work_set.id,
+      reps: work_set.reps,
+      intensity: work_set.intensity,
+      rpe: work_set.rpe,
       is_main: index === 0,
       note: response.note,
       group_id: response.group_id,
       set_type: response.set_type,
-      exercise_id: response.exercise_id,
+      exercise_id: response.id,
       work_set_count: response.work_set_count,
       // Needs to be updated manually
       work_set_count_display: response.work_set_count,
@@ -26,7 +30,8 @@ export function responseToTableData(response: ExerciseResponse): ExerciseTableDa
 
 export function tableDataToWorkSet(data: ExerciseTableData): WorkSet {
   return {
-    work_set_id: data.work_set_id,
+    id: data.work_set_id,
+    exercise_id: data.exercise_id,
     rpe: data.rpe,
     reps: data.reps,
     intensity: data.intensity,
@@ -35,12 +40,16 @@ export function tableDataToWorkSet(data: ExerciseTableData): WorkSet {
 
 export function mergeTableDataAndWorkSetModel(
   tableRow: ExerciseTableData,
-  work_set: WorkSetModel,
+  work_set: WorkSet,
   is_main: boolean,
   count: number,
 ): ExerciseTableData {
   return {
-    ...work_set,
+    exercise_id: work_set.exercise_id,
+    work_set_id: work_set.id,
+    reps: work_set.reps,
+    intensity: work_set.intensity,
+    rpe: work_set.rpe,
     note: tableRow.note,
     group_id: tableRow.group_id,
     set_type: tableRow.set_type,

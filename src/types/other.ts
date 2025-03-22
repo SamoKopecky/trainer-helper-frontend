@@ -1,18 +1,15 @@
 import { SetType } from "./exercises"
 
 export interface WorkSet {
-  work_set_id: number
+  id: number
+  exercise_id: number
   reps: number
   intensity: string
   rpe: number | null
 }
 
-export interface WorkSetModel extends WorkSet {
-  exercise_id: number
-}
-
 export interface Exercise {
-  exercise_id: number
+  id: number
   group_id: number
   note: string | null
   set_type: SetType
