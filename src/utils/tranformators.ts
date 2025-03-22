@@ -2,7 +2,6 @@ import type { ExerciseResponse } from "@/services/exercise"
 import type { AppTimeslot } from "@/types/calendar"
 import type { ExerciseTableData } from "@/types/exercises"
 import type { Timeslot, WorkSet, WorkSetModel } from "@/types/other"
-import { isoToLocal } from "./date"
 import { EMPTY_USER } from "@/constants"
 
 export function deepClone(obj: unknown) {
@@ -56,8 +55,8 @@ export function timeslotToAppTimeslot(timeslot: Timeslot): AppTimeslot {
   return {
     ...timeslot,
     title: timeslot.person_name?.toString() ?? EMPTY_USER,
-    start: isoToLocal(timeslot.start.toString()),
-    end: isoToLocal(timeslot.end.toString()),
+    start: new Date(timeslot.start),
+    end: new Date(timeslot.end),
     class: isAssigned ? "assigned" : "no-user",
   }
 }

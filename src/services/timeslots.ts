@@ -23,11 +23,15 @@ export interface TimeslotPutRequest {
 }
 
 export interface TimeslotDeleteRequest {
-  timeslot_id: number
+  id: number
 }
 
 export class TimeslotService extends ServiceI {
   route = Route.Timeslot
+
+  protected get_api_url() {
+    return `http://localhost:1323${this.route}`
+  }
 
   private parseTimeslots(obj: unknown): Timeslot[] {
     if (!isArray(obj)) {

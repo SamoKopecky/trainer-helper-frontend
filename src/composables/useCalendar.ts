@@ -20,8 +20,8 @@ export function useCalendar(
   const oldEvents: Map<number, AppTimeslot> = new Map()
   const timeslotService = new TimeslotService()
   const request: TimeslotGetRequest = {
-    start_date: "2025-01-20T12:00:00",
-    end_date: "2026-02-28T20:15:00",
+    start_date: "2025-01-20T12:00:00Z",
+    end_date: "2026-02-28T20:15:00Z",
   }
 
   function clickTimeslot(data: { e: Event; event: CalTimeslot }) {
