@@ -9,7 +9,6 @@ export function deepClone(obj: unknown) {
 }
 
 export function responseToTableData(response: ExerciseResponse): ExerciseTableData[] {
-  console.log(response)
   return response.work_sets.map(
     (work_set: WorkSet, index: number): ExerciseTableData => ({
       work_set_id: work_set.id,

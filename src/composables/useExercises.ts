@@ -68,7 +68,6 @@ export function useExercises(
   ): Promise<void> {
     const indexStart = exercises.value.indexOf(exercise) + 1
     const request = {
-      id: diff.id,
       count: diff.work_set_count - oldCount,
       work_set_template: tableDataToWorkSet(exercise),
     }

@@ -6,7 +6,6 @@ export interface ExerciseCountDeleteRequest {
 }
 
 export interface ExerciseCountPutRequest {
-  id: number
   count: number
   work_set_template: WorkSet
 }
