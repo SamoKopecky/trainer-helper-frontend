@@ -71,7 +71,6 @@ function duplicate() {
 }
 
 function buttonClick() {
-  console.log(nameEditable.value)
   nameEditable.value = !nameEditable.value
   if (nameEditable.value === false) {
     emit("update-title", timeslotName.value)
