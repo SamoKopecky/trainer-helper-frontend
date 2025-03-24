@@ -71,8 +71,11 @@ function duplicate() {
 }
 
 function buttonClick() {
+  console.log(nameEditable.value)
   nameEditable.value = !nameEditable.value
-  emit("update-title", timeslotName.value)
+  if (nameEditable.value === false) {
+    emit("update-title", timeslotName.value)
+  }
 }
 
 function addExercise() {

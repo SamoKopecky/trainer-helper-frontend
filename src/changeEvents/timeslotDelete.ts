@@ -1,14 +1,14 @@
 import { TimeslotService } from "@/services/timeslots"
+import { TimeslotRevertService } from "@/services/timeslotRevert"
 import type { ChangeEvent } from "./base"
 import type { AppTimeslot, CalTimeslot } from "@/types/calendar"
-import { getISODateString } from "@/utils/date"
 import type { VueCalView } from "@/types/vuecal"
-import { timeslotToAppTimeslot } from "@/utils/tranformators"
 
 export class TimelostDeleteEvent implements ChangeEvent {
   private timeslot: CalTimeslot
   private calendarView: VueCalView
-  private service: TimeslotService
+  private timeslotService: TimeslotService
+  private timeslotRevertService: TimeslotRevertService
   private eventsCopy: Map<number, AppTimeslot>
 
   constructor(
@@ -18,26 +18,26 @@ export class TimelostDeleteEvent implements ChangeEvent {
   ) {
     this.timeslot = timeslot
     this.calendarView = calendarView
-    this.service = new TimeslotService()
+    this.timeslotService = new TimeslotService()
+    this.timeslotRevertService = new TimeslotRevertService()
     this.eventsCopy = eventsCopy
   }
 
   public async up() {
-    this.eventsCopy.delete(this.timeslot.id)
-    this.service.delete({ id: this.timeslot.id }).then(() => this.timeslot.delete(3))
+    this.timeslotService.delete({ id: this.timeslot.id }).then(() => {
+      this.eventsCopy.delete(this.timeslot.id)
+      this.timeslot.delete(3)
+    })
   }
 
   public down() {
-    this.service
-      .post({
-        trainer_id: 1,
-        start: getISODateString(this.timeslot.start),
-        end: getISODateString(this.timeslot.end),
+    this.timeslotRevertService
+      .put({
+        id: this.timeslot.id,
       })
-      .then((timeslot) => {
-        const appTimeslot = timeslotToAppTimeslot(timeslot)
-        this.eventsCopy.set(appTimeslot.id, appTimeslot)
-        this.calendarView.createEvent(appTimeslot)
+      .then(() => {
+        this.eventsCopy.set(this.timeslot.id, this.timeslot)
+        this.calendarView.createEvent(this.timeslot)
       })
   }
 }

@@ -2,6 +2,7 @@ const API_BASE_URL = import.meta.env.VITE_APP_BACKEND ?? "http://localhost:1323"
 
 export enum Route {
   Timeslot = "/timeslot",
+  TimeslotRevert = "/timeslot/revert",
   WorkSet = "/workset",
   Exercise = "/exercise",
   ExerciseCount = "/exercise/count",

@@ -20,6 +20,7 @@ export interface TimeslotPutRequest {
   user_id?: number
   start?: string
   end?: string
+  deleted_at?: string
 }
 
 export interface TimeslotDeleteRequest {
