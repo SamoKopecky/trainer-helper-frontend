@@ -20,10 +20,11 @@ export interface TimeslotPutRequest {
   user_id?: number
   start?: string
   end?: string
+  deleted_at?: string
 }
 
 export interface TimeslotDeleteRequest {
-  timeslot_id: number
+  id: number
 }
 
 export class TimeslotService extends ServiceI {

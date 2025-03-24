@@ -60,8 +60,8 @@ watch(
 onMounted(() => {
   const request = {
     // TODO: Adjust start_date
-    start_date: "2025-01-20T12:00:00",
-    end_date: "2026-02-28T20:15:00",
+    start_date: "2025-01-20T12:00:00Z",
+    end_date: "2026-02-28T20:15:00Z",
   }
   timeslotService.get(request).then((res) => (duplicateTimeslots.value = res))
 })
@@ -72,7 +72,9 @@ function duplicate() {
 
 function buttonClick() {
   nameEditable.value = !nameEditable.value
-  emit("update-title", timeslotName.value)
+  if (nameEditable.value === false) {
+    emit("update-title", timeslotName.value)
+  }
 }
 
 function addExercise() {

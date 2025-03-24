@@ -44,7 +44,8 @@ export interface WorkSetCountDiff extends Diff {
   work_set_count: number
 }
 
-export interface ExerciseTableData extends WorkSet, Exercise {
+export interface ExerciseTableData extends Omit<WorkSet, "id">, Omit<Exercise, "id"> {
+  work_set_id: number
   is_main: boolean
   work_set_count_display: number
 }
