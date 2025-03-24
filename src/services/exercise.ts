@@ -6,7 +6,7 @@ export interface FullExerciseResponse {
   timeslot: Timeslot
 }
 
-export interface ExerciseResponse extends Exercise {
+export interface ExerciseResponse extends Omit<Exercise, "work_set_count"> {
   work_sets: WorkSet[]
 }
 

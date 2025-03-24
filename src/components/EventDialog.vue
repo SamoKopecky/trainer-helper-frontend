@@ -100,7 +100,7 @@ onMounted(() => {
         <p style="padding-bottom: 1rem">{{ selectedEvent?.name }}</p>
         <v-btn
           style="margin-left: 0px"
-          text="Go exericse"
+          text="Go to timeslot"
           @click="redirectExercise(selectedEvent)"
         />
         <v-btn text="Delete timeslot" @click="deleteCalTimeslot(selectedEvent)" />

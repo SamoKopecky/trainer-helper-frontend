@@ -20,9 +20,9 @@ export function responseToTableData(response: ExerciseResponse): ExerciseTableDa
       group_id: response.group_id,
       set_type: response.set_type,
       exercise_id: response.id,
-      work_set_count: response.work_set_count,
+      work_set_count: response.work_sets.length,
       // Needs to be updated manually
-      work_set_count_display: response.work_set_count,
+      work_set_count_display: response.work_sets.length,
     }),
   )
 }

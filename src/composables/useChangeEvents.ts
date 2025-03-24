@@ -8,7 +8,7 @@ export function useChangeEvents() {
 
   function addChangeEvent(event: ChangeEvent) {
     changeEvents.value.push(event)
-    return event.up()
+    event.up()
   }
 
   function popChangeEvent() {
