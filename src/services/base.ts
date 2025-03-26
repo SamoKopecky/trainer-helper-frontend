@@ -1,4 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_APP_BACKEND ?? "http://localhost:2001"
+import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
+import axios, { type AxiosRequestConfig } from "axios"
 
 export enum Route {
   Timeslot = "/timeslot",
@@ -24,7 +26,7 @@ export abstract class ServiceI {
     return `${API_BASE_URL}${this.route}`
   }
   protected get_headers() {
-    return new Headers({ "Content-Type": "application/json" })
+    return { "Content-Type": "application/json" }
   }
 
   async handleRequest<RequestT, ResponseT>({
@@ -38,27 +40,38 @@ export abstract class ServiceI {
     toRes?: (obj: unknown) => ResponseT
     url?: string
   }): Promise<ResponseT | void> {
-    const request = {
-      method: method,
-      headers: this.get_headers(),
-      body: JSON.stringify(body),
-    }
-
     if (!url) {
       url = this.get_api_url()
     }
-    const response = await fetch(url, request)
 
-    if (!response.ok) {
+    const request: AxiosRequestConfig = {
+      method: method.toString().toLowerCase(),
+      headers: this.get_headers(),
+      data: JSON.stringify(body),
+      url: url,
+    }
+
+    const response = await axios(request)
+
+    if (response.status !== 200) {
       throw new Error(`Error status: ${response.status} and text: ${response.statusText}`)
     }
 
-    if (response.status == 204 || response.headers.get("Content-Length") === "0") {
-      return
-    }
-
-    const res = toRes(await response.json())
-
-    return res
+    return toRes(response.data)
   }
+}
+
+export function tokenInterceptor() {
+  axios.interceptors.request.use(
+    (config) => {
+      const keycloak = useKeycloak()
+      if (keycloak.authenticated) {
+        config.headers.Authorization = `Bearer ${keycloak.token}`
+      }
+      return config
+    },
+    (error) => {
+      return Promise.reject(error)
+    },
+  )
 }

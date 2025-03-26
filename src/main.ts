@@ -4,7 +4,6 @@ import "@mdi/font/css/materialdesignicons.css"
 import "vuetify/styles"
 import { createVuetify } from "vuetify"
 import * as directives from "vuetify/directives"
-import { VCalendar } from "vuetify/labs/VCalendar"
 import App from "./App.vue"
 import {
   VAlert,
@@ -31,11 +30,12 @@ import {
   VContainer,
 } from "vuetify/components"
 import router from "./router"
+import VueKeyCloak from "@dsb-norge/vue-keycloak-js"
+import { tokenInterceptor } from "./services/base"
 
 const vuetify = createVuetify({
   components: {
     VCardText,
-    VCalendar,
     VListItem,
     VNavigationDrawer,
     VAppBarNavIcon,
@@ -67,4 +67,22 @@ const vuetify = createVuetify({
   },
 })
 
-createApp(App).use(router).use(vuetify).mount("#app")
+const app = createApp(App)
+app
+  .use(router)
+  .use(vuetify)
+  .use(VueKeyCloak, {
+    config: {
+      url: "http://localhost:8080",
+      realm: "trainer-helper",
+      clientId: "trainer-helper",
+    },
+    init: {
+      onLoad: "login-required",
+      silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
+    },
+    onReady: () => {
+      tokenInterceptor()
+      app.mount("#app")
+    },
+  })

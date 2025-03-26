@@ -27,7 +27,7 @@ watch(
   },
 )
 
-const selectedId = ref<number | undefined>()
+const selectedId = ref<string | undefined>()
 const persons = ref<Person[]>()
 const titleEditable = ref(false)
 const router = useRouter()

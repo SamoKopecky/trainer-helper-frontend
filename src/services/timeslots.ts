@@ -9,7 +9,7 @@ export interface TimeslotGetRequest {
 }
 
 export interface TimeslotPostRequest {
-  trainer_id: number
+  trainer_id: string
   start: string
   end: string
 }
@@ -17,7 +17,7 @@ export interface TimeslotPostRequest {
 export interface TimeslotPutRequest {
   id: number
   name?: string
-  user_id?: number
+  trainee_id?: string
   start?: string
   end?: string
   deleted_at?: string

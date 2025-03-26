@@ -12,25 +12,28 @@ export class TimeslotCreateEvent implements ChangeEvent {
   private eventsCopy: Map<number, AppTimeslot>
   private events: CalTimeslot[]
   private createdTimeslot?: AppTimeslot
+  private subjectId: string
 
   constructor(
     timeslot: UnresolvedVueCalTimeslot,
     eventResolver: (event: UnresolvedCalTimeslot) => void,
     eventsCopy: Map<number, AppTimeslot>,
     events: CalTimeslot[],
+    subjectId: string,
   ) {
     this.timeslot = timeslot
     this.eventResolver = eventResolver
     this.service = new TimeslotService()
     this.events = events
     this.eventsCopy = eventsCopy
+    this.subjectId = subjectId
   }
 
   public up() {
     this.service
       .post({
         // TODO: Adjust trainer ids and user ids, make colors based on user ids
-        trainer_id: 1,
+        trainer_id: this.subjectId,
         start: getISODateString(this.timeslot.start),
         end: getISODateString(this.timeslot.end),
       })

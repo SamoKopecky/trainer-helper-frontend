@@ -40,14 +40,14 @@ export function useCalendar(
     event: UnresolvedVueCalTimeslot
     resolve: (event: UnresolvedCalTimeslot) => void
   }) {
-    addChangeEvent(new TimeslotCreateEvent(data.event, data.resolve, oldEvents, events.value))
+    addChangeEvent(new TimeslotCreateEvent(data.event, data.resolve, oldEvents, events.value, "a"))
   }
 
   function updateEventPerson(person: Person | undefined) {
     if (selectedEvent.value && person) {
       selectedEvent.value.title = person.name
       selectedEvent.value.class = "assigned"
-      timeslotService.put({ id: selectedEvent.value.id, user_id: person.id })
+      timeslotService.put({ id: selectedEvent.value.id, trainee_id: person.id })
     }
   }
 
