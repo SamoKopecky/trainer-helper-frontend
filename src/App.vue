@@ -3,6 +3,7 @@ import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
 import { ref } from "vue"
 import { useRoute } from "vue-router"
 import { useTheme } from "vuetify"
+import { capitalizeWords } from "./utils/user"
 
 const keycloak = useKeycloak()
 const drawer = ref(false)
@@ -33,7 +34,9 @@ function toggleTheme() {
       <v-app-bar-title>{{ route.name }}</v-app-bar-title>
 
       <v-btn @click="toggleTheme" x-large icon="mdi-theme-light-dark" class="mr-2" />
-      <span class="font-weight-medium" style="margin-right: 0.25rem">{{ keycloak.fullName }}</span>
+      <span class="font-weight-medium" style="margin-right: 0.25rem">{{
+        capitalizeWords(keycloak.fullName)
+      }}</span>
       <v-icon style="margin-right: 0.5rem">mdi-account</v-icon>
       <v-btn text="Logout" style="margin-right: 1rem" @click="LogOut" />
     </v-app-bar>
