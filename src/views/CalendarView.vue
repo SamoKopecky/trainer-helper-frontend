@@ -6,6 +6,7 @@ import { useEventDialog } from "@/composables/useEventDialog"
 import EventDialog from "@/components/EventDialog.vue"
 import { useCalendar } from "@/composables/useCalendar"
 import { useUser } from "@/composables/useUser"
+import { useTheme } from "vuetify"
 const { addChangeEvent, popChangeEvent, undoActive } = useChangeEvents()
 const { showDialog, selectedEvent } = useEventDialog()
 const {
@@ -18,6 +19,7 @@ const {
   eventMove,
 } = useCalendar(selectedEvent, showDialog, addChangeEvent)
 const { isTrainer } = useUser()
+const theme = useTheme()
 </script>
 
 <template>
@@ -28,7 +30,7 @@ const { isTrainer } = useUser()
     :disabled="!undoActive"
   />
   <VueCal
-    dark
+    :dark="theme.global.current.value.dark"
     style="height: 100%"
     ref="vueCalRef"
     events-on-month-view
