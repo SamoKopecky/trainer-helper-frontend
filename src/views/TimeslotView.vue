@@ -11,6 +11,7 @@ import { ref } from "vue"
 import { onMounted } from "vue"
 import { timeslotToAppTimeslot } from "@/utils/tranformators"
 import { ExerciseDuplicateService } from "@/services/exerciseDuplicate"
+import { useUser } from "@/composables/useUser"
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "delete", type: "button", name: "", is_multirow: true },
@@ -32,6 +33,7 @@ const timeslotId = Number(route.params.id)
 const exerciseService = new ExerciseService()
 const exerciseDuplicateService = new ExerciseDuplicateService()
 const exerciseRes = ref<FullExerciseResponse | undefined>()
+const { isTrainer } = useUser()
 
 onMounted(() => {
   exerciseService.get(timeslotId).then((res) => {
@@ -61,6 +63,7 @@ function duplicateTimeslot(duplicateFrom: number | undefined) {
   <NotificationFloat :notifications="notifications" />
   <TimeslotControlPanel
     :app-timeslot="exerciseRes ? timeslotToAppTimeslot(exerciseRes.timeslot) : undefined"
+    :is-trainer="isTrainer"
     @add-exercise="addExercise"
     @update-title="updateTitle"
     @duplicate-timeslot="duplicateTimeslot"

@@ -8,6 +8,7 @@ import type { CalTimeslot } from "@/types/calendar"
 import type { Person, Timeslot } from "@/types/other"
 import type { UnresolvedCalTimeslot, UnresolvedVueCalTimeslot, VueCalRef } from "@/types/vuecal"
 import { timeslotToAppTimeslot } from "@/utils/tranformators"
+import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
 import { onMounted, ref, type Ref } from "vue"
 
 export function useCalendar(
@@ -15,6 +16,7 @@ export function useCalendar(
   showDialog: Ref<boolean, boolean>,
   addChangeEvent: (event: ChangeEvent) => void,
 ) {
+  const keycloack = useKeycloak()
   const vueCalRef = ref<VueCalRef | null>()
   const events = ref<Array<CalTimeslot>>([])
   const oldEvents: Map<number, AppTimeslot> = new Map()
@@ -40,7 +42,15 @@ export function useCalendar(
     event: UnresolvedVueCalTimeslot
     resolve: (event: UnresolvedCalTimeslot) => void
   }) {
-    addChangeEvent(new TimeslotCreateEvent(data.event, data.resolve, oldEvents, events.value, "a"))
+    addChangeEvent(
+      new TimeslotCreateEvent(
+        data.event,
+        data.resolve,
+        oldEvents,
+        events.value,
+        keycloack.tokenParsed?.sub as string,
+      ),
+    )
   }
 
   function updateEventPerson(person: Person | undefined) {

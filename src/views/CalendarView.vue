@@ -5,7 +5,7 @@ import { useChangeEvents } from "@/composables/useChangeEvents"
 import { useEventDialog } from "@/composables/useEventDialog"
 import EventDialog from "@/components/EventDialog.vue"
 import { useCalendar } from "@/composables/useCalendar"
-
+import { useUser } from "@/composables/useUser"
 const { addChangeEvent, popChangeEvent, undoActive } = useChangeEvents()
 const { showDialog, selectedEvent } = useEventDialog()
 const {
@@ -17,16 +17,27 @@ const {
   updateEventPerson,
   eventMove,
 } = useCalendar(selectedEvent, showDialog, addChangeEvent)
+const { isTrainer } = useUser()
 </script>
 
 <template>
-  <v-btn text="undo" @click="popChangeEvent" style="margin: 10px" :disabled="!undoActive" />
+  <v-btn
+    text="Undo previous action"
+    @click="popChangeEvent"
+    style="margin: 10px"
+    :disabled="!undoActive"
+  />
   <VueCal
     dark
     style="height: 100%"
     ref="vueCalRef"
     events-on-month-view
-    :editable-events="{ create: true, resize: false, drag: true, delete: true }"
+    :editable-events="{
+      create: isTrainer,
+      resize: false,
+      drag: isTrainer,
+      delete: isTrainer,
+    }"
     :events="events"
     :snap-to-interval="30"
     :views="['day', 'week', 'month']"
@@ -40,6 +51,7 @@ const {
 
   <EventDialog
     :selected-event="selectedEvent"
+    :is-trainer="isTrainer"
     @delete-cal-timeslot="deleteTimeslot"
     @update-person="updateEventPerson"
     v-model="showDialog"
