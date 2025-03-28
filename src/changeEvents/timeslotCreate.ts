@@ -29,8 +29,8 @@ export class TimeslotCreateEvent implements ChangeEvent {
     this.subjectId = subjectId
   }
 
-  public up() {
-    this.service
+  public async up() {
+    return this.service
       .post({
         // TODO: Adjust trainer ids and user ids, make colors based on user ids
         trainer_id: this.subjectId,
@@ -50,16 +50,16 @@ export class TimeslotCreateEvent implements ChangeEvent {
       })
   }
 
-  public down() {
+  public async down() {
     if (!this.createdTimeslot) {
-      throw new Error("Missing timeslot to delete")
+      return Promise.reject(new Error("Missing timeslot to delete"))
     }
-    this.service.delete({ id: this.createdTimeslot?.id }).then(() => {
+    return this.service.delete({ id: this.createdTimeslot?.id }).then(() => {
       // Can't be undefined, see condition above
       const createdTimeslot = this.createdTimeslot as AppTimeslot
       const createdTimeslotEvent = this.events.find((e) => e.id === createdTimeslot.id)
       if (!createdTimeslotEvent) {
-        throw new Error("Missing timeslot to delete")
+        return Promise.reject(new Error("Missing timeslot to delete"))
       }
       // 3 -- Delete completly
       createdTimeslotEvent.delete(3)

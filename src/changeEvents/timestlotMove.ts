@@ -29,22 +29,22 @@ export class TimeslotMoveEvent implements ChangeEvent {
     }
   }
 
-  up() {
-    this.service.put(this.generateUpdatePayload(this.newTimeslot)).then(() => {
+  async up(): Promise<void> {
+    return this.service.put(this.generateUpdatePayload(this.newTimeslot)).then(() => {
       const oldTimeslot = this.eventsCopy.get(this.newTimeslot.id)
       if (!oldTimeslot) {
-        throw new Error("No old event found during move event")
+        return Promise.reject(new Error("No old event found during move event"))
       }
       this.oldTimeslot = oldTimeslot
       this.eventsCopy.set(this.newTimeslot.id, this.newTimeslot)
     })
   }
 
-  down() {
+  async down(): Promise<void> {
     if (!this.oldTimeslot) {
-      throw new Error("No old event found during move event")
+      return Promise.reject(new Error("No old event found during move event"))
     }
-    this.service.put(this.generateUpdatePayload(this.oldTimeslot)).then(() => {
+    return this.service.put(this.generateUpdatePayload(this.oldTimeslot)).then(() => {
       this.eventsCopy.set(this.newTimeslot.id, this.oldTimeslot as AppTimeslot)
       const timeslot = this.events.find((e) => e.id == this.newTimeslot.id)!
       timeslot.end = this.oldTimeslot!.end

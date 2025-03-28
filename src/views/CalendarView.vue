@@ -7,7 +7,11 @@ import EventDialog from "@/components/EventDialog.vue"
 import { useCalendar } from "@/composables/useCalendar"
 import { useUser } from "@/composables/useUser"
 import { useTheme } from "vuetify"
-const { addChangeEvent, popChangeEvent, undoActive } = useChangeEvents()
+import { useNotifications } from "@/composables/useNotifications"
+import NotificationFloat from "@/components/NotificationFloat.vue"
+
+const { notifications, addNotification } = useNotifications()
+const { addChangeEvent, popChangeEvent, undoActive } = useChangeEvents(addNotification)
 const { showDialog, selectedEvent } = useEventDialog()
 const {
   events,
@@ -23,6 +27,7 @@ const theme = useTheme()
 </script>
 
 <template>
+  <NotificationFloat :notifications="notifications" />
   <v-btn
     text="Undo previous action"
     @click="popChangeEvent"

@@ -1,6 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_APP_BACKEND ?? "http://localhost:2001"
 import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
-import axios, { type AxiosRequestConfig } from "axios"
+import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios"
 
 export enum Route {
   Timeslot = "/timeslot",
@@ -51,13 +51,16 @@ export abstract class ServiceI {
       url: url,
     }
 
-    const response = await axios(request)
-
-    if (response.status !== 200) {
-      throw new Error(`Error status: ${response.status} and text: ${response.statusText}`)
-    }
-
-    return toRes(response.data)
+    return axios(request)
+      .then((response: AxiosResponse) => {
+        return toRes(response.data)
+      })
+      .catch((error: AxiosError) => {
+        // TODO: make user friendly
+        return Promise.reject(
+          Error(`Error status: ${error.status} and text: ${error.response?.statusText}`),
+        )
+      })
   }
 }
 
