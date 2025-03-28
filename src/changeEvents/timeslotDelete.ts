@@ -24,14 +24,14 @@ export class TimelostDeleteEvent implements ChangeEvent {
   }
 
   public async up() {
-    this.timeslotService.delete({ id: this.timeslot.id }).then(() => {
+    return this.timeslotService.delete({ id: this.timeslot.id }).then(() => {
       this.eventsCopy.delete(this.timeslot.id)
       this.timeslot.delete(3)
     })
   }
 
-  public down() {
-    this.timeslotRevertService
+  public async down() {
+    return this.timeslotRevertService
       .put({
         id: this.timeslot.id,
       })

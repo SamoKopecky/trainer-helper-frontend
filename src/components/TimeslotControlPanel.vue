@@ -18,6 +18,10 @@ const { appTimeslot } = defineProps({
     required: false,
     default: undefined,
   },
+  isTrainer: {
+    type: Boolean,
+    required: true,
+  },
 })
 
 const router = useRouter()
@@ -114,7 +118,7 @@ function backToCalendar() {
           <span v-if="!nameEditable">
             {{ appTimeslot?.name ?? "Title" }}
           </span>
-          <v-icon small class="ml-2" @click="buttonClick">
+          <v-icon v-if="isTrainer" small class="ml-2" @click="buttonClick">
             {{ nameEditable ? "mdi-check" : "mdi-pencil" }}
           </v-icon>
         </v-col>
@@ -124,7 +128,8 @@ function backToCalendar() {
   <slot />
   <v-btn text="Add exercise" @click="addExercise" />
   <v-btn text="Go back" @click="backToCalendar" />
-  <v-btn text="Duplicate from another timeslot" @click="duplicate" />
+  <v-btn v-if="isTrainer" text="Duplicate from another timeslot" @click="duplicate" />
+
   <v-dialog v-model="dialogEnabled">
     <v-card title="Duplicate timeslot">
       <v-card-text>

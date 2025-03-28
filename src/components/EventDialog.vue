@@ -17,6 +17,10 @@ const { selectedEvent, modelValue } = defineProps({
     type: Boolean,
     required: true,
   },
+  isTrainer: {
+    type: Boolean,
+    required: true,
+  },
 })
 
 watch(
@@ -27,7 +31,7 @@ watch(
   },
 )
 
-const selectedId = ref<number | undefined>()
+const selectedId = ref<string | undefined>()
 const persons = ref<Person[]>()
 const titleEditable = ref(false)
 const router = useRouter()
@@ -90,7 +94,7 @@ onMounted(() => {
           />
 
           <!-- Edit Icon -->
-          <v-icon small class="ml-2" @click="buttonClick">
+          <v-icon v-if="isTrainer" small class="ml-2" @click="buttonClick">
             {{ titleEditable ? "mdi-check" : "mdi-pencil" }}
           </v-icon>
         </div>
@@ -103,7 +107,7 @@ onMounted(() => {
           text="Go to timeslot"
           @click="redirectExercise(selectedEvent)"
         />
-        <v-btn text="Delete timeslot" @click="deleteCalTimeslot(selectedEvent)" />
+        <v-btn v-if="isTrainer" text="Delete timeslot" @click="deleteCalTimeslot(selectedEvent)" />
       </v-card-text>
     </v-card>
   </v-dialog>

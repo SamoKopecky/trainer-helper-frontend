@@ -18,8 +18,8 @@ export interface Exercise {
 
 export interface Timeslot {
   id: number
-  trainer_id: number
-  user_id: number | null
+  trainer_id: string
+  trainee_id: string | null
   person_name: string | null
   name: string
   end: Date
@@ -27,7 +27,7 @@ export interface Timeslot {
 }
 
 export interface Person {
-  id: number
+  id: string
   name: string
   email: string
 }

@@ -12,25 +12,28 @@ export class TimeslotCreateEvent implements ChangeEvent {
   private eventsCopy: Map<number, AppTimeslot>
   private events: CalTimeslot[]
   private createdTimeslot?: AppTimeslot
+  private subjectId: string
 
   constructor(
     timeslot: UnresolvedVueCalTimeslot,
     eventResolver: (event: UnresolvedCalTimeslot) => void,
     eventsCopy: Map<number, AppTimeslot>,
     events: CalTimeslot[],
+    subjectId: string,
   ) {
     this.timeslot = timeslot
     this.eventResolver = eventResolver
     this.service = new TimeslotService()
     this.events = events
     this.eventsCopy = eventsCopy
+    this.subjectId = subjectId
   }
 
-  public up() {
-    this.service
+  public async up() {
+    return this.service
       .post({
         // TODO: Adjust trainer ids and user ids, make colors based on user ids
-        trainer_id: 1,
+        trainer_id: this.subjectId,
         start: getISODateString(this.timeslot.start),
         end: getISODateString(this.timeslot.end),
       })
@@ -47,16 +50,16 @@ export class TimeslotCreateEvent implements ChangeEvent {
       })
   }
 
-  public down() {
+  public async down() {
     if (!this.createdTimeslot) {
-      throw new Error("Missing timeslot to delete")
+      return Promise.reject(new Error("Missing timeslot to delete"))
     }
-    this.service.delete({ id: this.createdTimeslot?.id }).then(() => {
+    return this.service.delete({ id: this.createdTimeslot?.id }).then(() => {
       // Can't be undefined, see condition above
       const createdTimeslot = this.createdTimeslot as AppTimeslot
       const createdTimeslotEvent = this.events.find((e) => e.id === createdTimeslot.id)
       if (!createdTimeslotEvent) {
-        throw new Error("Missing timeslot to delete")
+        return Promise.reject(new Error("Missing timeslot to delete"))
       }
       // 3 -- Delete completly
       createdTimeslotEvent.delete(3)

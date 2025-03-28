@@ -5,8 +5,13 @@ import { useChangeEvents } from "@/composables/useChangeEvents"
 import { useEventDialog } from "@/composables/useEventDialog"
 import EventDialog from "@/components/EventDialog.vue"
 import { useCalendar } from "@/composables/useCalendar"
+import { useUser } from "@/composables/useUser"
+import { useTheme } from "vuetify"
+import { useNotifications } from "@/composables/useNotifications"
+import NotificationFloat from "@/components/NotificationFloat.vue"
 
-const { addChangeEvent, popChangeEvent, undoActive } = useChangeEvents()
+const { notifications, addNotification } = useNotifications()
+const { addChangeEvent, popChangeEvent, undoActive } = useChangeEvents(addNotification)
 const { showDialog, selectedEvent } = useEventDialog()
 const {
   events,
@@ -17,16 +22,29 @@ const {
   updateEventPerson,
   eventMove,
 } = useCalendar(selectedEvent, showDialog, addChangeEvent)
+const { isTrainer } = useUser()
+const theme = useTheme()
 </script>
 
 <template>
-  <v-btn text="undo" @click="popChangeEvent" style="margin: 10px" :disabled="!undoActive" />
+  <NotificationFloat :notifications="notifications" />
+  <v-btn
+    text="Undo previous action"
+    @click="popChangeEvent"
+    style="margin: 10px"
+    :disabled="!undoActive"
+  />
   <VueCal
-    dark
+    :dark="theme.global.current.value.dark"
     style="height: 100%"
     ref="vueCalRef"
     events-on-month-view
-    :editable-events="{ create: true, resize: false, drag: true, delete: true }"
+    :editable-events="{
+      create: isTrainer,
+      resize: false,
+      drag: isTrainer,
+      delete: isTrainer,
+    }"
     :events="events"
     :snap-to-interval="30"
     :views="['day', 'week', 'month']"
@@ -40,6 +58,7 @@ const {
 
   <EventDialog
     :selected-event="selectedEvent"
+    :is-trainer="isTrainer"
     @delete-cal-timeslot="deleteTimeslot"
     @update-person="updateEventPerson"
     v-model="showDialog"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, type ComputedRef } from "vue"
-import { createVuetify } from "vuetify"
+import { useTheme } from "vuetify"
 import {
   getAllGroupIds,
   generateSetTypes,
@@ -31,7 +31,7 @@ function deleteExercise(exerciseId: number) {
 }
 
 const emit = defineEmits(["update-table", "delete-exercise"])
-const vuetify = ref(createVuetify())
+const theme = useTheme()
 const selectItems = ref<Map<string, (string | number)[]>>(new Map())
 selectItems.value.set("set_type", generateSetTypes())
 
@@ -66,7 +66,7 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
 </script>
 
 <template>
-  <div :class="vuetify.theme.name" />
+  <div :class="theme.global.current.value" />
   <div class="table-container">
     <table class="custom-table">
       <thead>
