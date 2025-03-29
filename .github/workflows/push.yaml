@@ -44,7 +44,10 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      
+          build-args: |
+            VITE_APP_BACKEND=${{ secrets.BACKEND_ULR }}
+            VITE_APP_KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }} 
+
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2
         with:
