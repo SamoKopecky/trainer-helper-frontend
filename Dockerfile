@@ -8,6 +8,7 @@ COPY . .
 
 RUN npm install
 ARG VITE_APP_BACKEND
+ARG VITE_APP_KEYCLOAK_URL
 RUN npm run build-only
 EXPOSE 2002
 

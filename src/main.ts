@@ -68,6 +68,7 @@ const vuetify = createVuetify({
 })
 
 const VITE_KEYCLOAK_URL = import.meta.env.VITE_APP_KEYCLOAK_URL ?? "http://localhost:8080"
+console.log(VITE_KEYCLOAK_URL)
 const app = createApp(App)
 app
   .use(router)
