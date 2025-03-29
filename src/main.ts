@@ -67,13 +67,14 @@ const vuetify = createVuetify({
   },
 })
 
+const VITE_KEYCLOAK_URL = import.meta.env.VITE_APP_KEYCLOAK_URL ?? "http://localhost:8080"
 const app = createApp(App)
 app
   .use(router)
   .use(vuetify)
   .use(VueKeyCloak, {
     config: {
-      url: "http://localhost:8080",
+      url: VITE_KEYCLOAK_URL,
       realm: "trainer-helper",
       clientId: "trainer-helper",
     },
