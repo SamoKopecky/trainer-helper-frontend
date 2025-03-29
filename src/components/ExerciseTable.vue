@@ -132,7 +132,9 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
 }
 
 .autocomplete-input {
-  width: 100px;
+  style: "display: flex";
+  align-items: "center";
+  width: 100%;
 }
 
 textarea {
@@ -240,12 +242,13 @@ input {
 }
 
 .col-set-type {
-  width: 10%;
+  width: 15%;
+  min-width: 250px;
 }
 
 .col-note {
-  width: 50%;
-  min-width: 200px;
+  width: 45%;
+  min-width: 150px;
 }
 
 .col-delete {

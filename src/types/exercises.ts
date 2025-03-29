@@ -16,9 +16,26 @@ export enum ExerciseUpdateType {
 
 export enum SetType {
   Squat = "Squat",
-  Rdl = "Rdl",
   Deadlift = "Deadlift",
-  None = "None",
+  BenchPress = "Bench Press",
+  RomanianDeadlift = "RDL",
+  CableHorizontalRow = "Cable Horizontal Row",
+  HackSquat = "Hack Squat",
+  LegPress = "Leg Press",
+  CalfRaise = "Calf Raise",
+  RingMuscleUp = "Ring Muscle Up",
+  PullUp = "Pull Up",
+  MachineHipAbduction = "Machine Hip Abduction",
+  JeffersonCurl = "Jefferson Curl",
+  KettlebellSideBend = "Kettlebell Side Bend",
+  MachineChestPress = "Machine Chest Press",
+  Multipress = "Multipress",
+  Dips = "Dips",
+  MachineShoulderPress = "Machine Shoulder Press",
+  TricepsPushdown = "Triceps Pushdown",
+  BentArmLateralRaise = "Bent Arm Lateral Raise",
+  BenchCrunch = "Bench Crunch",
+  None = "",
 }
 
 export interface Diff {
