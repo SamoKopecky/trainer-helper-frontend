@@ -46,7 +46,7 @@ const theme = useTheme()
       delete: isTrainer,
     }"
     :events="events"
-    :snap-to-interval="30"
+    :snap-to-interval="5"
     :views="['day', 'week', 'month']"
     :time-from="8 * 60"
     :time-to="22 * 60"
