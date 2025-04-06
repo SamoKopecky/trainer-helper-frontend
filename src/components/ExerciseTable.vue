@@ -3,7 +3,7 @@ import { ref, watch, type ComputedRef } from "vue"
 import { useTheme } from "vuetify"
 import {
   getAllGroupIds,
-  generateSetTypes,
+  generateExerciseTypes,
   getColumns,
   getRowspan,
   groupBy,
@@ -33,7 +33,7 @@ function deleteExercise(exerciseId: number) {
 const emit = defineEmits(["update-table", "delete-exercise"])
 const theme = useTheme()
 const selectItems = ref<Map<string, (string | number)[]>>(new Map())
-selectItems.value.set("set_type", generateSetTypes())
+selectItems.value.set("exercise_type", generateExerciseTypes())
 
 watch(
   () => exercises,
@@ -144,6 +144,11 @@ textarea {
   -moz-box-sizing: border-box; /* FF1+ */
   box-sizing: border-box; /* Chrome, IE8, Opera, Safari 5.1*/
 }
+
+/*
+yellow: fde800
+black : 000000
+*/
 
 .light {
   background-color: #ffffff;

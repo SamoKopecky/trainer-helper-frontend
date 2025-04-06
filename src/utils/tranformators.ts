@@ -19,7 +19,7 @@ export function responseToTableData(response: ExerciseResponse): ExerciseTableDa
       is_main: index === 0,
       note: response.note,
       group_id: response.group_id,
-      set_type: response.set_type,
+      exercise_type: response.exercise_type,
       exercise_id: response.id,
       work_set_count: response.work_sets.length,
       // Needs to be updated manually
@@ -52,7 +52,7 @@ export function mergeTableDataAndWorkSetModel(
     rpe: work_set.rpe,
     note: tableRow.note,
     group_id: tableRow.group_id,
-    set_type: tableRow.set_type,
+    exercise_type: tableRow.exercise_type,
     is_main: is_main,
     work_set_count: count,
     work_set_count_display: count,
