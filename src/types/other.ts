@@ -1,4 +1,4 @@
-import { SetType } from "./exercises"
+import { exerciseType } from "./exercises"
 
 export interface WorkSet {
   id: number
@@ -12,7 +12,7 @@ export interface Exercise {
   id: number
   group_id: number
   note: string | null
-  set_type: SetType
+  exercise_type: exerciseType
   work_set_count: number
 }
 

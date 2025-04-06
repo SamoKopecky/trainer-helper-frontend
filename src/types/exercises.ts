@@ -14,7 +14,7 @@ export enum ExerciseUpdateType {
   WorkSetCount = "WorkSetCount",
 }
 
-export enum SetType {
+export enum exerciseType {
   Squat = "Squat",
   Deadlift = "Deadlift",
   BenchPress = "Bench Press",
@@ -44,7 +44,7 @@ export interface Diff {
 
 export interface ExerciseDiff extends Diff {
   note?: string
-  set_type: SetType | null
+  exercise_type: exerciseType | null
 }
 
 export interface WorkSetDiff extends Diff {

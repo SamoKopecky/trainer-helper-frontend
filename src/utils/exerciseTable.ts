@@ -1,4 +1,4 @@
-import { SetType, type ExerciseTableColumn, type ExerciseTableData } from "@/types/exercises"
+import { exerciseType, type ExerciseTableColumn, type ExerciseTableData } from "@/types/exercises"
 
 export function getColumns(
   columns: ExerciseTableColumn[],
@@ -33,9 +33,9 @@ export function getAllGroupIds(exercises: ExerciseTableData[]): number[] {
   return Array.from(new Set(range(maxGroupId)).values())
 }
 
-export function generateSetTypes(): string[] {
+export function generateExerciseTypes(): string[] {
   return Array.from(
-    new Set(Object.values(SetType).filter((type) => type !== SetType.None)).values(),
+    new Set(Object.values(exerciseType).filter((type) => type !== exerciseType.None)).values(),
   )
 }
 
