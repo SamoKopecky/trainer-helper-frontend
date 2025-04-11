@@ -46,3 +46,9 @@ export interface ExerciseType {
   media_type: string
   media_address: string
 }
+
+export interface ExerciseTypeTableRow {
+  name: string
+  has_media: string
+  media_type: string
+}
