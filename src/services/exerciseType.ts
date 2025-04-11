@@ -14,6 +14,8 @@ export interface ExerciseTypePostRequest {
 export interface ExerciseTypePutRequest {
   id: number
   note?: string
+  media_type?: string
+  media_address?: string
 }
 
 export class ExerciseTypeService extends ServiceI {

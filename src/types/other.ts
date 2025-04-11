@@ -43,13 +43,18 @@ export interface ExerciseType {
   id: number
   user_id: string
   name: string
-  note: string
-  media_type: string
-  media_address: string
+  note?: string
+  media_type?: string
+  media_address?: string
 }
 
 export interface ExerciseTypeTableRow {
   name: string
   has_media: string
   media_type: string
+}
+
+export enum VideoSourceType {
+  YOUTUBE = "YOUTUBE",
+  FILE = "FILE",
 }
