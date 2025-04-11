@@ -12,7 +12,7 @@ export interface ExerciseTypePostRequest {
 }
 
 export interface ExerciseTypePutRequest {
-  id: string
+  id: number
   note?: string
 }
 

@@ -39,7 +39,7 @@ const computedDuplicateTimeslots = computed(() => {
     const timeslotCopy = deepClone(timeslot)
     const dayString = timeslot.start.toLocaleString("en-US", { weekday: "long" })
     const date = timeslot.start.toLocaleDateString().split("/")
-    const personName = capitalizeWords(timeslot.person_name as string | undefined)
+    const personName = capitalizeWords(timeslot.person_name)
     timeslotCopy.name = `${personName} | ${dayString} ${date[1]}-${date[0]} | ${timeslot.name}`
     return timeslotCopy
   })

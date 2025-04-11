@@ -20,7 +20,7 @@ export interface Timeslot {
   id: number
   trainer_id: string
   trainee_id: string | null
-  person_name: string | null
+  person_name?: string
   name: string
   end: Date
   start: Date
@@ -40,6 +40,7 @@ export interface ChangeNotification {
 }
 
 export interface ExerciseType {
+  id: number
   user_id: string
   name: string
   note: string
