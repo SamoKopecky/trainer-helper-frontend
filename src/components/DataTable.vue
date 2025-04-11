@@ -41,6 +41,7 @@ function addNew() {
       ></v-text-field>
       <v-btn style="margin-top: 0.5rem" @click="addNew">Add new </v-btn>
       <v-data-table :headers="headers" :items="items" :search="search" @click:row="rowClick" />
+      <slot />
     </template>
   </v-card>
 </template>

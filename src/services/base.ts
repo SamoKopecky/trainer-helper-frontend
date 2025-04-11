@@ -11,6 +11,7 @@ export enum Route {
   ExerciseDuplicate = "/exercise/duplicate",
   Person = "/person",
   ExerciseType = "/exerciseType",
+  ExerciseTypeDuplicate = "/exerciseType/duplicate",
 }
 
 export enum Method {
