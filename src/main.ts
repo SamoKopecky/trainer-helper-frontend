@@ -29,6 +29,8 @@ import {
   VTextField,
   VContainer,
   VDataTable,
+  VTextarea,
+  VCardActions,
 } from "vuetify/components"
 import router from "./router"
 import VueKeyCloak from "@dsb-norge/vue-keycloak-js"
@@ -59,6 +61,8 @@ const vuetify = createVuetify({
     VTextField,
     VContainer,
     VDataTable,
+    VTextarea,
+    VCardActions,
   },
   directives,
   icons: {
