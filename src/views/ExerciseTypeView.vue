@@ -23,6 +23,7 @@ const headers = ref([
     title: "Name",
   },
   { key: "has_media", title: "Has Media" },
+  // TODO: do an icon, red if there is alink, grey if not
   { key: "media_type", title: "Media Type" },
   { key: "id", align: " d-none" },
 ])
@@ -56,12 +57,17 @@ function addNew() {
   console.log("new")
 }
 
-function confirm(newNote: string) {
+function confirm(newExerciseType: ExerciseType) {
   if (selectedType.value) {
     exerciseTypeServise
-      .put({ id: selectedType.value.id, note: newNote })
-      //@ts-expect-error already checked
-      .then(() => (selectedType.value.note = newNote))
+      .put({
+        // TODO: Update only changed
+        id: selectedType.value.id,
+        note: newExerciseType.note,
+        media_type: newExerciseType.media_type,
+        media_address: newExerciseType.media_address,
+      })
+      .then(() => (selectedType.value = newExerciseType))
   }
 }
 
@@ -82,5 +88,9 @@ function initExerciseTypes() {
   >
     <v-btn @click="initExerciseTypes">Create default exercise types</v-btn>
   </DataTable>
-  <ExerciseTypeDialog v-model="showDialog" :exercise-type="selectedType" @update:note="confirm" />
+  <ExerciseTypeDialog
+    v-model="showDialog"
+    :exercise-type="selectedType"
+    @update:exercise-type="confirm"
+  />
 </template>
