@@ -38,3 +38,11 @@ export interface ChangeNotification {
   type: NotificationType
   text: string
 }
+
+export interface ExerciseType {
+  user_id: string
+  name: string
+  note: string
+  media_type: string
+  media_address: string
+}

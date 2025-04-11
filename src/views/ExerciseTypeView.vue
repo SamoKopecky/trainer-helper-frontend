@@ -1,102 +1,34 @@
 <script setup lang="ts">
 import DataTable from "@/components/DataTable.vue"
+import { ExerciseTypeService } from "@/services/exerciseType"
+import type { ExerciseType } from "@/types/other"
+import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
+import { onMounted } from "vue"
 import { ref } from "vue"
+
+const exerciseTypeServise = new ExerciseTypeService()
+const keycloak = useKeycloak()
 
 const headers = ref([
   {
     align: "start",
     key: "name",
-    sortable: false,
-    title: "Dessert (100g serving)",
+    title: "Name",
   },
-  { key: "calories", title: "Calories" },
-  { key: "fat", title: "Fat (g)" },
-  { key: "carbs", title: "Carbs (g)" },
-  { key: "protein", title: "Protein (g)" },
-  { key: "iron", title: "Iron (%)" },
+  { key: "has_media", title: "Has Media" },
+  { key: "media_type", title: "Media Type" },
+  { key: "delete_btn", title: "Delete" },
 ])
-const desserts = ref([
-  {
-    name: "Frozen Yogurt",
-    calories: 159,
-    fat: 6.0,
-    carbs: 24,
-    protein: 4.0,
-    iron: 1,
-  },
-  {
-    name: "Ice cream sandwich",
-    calories: 237,
-    fat: 9.0,
-    carbs: 37,
-    protein: 4.3,
-    iron: 1,
-  },
-  {
-    name: "Eclair",
-    calories: 262,
-    fat: 16.0,
-    carbs: 23,
-    protein: 6.0,
-    iron: 7,
-  },
-  {
-    name: "Cupcake",
-    calories: 305,
-    fat: 3.7,
-    carbs: 67,
-    protein: 4.3,
-    iron: 8,
-  },
-  {
-    name: "Gingerbread",
-    calories: 356,
-    fat: 16.0,
-    carbs: 49,
-    protein: 3.9,
-    iron: 16,
-  },
-  {
-    name: "Jelly bean",
-    calories: 375,
-    fat: 0.0,
-    carbs: 94,
-    protein: 0.0,
-    iron: 0,
-  },
-  {
-    name: "Lollipop",
-    calories: 392,
-    fat: 0.2,
-    carbs: 98,
-    protein: 0,
-    iron: 2,
-  },
-  {
-    name: "Honeycomb",
-    calories: 408,
-    fat: 3.2,
-    carbs: 87,
-    protein: 6.5,
-    iron: 45,
-  },
-  {
-    name: "Donut",
-    calories: 452,
-    fat: 25.0,
-    carbs: 51,
-    protein: 4.9,
-    iron: 22,
-  },
-  {
-    name: "KitKat",
-    calories: 518,
-    fat: 26.0,
-    carbs: 65,
-    protein: 7,
-    iron: 6,
-  },
-])
+
+const exerciseTypes = ref<ExerciseType[]>([])
+
+onMounted(() => {
+  if (keycloak.subject) {
+    exerciseTypeServise.get({ user_id: keycloak.subject }).then((res) => {
+      exerciseTypes.value = res
+    })
+  }
+})
 
 function rowClick(item) {
   console.log(item.index)
@@ -110,7 +42,7 @@ function addNew() {
 <template>
   <DataTable
     :headers="headers"
-    :items="desserts"
+    :items="exerciseTypes"
     title="Exercise types"
     @row-click="rowClick"
     @add-new="addNew"
