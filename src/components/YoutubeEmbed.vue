@@ -1,42 +1,21 @@
 <script setup lang="ts">
 import { computed } from "vue"
 
-// Define props for the component
 const props = defineProps({
   videoId: {
     type: String,
     required: true,
   },
-  // Optional: Allow overriding aspect ratio if needed
-  aspectRatioWidth: {
-    type: Number,
-    default: 16,
-  },
-  aspectRatioHeight: {
-    type: Number,
-    default: 9,
-  },
-  // Optional: Start time in seconds
-  startSeconds: {
-    type: Number,
-    default: 0,
-  },
 })
 
 // Compute the embed URL
 const embedUrl = computed(() => {
-  let url = `https://www.youtube.com/embed/${props.videoId}?rel=0` // rel=0 prevents related videos from other channels
-  if (props.startSeconds > 0) {
-    url += `&start=${props.startSeconds}`
-  }
-  return url
+  return `https://www.youtube.com/embed/${props.videoId}?rel=0` // rel=0 prevents related videos from other channels
 })
 
 // Compute the aspect ratio padding
 const wrapperStyle = computed(() => ({
-  // The magic: padding-top percentage controls the aspect ratio
-  // (height / width) * 100%
-  paddingTop: `${(props.aspectRatioHeight / props.aspectRatioWidth) * 100}%`,
+  paddingTop: `${(9 / 16) * 100}%`,
 }))
 </script>
 
