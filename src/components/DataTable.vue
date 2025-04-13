@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import type { ExerciseTypeTableRow } from "@/types/other"
 import { ref, type PropType } from "vue"
 
-defineProps({
+const { items } = defineProps({
   headers: {
     type: Object as PropType<any[]>,
     required: true,
   },
   items: {
-    type: Object as PropType<any[]>,
+    type: Object as PropType<ExerciseTypeTableRow[]>,
     required: true,
   },
   title: {
@@ -50,7 +51,7 @@ function addNew() {
         </template>
       </v-data-table>
 
-      <slot name="extra-content" />
+      <slot name="extra" />
     </template>
   </v-card>
 </template>

@@ -49,9 +49,11 @@ export interface ExerciseType {
 }
 
 export interface ExerciseTypeTableRow {
+  id: number
   name: string
-  has_media: boolean
-  media_type: MediaType
+  hasMedia: boolean
+  hasMediaVal: string
+  mediaType?: MediaType
 }
 
 export enum MediaType {

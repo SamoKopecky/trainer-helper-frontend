@@ -1,7 +1,7 @@
 import type { ExerciseResponse } from "@/services/exercise"
 import type { AppTimeslot } from "@/types/calendar"
 import type { ExerciseTableData } from "@/types/exercises"
-import type { Timeslot, WorkSet } from "@/types/other"
+import type { ExerciseType, ExerciseTypeTableRow, Timeslot, WorkSet } from "@/types/other"
 import { EMPTY_USER } from "@/constants"
 import { capitalizeWords } from "./user"
 
@@ -67,5 +67,16 @@ export function timeslotToAppTimeslot(timeslot: Timeslot): AppTimeslot {
     start: new Date(timeslot.start),
     end: new Date(timeslot.end),
     class: isAssigned ? "assigned" : "no-user",
+  }
+}
+
+export function exerciseTypeToRow(exerciseType: ExerciseType): ExerciseTypeTableRow {
+  const hasMedia = Boolean(exerciseType.media_address)
+  return {
+    name: exerciseType.name,
+    mediaType: exerciseType.media_type,
+    hasMedia: hasMedia,
+    hasMediaVal: hasMedia ? "Yes" : "No",
+    id: exerciseType.id,
   }
 }

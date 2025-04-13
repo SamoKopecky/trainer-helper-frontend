@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DataTable from "@/components/DataTable.vue"
-import { ExerciseTypeService } from "@/services/exerciseType"
+import { ExerciseTypeService, type ExerciseTypePostRequest } from "@/services/exerciseType"
 import { ExerciseTypeDuplicateService } from "@/services/exerciseTypeDuplicate"
 import { type ExerciseType, type ExerciseTypeTableRow, MediaType } from "@/types/other"
 import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
@@ -10,6 +10,7 @@ import { onMounted } from "vue"
 import { ref } from "vue"
 import ExerciseTypeDialog from "@/components/ExerciseTypeDialog.vue"
 import { useExerciseTypeDialog } from "@/composables/useExerciseTypeDialog"
+import { exerciseTypeToRow } from "@/utils/tranformators"
 
 const exerciseTypeServise = new ExerciseTypeService()
 const exerciseTypeDuplicateServise = new ExerciseTypeDuplicateService()
@@ -22,24 +23,17 @@ const headers = ref([
     key: "name",
     title: "Name",
   },
-  { key: "has_media", title: "Has Media", align: " d-none" },
-  { key: "has_media_string", title: "Has Media" },
-  { key: "media_type", title: "Media Type" },
+  { key: "hasMedia", title: "Has Media", align: " d-none" },
+  { key: "hasMediaVal", title: "Has Media" },
+  { key: "mediaType", title: "Media Type" },
   { key: "id", align: " d-none" },
 ])
 
 const exerciseTypes = ref<ExerciseType[]>([])
-const tableExerciseTypes: ComputedRef<ExerciseTypeTableRow[]> = computed(() => {
-  return exerciseTypes.value.map((et) => {
-    return {
-      name: et.name,
-      media_type: et.media_type ?? "-",
-      has_media: et.media_address !== null,
-      has_media_string: et.media_address !== null ? "Yes" : "No",
-      id: et.id,
-    } as ExerciseTypeTableRow
-  })
-})
+const isNew = ref(false)
+const tableExerciseTypesRef: ComputedRef<ExerciseTypeTableRow[]> = computed(() =>
+  exerciseTypes.value.map((et) => exerciseTypeToRow(et)),
+)
 
 onMounted(() => {
   if (keycloak.subject) {
@@ -50,15 +44,26 @@ onMounted(() => {
 })
 
 function rowClick(row: { item: ExerciseType }) {
+  isNew.value = false
   showDialog.value = true
   selectedType.value = exerciseTypes.value.find((et) => et.id === row.item.id) as ExerciseType
 }
 
 function addNew() {
-  console.log("new")
+  isNew.value = true
+  selectedType.value = undefined
+  showDialog.value = true
 }
 
-function confirm(newExerciseType: ExerciseType) {
+function handleCreate(newExerciseTypeRequest: ExerciseTypePostRequest) {
+  exerciseTypeServise.post(newExerciseTypeRequest).then((res) => {
+    isNew.value = false
+    selectedType.value = res
+    exerciseTypes.value.push(res)
+  })
+}
+
+function handleUpdate(newExerciseType: ExerciseType) {
   if (selectedType.value) {
     exerciseTypeServise
       .put({
@@ -82,20 +87,22 @@ function initExerciseTypes() {
 <template>
   <DataTable
     :headers="headers"
-    :items="tableExerciseTypes"
+    :items="tableExerciseTypesRef"
     title="Exercise types"
     @row-click="rowClick"
     @add-new="addNew"
   >
-    <v-btn @click="initExerciseTypes">Create default exercise types</v-btn>
+    <template #extra>
+      <v-btn @click="initExerciseTypes">Create default exercise types</v-btn>
+    </template>
     <!-- eslint-disable-next-line  -->
-    <template v-slot:item.media_type="{ item }">
-      <v-icon v-if="item.media_type === MediaType.Youtube" :color="item.has_media ? 'red' : 'grey'"
+    <template v-slot:item.mediaType="{ item }">
+      <v-icon v-if="item.mediaType === MediaType.Youtube" :color="item.hasMedia ? 'red' : 'grey'"
         >mdi-youtube</v-icon
       >
       <v-icon
-        v-else-if="item.media_type === MediaType.File"
-        :color="item.has_media ? 'white' : 'grey'"
+        v-else-if="item.mediaType === MediaType.File"
+        :color="item.hasMedia ? 'white' : 'grey'"
         >mdi-link</v-icon
       >
     </template>
@@ -103,6 +110,8 @@ function initExerciseTypes() {
   <ExerciseTypeDialog
     v-model="showDialog"
     :exercise-type="selectedType"
-    @update:exercise-type="confirm"
+    :is-new="isNew"
+    @update:exercise-type="handleUpdate"
+    @create:exercise-type="handleCreate"
   />
 </template>
