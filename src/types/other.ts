@@ -44,17 +44,17 @@ export interface ExerciseType {
   user_id: string
   name: string
   note?: string
-  media_type?: string
+  media_type?: MediaType
   media_address?: string
 }
 
 export interface ExerciseTypeTableRow {
   name: string
-  has_media: string
-  media_type: string
+  has_media: boolean
+  media_type: MediaType
 }
 
-export enum VideoSourceType {
-  YOUTUBE = "YOUTUBE",
-  FILE = "FILE",
+export enum MediaType {
+  Youtube = "YOUTUBE",
+  File = "FILE",
 }

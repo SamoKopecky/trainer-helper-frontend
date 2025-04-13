@@ -39,9 +39,18 @@ function addNew() {
         hide-details
         single-line
       ></v-text-field>
-      <v-btn style="margin-top: 0.5rem" @click="addNew">Add new </v-btn>
-      <v-data-table :headers="headers" :items="items" :search="search" @click:row="rowClick" />
-      <slot />
+      <v-btn style="margin-top: 0.5rem" @click="addNew">Add new</v-btn>
+
+      <v-data-table :headers="headers" :items="items" :search="search" @click:row="rowClick">
+        <!-- Hack to use slots in parent -->
+        <template v-for="header in headers" #[`item.${header.key}`]="{ item }">
+          <slot :name="`item.${header.key}`" :item="item" :value="item[header.key]">
+            {{ item[header.key] }}
+          </slot>
+        </template>
+      </v-data-table>
+
+      <slot name="extra-content" />
     </template>
   </v-card>
 </template>
