@@ -1,5 +1,3 @@
-import { exerciseType } from "./exercises"
-
 export interface WorkSet {
   id: number
   exercise_id: number
@@ -11,8 +9,8 @@ export interface WorkSet {
 export interface Exercise {
   id: number
   group_id: number
-  note: string | null
-  exercise_type: exerciseType
+  note?: string
+  exercise_type_id?: number
   work_set_count: number
 }
 

@@ -1,4 +1,4 @@
-import { exerciseType, type ExerciseTableColumn, type ExerciseTableData } from "@/types/exercises"
+import { type ExerciseTableColumn, type ExerciseTableData } from "@/types/exercises"
 
 export function getColumns(
   columns: ExerciseTableColumn[],
@@ -31,12 +31,6 @@ export function getAllGroupIds(exercises: ExerciseTableData[]): number[] {
   }
   const maxGroupId = Math.max(...exercises.map((e) => e.group_id))
   return Array.from(new Set(range(maxGroupId)).values())
-}
-
-export function generateExerciseTypes(): string[] {
-  return Array.from(
-    new Set(Object.values(exerciseType).filter((type) => type !== exerciseType.None)).values(),
-  )
 }
 
 export function sortRows(a: ExerciseTableData, b: ExerciseTableData): number {
