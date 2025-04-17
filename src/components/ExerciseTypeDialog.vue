@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { MediaType, type ExerciseType } from "@/types/other"
-import { useDebounceFn } from "@vueuse/core"
+import { MediaType, type ExerciseType, type ExerciseTypeUpdate } from "@/types/other"
+import { useDebounceFn, watchDebounced } from "@vueuse/core"
 import { computed, type PropType } from "vue"
 import YoutubeEmbed from "./YoutubeEmbed.vue"
 import { extractYouTubeId } from "@/utils/other"
 import { ref } from "vue"
 import type { ExerciseTypePostRequest } from "@/services/exerciseType"
+import { watch } from "vue"
+import { watchEffect } from "vue"
 
 const { modelValue, exerciseType, isNew } = defineProps({
   modelValue: {
@@ -25,54 +27,65 @@ const { modelValue, exerciseType, isNew } = defineProps({
 const emit = defineEmits(["update:modelValue", "update:exerciseType", "create:exerciseType"])
 
 // Refs
-// TODO: NOW! when adding new exercise type, the note and link are not being savedduring editing and
-// even on post request
-const exerciseTypeLocalRef = computed(() => {
-  return exerciseType
-})
+const noteRef = ref<string>()
+const mediaTypeRef = ref<MediaType>()
+const youtubeLinkRef = ref<string>()
+const newNameRef = ref<string>()
 const youtubeVideoIdRef = computed(() => {
   if (exerciseType && exerciseType.media_address) {
     return extractYouTubeId(exerciseType?.media_address)
   }
   return null
 })
-const newNameRef = ref<string>("")
-const noteRef = computed({
-  get() {
-    return exerciseType?.note || ""
-  },
-  set(newNote: string) {
-    if (exerciseTypeLocalRef.value) {
-      exerciseTypeLocalRef.value.note = newNote
-      debouncedEmitUpdate()
+
+// Watches
+watch(
+  () => isNew,
+  () => {
+    if (isNew) {
+      noteRef.value = ""
+      youtubeLinkRef.value = ""
+      mediaTypeRef.value = MediaType.Youtube
     }
   },
+)
+watch(
+  () => exerciseType,
+  () => {
+    if (exerciseType) {
+      noteRef.value = exerciseType.note ?? ""
+      mediaTypeRef.value = exerciseType.media_type
+      youtubeLinkRef.value = exerciseType.media_address
+    }
+  },
+)
+
+watchDebounced(noteRef, () => {})
+watch(noteRef, () => {
+  console.log("watching")
+  const deboundUpdate = useDebounceFn(() => {
+    if (noteRef.value) {
+      emitUpdate("note", noteRef.value)
+    }
+  }, 2000)
+  if (noteRef.value != exerciseType?.note) {
+    deboundUpdate()
+  }
 })
-const mediaTypeRef = computed({
-  get() {
-    return exerciseType?.media_type || MediaType.Youtube
-  },
-  set(newSourceType: string) {
-    if (exerciseTypeLocalRef.value) {
-      exerciseTypeLocalRef.value.media_type = MediaType[newSourceType]
-      emitUpdate()
-    }
-  },
+
+watchEffect(() => {
+  if (mediaTypeRef.value && mediaTypeRef.value != exerciseType?.media_type) {
+    emitUpdate("media_type", mediaTypeRef.value)
+  }
 })
-const youtubeLinkRef = computed({
-  get() {
-    return exerciseType?.media_address ?? ""
-  },
-  set(newLink: string) {
-    if (exerciseTypeLocalRef.value) {
-      exerciseTypeLocalRef.value.media_address = newLink
-      emitUpdate()
-    }
-  },
+
+watchEffect(() => {
+  if (youtubeLinkRef.value && youtubeLinkRef.value != exerciseType?.media_address) {
+    emitUpdate("media_address", youtubeLinkRef.value)
+  }
 })
 
 // Functions
-const debouncedEmitUpdate = useDebounceFn(() => emitUpdate(), 1000)
 function exitButton() {
   emit("update:modelValue", false)
 }
@@ -88,12 +101,18 @@ function saveButton() {
     } as ExerciseTypePostRequest)
     newNameRef.value = ""
   }
-  emitUpdate()
+  // TODO: Fix
+  // emitUpdate()
 }
 
-function emitUpdate() {
+function emitUpdate(key: string, value: string) {
   if (!isNew) {
-    emit("update:exerciseType", exerciseTypeLocalRef.value)
+    const data: ExerciseTypeUpdate = {
+      fieldValue: value,
+      fieldName: key,
+    }
+    console.log("sending", data)
+    emit("update:exerciseType", data)
   }
 }
 </script>
@@ -109,7 +128,7 @@ function emitUpdate() {
         <v-text-field
           v-else
           v-model="newNameRef"
-          type="text"
+          type="texts"
           variant="plain"
           density="compact"
           placeholder="Enter exercise type name"

@@ -1,8 +1,17 @@
 <script setup lang="ts">
 import DataTable from "@/components/DataTable.vue"
-import { ExerciseTypeService, type ExerciseTypePostRequest } from "@/services/exerciseType"
+import {
+  ExerciseTypeService,
+  type ExerciseTypePostRequest,
+  type ExerciseTypePutRequest,
+} from "@/services/exerciseType"
 import { ExerciseTypeDuplicateService } from "@/services/exerciseTypeDuplicate"
-import { type ExerciseType, type ExerciseTypeTableRow, MediaType } from "@/types/other"
+import {
+  type ExerciseType,
+  type ExerciseTypeTableRow,
+  type ExerciseTypeUpdate,
+  MediaType,
+} from "@/types/other"
 import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
 import type { ComputedRef } from "vue"
 import { computed } from "vue"
@@ -63,17 +72,17 @@ function handleCreate(newExerciseTypeRequest: ExerciseTypePostRequest) {
   })
 }
 
-function handleUpdate(newExerciseType: ExerciseType) {
+function handleUpdate(updateData: ExerciseTypeUpdate) {
   if (selectedType.value) {
-    exerciseTypeServise
-      .put({
-        // TODO: Update only changed
-        id: selectedType.value.id,
-        note: newExerciseType.note,
-        media_type: newExerciseType.media_type,
-        media_address: newExerciseType.media_address,
-      })
-      .then(() => (selectedType.value = newExerciseType))
+    const request: ExerciseTypePutRequest = {
+      id: selectedType.value.id,
+    }
+    request[updateData.fieldName] = updateData.fieldValue
+    exerciseTypeServise.put(request).then(() => {
+      if (selectedType.value) {
+        selectedType.value[updateData.fieldName] = updateData.fieldValue
+      }
+    })
   }
 }
 

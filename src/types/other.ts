@@ -60,3 +60,8 @@ export enum MediaType {
   Youtube = "YOUTUBE",
   File = "FILE",
 }
+
+export interface ExerciseTypeUpdate {
+  fieldName: string
+  fieldValue: string
+}
