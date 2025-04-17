@@ -39,10 +39,13 @@ export interface ChangeNotification {
   text: string
 }
 
-export interface ExerciseType {
+export interface ExerciseType extends ExerciseTypeUpdate {
   id: number
   user_id: string
   name: string
+}
+
+export interface ExerciseTypeUpdate {
   note?: string
   media_type?: MediaType
   media_address?: string
@@ -59,9 +62,4 @@ export interface ExerciseTypeTableRow {
 export enum MediaType {
   Youtube = "YOUTUBE",
   File = "FILE",
-}
-
-export interface ExerciseTypeUpdate {
-  fieldName: string
-  fieldValue: string
 }

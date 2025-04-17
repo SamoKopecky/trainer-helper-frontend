@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { MediaType, type ExerciseType, type ExerciseTypeUpdate } from "@/types/other"
-import { useDebounceFn, watchDebounced } from "@vueuse/core"
+import { watchDebounced } from "@vueuse/core"
 import { computed, type PropType } from "vue"
 import YoutubeEmbed from "./YoutubeEmbed.vue"
 import { extractYouTubeId } from "@/utils/other"
@@ -53,6 +53,7 @@ watch(
   () => exerciseType,
   () => {
     if (exerciseType) {
+      console.log("init", exerciseType)
       noteRef.value = exerciseType.note ?? ""
       mediaTypeRef.value = exerciseType.media_type
       youtubeLinkRef.value = exerciseType.media_address
@@ -60,28 +61,25 @@ watch(
   },
 )
 
-watchDebounced(noteRef, () => {})
-watch(noteRef, () => {
-  console.log("watching")
-  const deboundUpdate = useDebounceFn(() => {
-    if (noteRef.value) {
-      emitUpdate("note", noteRef.value)
+watchDebounced(
+  noteRef,
+  () => {
+    if (noteRef.value && noteRef.value != exerciseType?.note) {
+      emitUpdate()
     }
-  }, 2000)
-  if (noteRef.value != exerciseType?.note) {
-    deboundUpdate()
-  }
-})
+  },
+  { debounce: 1000 },
+)
 
 watchEffect(() => {
   if (mediaTypeRef.value && mediaTypeRef.value != exerciseType?.media_type) {
-    emitUpdate("media_type", mediaTypeRef.value)
+    emitUpdate()
   }
 })
 
 watchEffect(() => {
   if (youtubeLinkRef.value && youtubeLinkRef.value != exerciseType?.media_address) {
-    emitUpdate("media_address", youtubeLinkRef.value)
+    emitUpdate()
   }
 })
 
@@ -91,7 +89,7 @@ function exitButton() {
 }
 
 function saveButton() {
-  if (isNew && newNameRef.value !== "") {
+  if (isNew && newNameRef.value) {
     emit("create:exerciseType", {
       note: noteRef.value,
       name: newNameRef.value,
@@ -101,15 +99,15 @@ function saveButton() {
     } as ExerciseTypePostRequest)
     newNameRef.value = ""
   }
-  // TODO: Fix
-  // emitUpdate()
+  emitUpdate()
 }
 
-function emitUpdate(key: string, value: string) {
+function emitUpdate() {
   if (!isNew) {
     const data: ExerciseTypeUpdate = {
-      fieldValue: value,
-      fieldName: key,
+      media_address: youtubeLinkRef.value,
+      media_type: mediaTypeRef.value,
+      note: noteRef.value,
     }
     console.log("sending", data)
     emit("update:exerciseType", data)

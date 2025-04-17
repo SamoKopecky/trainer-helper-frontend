@@ -1,4 +1,4 @@
-import type { ExerciseType, MediaType } from "@/types/other"
+import type { ExerciseType, ExerciseTypeUpdate, MediaType } from "@/types/other"
 import { ServiceI, Method, Route } from "./base"
 
 export interface ExerciseTypeGetRequest {
@@ -12,11 +12,8 @@ export interface ExerciseTypePostRequest {
   media_address?: string
 }
 
-export interface ExerciseTypePutRequest {
+export interface ExerciseTypePutRequest extends ExerciseTypeUpdate {
   id: number
-  note?: string
-  media_type?: MediaType
-  media_address?: string
 }
 
 export class ExerciseTypeService extends ServiceI {

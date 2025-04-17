@@ -76,11 +76,17 @@ function handleUpdate(updateData: ExerciseTypeUpdate) {
   if (selectedType.value) {
     const request: ExerciseTypePutRequest = {
       id: selectedType.value.id,
+      ...updateData,
     }
-    request[updateData.fieldName] = updateData.fieldValue
     exerciseTypeServise.put(request).then(() => {
       if (selectedType.value) {
-        selectedType.value[updateData.fieldName] = updateData.fieldValue
+        exerciseTypes.value
+          .filter((et) => et.id === selectedType.value?.id)
+          .forEach((et) => {
+            et.note = updateData.note
+            et.media_type = updateData.media_type
+            et.media_address = updateData.media_address
+          })
       }
     })
   }
