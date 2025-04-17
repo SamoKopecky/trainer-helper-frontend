@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import { ref, watch, type ComputedRef } from "vue"
 import { useTheme } from "vuetify"
-import {
-  getAllGroupIds,
-  generateExerciseTypes,
-  getColumns,
-  getRowspan,
-  groupBy,
-} from "../utils/exerciseTable"
+import { getAllGroupIds, getColumns, getRowspan, groupBy } from "../utils/exerciseTable"
 import { computed } from "vue"
 import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercises"
+import type { ExerciseType } from "@/types/other"
 
 const { columns, exercises } = defineProps({
   columns: {
@@ -20,9 +15,14 @@ const { columns, exercises } = defineProps({
     type: Array<ExerciseTableData>,
     required: true,
   },
+  exerciseTypes: {
+    type: Array<ExerciseType>,
+    required: true,
+  },
 })
 
 function updateTable(row: ExerciseTableData) {
+  console.log(row)
   emit("update-table", row)
 }
 
@@ -32,13 +32,12 @@ function deleteExercise(exerciseId: number) {
 
 const emit = defineEmits(["update-table", "delete-exercise"])
 const theme = useTheme()
-const selectItems = ref<Map<string, (string | number)[]>>(new Map())
-selectItems.value.set("exercise_type", generateExerciseTypes())
+const groups = ref<number[]>()
 
 watch(
   () => exercises,
   (newExercises) => {
-    selectItems.value.set("group_id", getAllGroupIds(newExercises))
+    groups.value = getAllGroupIds(newExercises)
   },
   { deep: true },
 )
@@ -96,13 +95,25 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
               @change="updateTable(row)"
             />
             <v-autocomplete
-              v-else-if="column.type === 'select'"
+              v-else-if="column.type === 'groups'"
               v-model="row[column.key]"
               class="autocomplete-input"
               variant="plain"
               density="compact"
               hide-details="auto"
-              :items="selectItems.get(column.key)"
+              :items="groups"
+              @update:model-value="updateTable(row)"
+            />
+            <v-autocomplete
+              v-else-if="column.type === 'exercise_types'"
+              v-model="row[column.key]"
+              class="autocomplete-input"
+              variant="plain"
+              item-title="name"
+              item-value="id"
+              density="compact"
+              hide-details="auto"
+              :items="exerciseTypes"
               @update:model-value="updateTable(row)"
             />
             <v-icon

@@ -15,8 +15,8 @@ import { useUser } from "@/composables/useUser"
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "delete", type: "button", name: "", is_multirow: true },
-  { key: "group_id", type: "select", name: "Group", is_multirow: true },
-  { key: "exercise_type", type: "select", name: "Exercise Type", is_multirow: true },
+  { key: "group_id", type: "groups", name: "Group", is_multirow: true },
+  { key: "exercise_type_id", type: "exercise_types", name: "Exercise Type", is_multirow: true },
   { key: "work_set_count", type: "number", name: "Set count", is_multirow: true },
   { key: "reps", type: "number", name: "Repetitions", is_multirow: false },
   { key: "intensity", type: "text", name: "Intensity", is_multirow: false },
@@ -42,11 +42,8 @@ onMounted(() => {
 })
 
 const { notifications, addNotification } = useNotifications()
-const { exercises, addExercise, deleteExercise, updateTable, updateTitle } = useExercises(
-  timeslotId,
-  exerciseRes,
-  addNotification,
-)
+const { exercises, exerciseTypes, addExercise, deleteExercise, updateTable, updateTitle } =
+  useExercises(timeslotId, exerciseRes, addNotification)
 
 function duplicateTimeslot(duplicateFrom: number | undefined) {
   if (duplicateFrom) {
@@ -71,6 +68,7 @@ function duplicateTimeslot(duplicateFrom: number | undefined) {
     <ExerciseTable
       :columns="EXERCISE_COLUMNS"
       :exercises="exercises"
+      :exercise-types="exerciseTypes"
       @update-table="updateTable"
       @delete-exercise="deleteExercise"
     />

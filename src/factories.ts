@@ -1,4 +1,4 @@
-import { type ExerciseTableData, exerciseType } from "./types/exercises"
+import { type ExerciseTableData } from "./types/exercises"
 
 export function workSetFactory({
   work_set_id,
@@ -14,7 +14,7 @@ export function workSetFactory({
     rpe: 7,
     intensity: intensity ?? "105Kg",
     reps: 2,
-    exercise_type: exerciseType.Squat,
+    exercise_type_id: 0,
     note: note ?? "test",
     is_main: true,
     group_id: 1,

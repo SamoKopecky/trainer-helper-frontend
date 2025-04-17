@@ -27,22 +27,28 @@ import {
   type GroupIdDiff,
   ExerciseUpdateType,
 } from "@/types/exercises"
-import type { NotificationType } from "@/types/other"
+import type { ExerciseType, NotificationType } from "@/types/other"
 import type { Ref } from "vue"
 import { TimeslotService } from "@/services/timeslots"
+import { ExerciseTypeService } from "@/services/exerciseType"
+import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
+import { onMounted } from "vue"
 
 export function useExercises(
   timeslotId: number,
   exerciseRes: Ref<FullExerciseResponse | undefined>,
   addNotification: (text: string, type: NotificationType) => void,
 ) {
+  const keycloak = useKeycloak()
   const workSetService = new WorkSetService()
   const exerciseService = new ExerciseService()
   const timeslotService = new TimeslotService()
   const exerciseCountService = new ExerciseCountService()
+  const exerciseTypeService = new ExerciseTypeService()
 
   const exercises = ref<ExerciseTableData[]>([])
   const exercisesOld: Map<number, ExerciseTableData> = new Map()
+  const exerciseTypes = ref<ExerciseType[]>([])
 
   async function doUpdate<T extends Diff>(
     data: T,
@@ -208,5 +214,13 @@ export function useExercises(
     }
   }
 
-  return { exercises, addExercise, deleteExercise, updateTable, updateTitle }
+  onMounted(() => {
+    if (keycloak.subject) {
+      exerciseTypeService
+        .get({ user_id: keycloak.subject })
+        .then((res) => (exerciseTypes.value = res))
+    }
+  })
+
+  return { exercises, exerciseTypes, addExercise, deleteExercise, updateTable, updateTitle }
 }

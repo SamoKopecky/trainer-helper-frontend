@@ -53,7 +53,6 @@ watch(
   () => exerciseType,
   () => {
     if (exerciseType) {
-      console.log("init", exerciseType)
       noteRef.value = exerciseType.note ?? ""
       mediaTypeRef.value = exerciseType.media_type
       youtubeLinkRef.value = exerciseType.media_address

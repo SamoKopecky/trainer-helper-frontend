@@ -14,37 +14,13 @@ export enum ExerciseUpdateType {
   WorkSetCount = "WorkSetCount",
 }
 
-export enum exerciseType {
-  Squat = "Squat",
-  Deadlift = "Deadlift",
-  BenchPress = "Bench Press",
-  RomanianDeadlift = "RDL",
-  CableHorizontalRow = "Cable Horizontal Row",
-  HackSquat = "Hack Squat",
-  LegPress = "Leg Press",
-  CalfRaise = "Calf Raise",
-  RingMuscleUp = "Ring Muscle Up",
-  PullUp = "Pull Up",
-  MachineHipAbduction = "Machine Hip Abduction",
-  JeffersonCurl = "Jefferson Curl",
-  KettlebellSideBend = "Kettlebell Side Bend",
-  MachineChestPress = "Machine Chest Press",
-  Multipress = "Multipress",
-  Dips = "Dips",
-  MachineShoulderPress = "Machine Shoulder Press",
-  TricepsPushdown = "Triceps Pushdown",
-  BentArmLateralRaise = "Bent Arm Lateral Raise",
-  BenchCrunch = "Bench Crunch",
-  None = "",
-}
-
 export interface Diff {
   id: number
 }
 
 export interface ExerciseDiff extends Diff {
   note?: string
-  exercise_type: exerciseType | null
+  exercise_type: number | null
 }
 
 export interface WorkSetDiff extends Diff {

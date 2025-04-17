@@ -13,6 +13,7 @@ export interface ExerciseResponse extends Omit<Exercise, "work_set_count"> {
 export interface ExercisePutRequest {
   id: number
   note?: string
+  exerciseTypeId?: number
   group_id?: number
 }
 
