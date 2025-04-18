@@ -1,7 +1,8 @@
 import type { ExerciseResponse } from "@/services/exercise"
 import type { AppTimeslot } from "@/types/calendar"
-import type { ExerciseTableData } from "@/types/exercises"
-import type { ExerciseType, ExerciseTypeTableRow, Timeslot, WorkSet } from "@/types/other"
+import type { ExerciseTableData } from "@/types/exercise"
+import type { ExerciseType, ExerciseTypeTableRow } from "@/types/exerciseType"
+import type { Timeslot, WorkSet } from "@/types/other"
 import { EMPTY_USER } from "@/constants"
 import { capitalizeWords } from "./user"
 

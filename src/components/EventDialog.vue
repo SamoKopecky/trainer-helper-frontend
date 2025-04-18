@@ -3,7 +3,7 @@ import type { CalTimeslot } from "@/types/calendar"
 import { useRouter } from "vue-router"
 import { ref, useTemplateRef, watch, watchEffect, type PropType } from "vue"
 import { EMPTY_USER } from "@/constants"
-import type { User } from "@/types/other"
+import type { User } from "@/types/user"
 import { onMounted } from "vue"
 import { UserService } from "../services/user"
 

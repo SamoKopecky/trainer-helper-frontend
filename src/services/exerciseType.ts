@@ -1,4 +1,4 @@
-import type { ExerciseType, ExerciseTypeUpdate, MediaType } from "@/types/other"
+import type { ExerciseType, ExerciseTypeUpdate, MediaType } from "@/types/exerciseType"
 import { ServiceI, Method, Route } from "./base"
 
 export interface ExerciseTypeGetRequest {

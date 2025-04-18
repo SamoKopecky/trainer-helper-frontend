@@ -1,4 +1,4 @@
-import { type ExerciseTableColumn, type ExerciseTableData } from "@/types/exercises"
+import { type ExerciseTableColumn, type ExerciseTableData } from "@/types/exercise"
 
 export function getColumns(
   columns: ExerciseTableColumn[],

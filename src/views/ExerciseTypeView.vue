@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DataTable from "@/components/DataTable.vue"
 import { ExerciseTypeDuplicateService } from "@/services/exerciseTypeDuplicate"
-import { type ExerciseType, type ExerciseTypeTableRow, MediaType } from "@/types/other"
+import { type ExerciseType, type ExerciseTypeTableRow, MediaType } from "@/types/exerciseType"
 import type { ComputedRef } from "vue"
 import { computed } from "vue"
 import { ref } from "vue"

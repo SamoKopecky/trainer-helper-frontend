@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MediaType, type ExerciseType, type ExerciseTypeUpdate } from "@/types/other"
+import { MediaType, type ExerciseType, type ExerciseTypeUpdate } from "@/types/exerciseType"
 import { watchDebounced } from "@vueuse/core"
 import { computed, type PropType, useTemplateRef } from "vue"
 import YoutubeEmbed from "./YoutubeEmbed.vue"

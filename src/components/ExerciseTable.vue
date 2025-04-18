@@ -3,8 +3,8 @@ import { ref, watch, type ComputedRef } from "vue"
 import { useTheme } from "vuetify"
 import { getAllGroupIds, getColumns, getRowspan, groupBy } from "../utils/exerciseTable"
 import { computed } from "vue"
-import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercises"
-import type { ExerciseType } from "@/types/other"
+import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercise"
+import type { ExerciseType } from "@/types/exerciseType"
 
 const { columns, exercises } = defineProps({
   columns: {

@@ -3,7 +3,7 @@ import {
   type ExerciseTypePostRequest,
   type ExerciseTypePutRequest,
 } from "@/services/exerciseType"
-import { type ExerciseType, type ExerciseTypeUpdate } from "@/types/other"
+import { type ExerciseType, type ExerciseTypeUpdate } from "@/types/exerciseType"
 import { ref, type Ref } from "vue"
 
 export function useExerciseTypeDialog(exerciseTypes: Ref<ExerciseType[]>) {

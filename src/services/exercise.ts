@@ -1,5 +1,6 @@
-import type { Exercise, Timeslot, WorkSet } from "@/types/other"
+import type { Timeslot, WorkSet } from "@/types/other"
 import { ServiceI, Method, Route } from "./base"
+import type { Exercise } from "@/types/exercise"
 
 export interface FullExerciseResponse {
   exercises: ExerciseResponse[]
