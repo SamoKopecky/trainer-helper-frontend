@@ -1,5 +1,5 @@
 import { ServiceI, Route, Method } from "./base"
-import type { User as User } from "../types/other"
+import { type User } from "@/types/user"
 
 export class UserService extends ServiceI {
   route = Route.User

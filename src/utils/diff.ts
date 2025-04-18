@@ -6,7 +6,7 @@ import {
   type GroupIdDiff,
   type WorkSetCountDiff,
   type WorkSetDiff,
-} from "@/types/exercises"
+} from "@/types/exercise"
 
 const DATA_DIFF_MAP: Record<keyof ExerciseTableData, ExerciseUpdateType | null> = {
   note: ExerciseUpdateType.Exercise,

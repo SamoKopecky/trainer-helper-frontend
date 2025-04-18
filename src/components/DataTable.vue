@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ExerciseTypeTableRow } from "@/types/other"
+import type { ExerciseTypeTableRow } from "@/types/exerciseType"
 import { ref, type PropType } from "vue"
 
 const { items } = defineProps({

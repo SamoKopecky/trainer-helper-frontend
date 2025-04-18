@@ -25,6 +25,7 @@ function toggleTheme() {
   <v-app>
     <v-navigation-drawer v-model="drawer">
       <v-list-item link title="Home" to="/" />
+      <v-list-item link title="Athletes" to="/traineeList" />
       <v-list-item link title="Time schedule" to="/calendar" />
       <v-list-item link title="Exercise types" to="/exerciseType" />
     </v-navigation-drawer>

@@ -1,4 +1,12 @@
-import type { Exercise, WorkSet } from "./other"
+import type { WorkSet } from "./other"
+
+export interface Exercise {
+  id: number
+  group_id: number
+  note?: string
+  exercise_type_id?: number
+  work_set_count: number
+}
 
 export interface ExerciseTableColumn {
   key: string

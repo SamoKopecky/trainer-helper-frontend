@@ -1,5 +1,5 @@
 import { ExerciseTypeService } from "@/services/exerciseType"
-import type { ExerciseType } from "@/types/other"
+import type { ExerciseType } from "@/types/exerciseType"
 import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
 import { onMounted, ref } from "vue"
 

@@ -1,7 +1,7 @@
 import { test, expect } from "vitest"
 import { workSetFactory } from "@/factories"
 import { tableDataDiff } from "./diff"
-import { type WorkSetDiff, type ExerciseDiff, ExerciseUpdateType } from "@/types/exercises"
+import { type WorkSetDiff, type ExerciseDiff, ExerciseUpdateType } from "@/types/exercise"
 
 test("tableDataDiff return diff correctly for work set props", () => {
   const newObj = workSetFactory({ intensity: "105Kg", work_set_id: 1 })

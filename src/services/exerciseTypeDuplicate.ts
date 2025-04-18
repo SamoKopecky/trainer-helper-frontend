@@ -1,4 +1,4 @@
-import type { ExerciseType } from "@/types/other"
+import type { ExerciseType } from "@/types/exerciseType"
 import { ServiceI, Method, Route } from "./base"
 
 export class ExerciseTypeDuplicateService extends ServiceI {
