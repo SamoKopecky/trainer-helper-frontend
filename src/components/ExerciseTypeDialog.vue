@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { MediaType, type ExerciseType, type ExerciseTypeUpdate } from "@/types/other"
 import { watchDebounced } from "@vueuse/core"
-import { computed, type PropType } from "vue"
+import { computed, type PropType, useTemplateRef } from "vue"
 import YoutubeEmbed from "./YoutubeEmbed.vue"
 import { extractYouTubeId } from "@/utils/other"
 import { ref } from "vue"
@@ -31,6 +31,7 @@ const noteRef = ref<string>()
 const mediaTypeRef = ref<MediaType>()
 const youtubeLinkRef = ref<string>()
 const newNameRef = ref<string>()
+const newNameInput = useTemplateRef("input")
 const youtubeVideoIdRef = computed(() => {
   if (exerciseType && exerciseType.media_address) {
     return extractYouTubeId(exerciseType?.media_address)
@@ -39,6 +40,11 @@ const youtubeVideoIdRef = computed(() => {
 })
 
 // Watches
+watchEffect(() => {
+  if (isNew && newNameInput.value) {
+    newNameInput.value.focus()
+  }
+})
 watch(
   () => isNew,
   () => {
@@ -122,6 +128,7 @@ function emitUpdate() {
         </div>
         <v-text-field
           v-else
+          ref="input"
           v-model="newNameRef"
           type="texts"
           variant="plain"

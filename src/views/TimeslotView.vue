@@ -12,6 +12,9 @@ import { onMounted } from "vue"
 import { timeslotToAppTimeslot } from "@/utils/tranformators"
 import { ExerciseDuplicateService } from "@/services/exerciseDuplicate"
 import { useUser } from "@/composables/useUser"
+import { useExerciseTypes } from "@/composables/useExerciseTypes"
+import { useExerciseTypeDialog } from "@/composables/useExerciseTypeDialog"
+import ExerciseTypeDialog from "@/components/ExerciseTypeDialog.vue"
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "delete", type: "button", name: "", is_multirow: true },
@@ -42,8 +45,14 @@ onMounted(() => {
 })
 
 const { notifications, addNotification } = useNotifications()
-const { exercises, exerciseTypes, addExercise, deleteExercise, updateTable, updateTitle } =
-  useExercises(timeslotId, exerciseRes, addNotification)
+const { exercises, addExercise, deleteExercise, updateTable, updateTitle } = useExercises(
+  timeslotId,
+  exerciseRes,
+  addNotification,
+)
+const { exerciseTypes } = useExerciseTypes()
+const { showDialog, selectedType, handleCreate, handleUpdate, isNew, addNew } =
+  useExerciseTypeDialog(exerciseTypes)
 
 function duplicateTimeslot(duplicateFrom: number | undefined) {
   if (duplicateFrom) {
@@ -53,6 +62,11 @@ function duplicateTimeslot(duplicateFrom: number | undefined) {
         exerciseRes.value = res
       })
   }
+}
+
+function displayExerciseType(exerciseTypeId: number) {
+  selectedType.value = exerciseTypes.value.find((et) => et.id === exerciseTypeId)
+  showDialog.value = true
 }
 </script>
 
@@ -64,6 +78,7 @@ function duplicateTimeslot(duplicateFrom: number | undefined) {
     @add-exercise="addExercise"
     @update-title="updateTitle"
     @duplicate-timeslot="duplicateTimeslot"
+    @create:exercise-type="addNew"
   >
     <ExerciseTable
       :columns="EXERCISE_COLUMNS"
@@ -71,6 +86,15 @@ function duplicateTimeslot(duplicateFrom: number | undefined) {
       :exercise-types="exerciseTypes"
       @update-table="updateTable"
       @delete-exercise="deleteExercise"
+      @display:exercise-type="displayExerciseType"
     />
   </TimeslotControlPanel>
+
+  <ExerciseTypeDialog
+    v-model="showDialog"
+    :exercise-type="selectedType"
+    :is-new="isNew"
+    @update:exercise-type="handleUpdate"
+    @create:exercise-type="handleCreate"
+  />
 </template>
