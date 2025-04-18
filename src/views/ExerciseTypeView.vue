@@ -27,7 +27,7 @@ const { exerciseTypes } = useExerciseTypes()
 const tableExerciseTypes: ComputedRef<ExerciseTypeTableRow[]> = computed(() =>
   exerciseTypes.value.map((et) => exerciseTypeToRow(et)),
 )
-const { showDialog, selectedType, isNew, handleUpdate, handleCreate } =
+const { showDialog, selectedType, isNew, handleUpdate, handleCreate, addNew } =
   useExerciseTypeDialog(exerciseTypes)
 
 // Functions
@@ -35,12 +35,6 @@ function rowClick(row: { item: ExerciseType }) {
   isNew.value = false
   showDialog.value = true
   selectedType.value = exerciseTypes.value.find((et) => et.id === row.item.id) as ExerciseType
-}
-
-function addNew() {
-  isNew.value = true
-  selectedType.value = undefined
-  showDialog.value = true
 }
 
 function initExerciseTypes() {
