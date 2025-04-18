@@ -10,7 +10,12 @@ import { TimeslotService } from "@/services/timeslots"
 import { deepClone } from "@/utils/tranformators"
 import { useRouter } from "vue-router"
 
-const emit = defineEmits(["add-exercise", "update-title", "duplicate-timeslot"])
+const emit = defineEmits([
+  "add-exercise",
+  "update-title",
+  "duplicate-timeslot",
+  "new-exercise-type",
+])
 const timeslotService = new TimeslotService()
 
 const { appTimeslot } = defineProps({
@@ -27,7 +32,7 @@ const { appTimeslot } = defineProps({
 
 const router = useRouter()
 const nameEditable = ref(false)
-const dialogEnabled = ref(false)
+const duplicateDialog = ref(false)
 const timeslotName = ref<string | unknown>()
 const nameInput = useTemplateRef("nameInput")
 const duplicateInput = useTemplateRef("duplicateInput")
@@ -75,10 +80,10 @@ onMounted(() => {
 })
 
 function duplicate() {
-  dialogEnabled.value = true
+  duplicateDialog.value = true
 }
 
-function buttonClick() {
+function submitTitle() {
   nameEditable.value = !nameEditable.value
   if (nameEditable.value === false) {
     emit("update-title", timeslotName.value)
@@ -90,12 +95,16 @@ function addExercise() {
 }
 
 function submitDuplicate() {
-  dialogEnabled.value = false
+  duplicateDialog.value = false
   emit("duplicate-timeslot", duplicateTimeslotId.value)
 }
 
 function backToCalendar() {
   router.push({ path: "/calendar" })
+}
+
+function addNewExerciseType() {
+  console.log("adding new")
 }
 </script>
 
@@ -117,12 +126,12 @@ function backToCalendar() {
             variant="plain"
             density="compact"
             hide-details
-            @keydown.enter="buttonClick"
+            @keydown.enter="submitTitle"
           />
           <span v-if="!nameEditable">
             {{ appTimeslot?.name ?? "Title" }}
           </span>
-          <v-icon v-if="isTrainer" small class="ml-2" @click="buttonClick">
+          <v-icon v-if="isTrainer" small class="ml-2" @click="submitTitle">
             {{ nameEditable ? "mdi-check" : "mdi-pencil" }}
           </v-icon>
         </v-col>
@@ -133,8 +142,9 @@ function backToCalendar() {
   <v-btn text="Add exercise" @click="addExercise" />
   <v-btn text="Go back" @click="backToCalendar" />
   <v-btn v-if="isTrainer" text="Duplicate from another timeslot" @click="duplicate" />
+  <v-btn v-if="isTrainer" text="Add exercise type" @click="addNewExerciseType" />
 
-  <v-dialog v-model="dialogEnabled">
+  <v-dialog v-model="duplicateDialog">
     <v-card title="Duplicate timeslot">
       <v-card-text>
         <v-autocomplete
@@ -153,6 +163,8 @@ function backToCalendar() {
       </v-card-text>
     </v-card>
   </v-dialog>
+
+
 </template>
 
 <style scoped>

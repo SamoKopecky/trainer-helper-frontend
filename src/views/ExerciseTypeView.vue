@@ -1,31 +1,16 @@
 <script setup lang="ts">
 import DataTable from "@/components/DataTable.vue"
-import {
-  ExerciseTypeService,
-  type ExerciseTypePostRequest,
-  type ExerciseTypePutRequest,
-} from "@/services/exerciseType"
 import { ExerciseTypeDuplicateService } from "@/services/exerciseTypeDuplicate"
-import {
-  type ExerciseType,
-  type ExerciseTypeTableRow,
-  type ExerciseTypeUpdate,
-  MediaType,
-} from "@/types/other"
-import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
+import { type ExerciseType, type ExerciseTypeTableRow, MediaType } from "@/types/other"
 import type { ComputedRef } from "vue"
 import { computed } from "vue"
-import { onMounted } from "vue"
 import { ref } from "vue"
 import ExerciseTypeDialog from "@/components/ExerciseTypeDialog.vue"
 import { useExerciseTypeDialog } from "@/composables/useExerciseTypeDialog"
 import { exerciseTypeToRow } from "@/utils/tranformators"
+import { useExerciseTypes } from "@/composables/useExerciseTypes"
 
-const exerciseTypeServise = new ExerciseTypeService()
-const exerciseTypeDuplicateServise = new ExerciseTypeDuplicateService()
-const keycloak = useKeycloak()
-const { showDialog, selectedType } = useExerciseTypeDialog()
-
+// Refs
 const headers = ref([
   {
     align: "start",
@@ -37,21 +22,15 @@ const headers = ref([
   { key: "mediaType", title: "Media Type" },
   { key: "id", align: " d-none" },
 ])
-
-const exerciseTypes = ref<ExerciseType[]>([])
-const isNew = ref(false)
-const tableExerciseTypesRef: ComputedRef<ExerciseTypeTableRow[]> = computed(() =>
+const exerciseTypeDuplicateServise = new ExerciseTypeDuplicateService()
+const { exerciseTypes } = useExerciseTypes()
+const tableExerciseTypes: ComputedRef<ExerciseTypeTableRow[]> = computed(() =>
   exerciseTypes.value.map((et) => exerciseTypeToRow(et)),
 )
+const { showDialog, selectedType, isNew, handleUpdate, handleCreate } =
+  useExerciseTypeDialog(exerciseTypes)
 
-onMounted(() => {
-  if (keycloak.subject) {
-    exerciseTypeServise
-      .get({ user_id: keycloak.subject })
-      .then((res) => (exerciseTypes.value = res))
-  }
-})
-
+// Functions
 function rowClick(row: { item: ExerciseType }) {
   isNew.value = false
   showDialog.value = true
@@ -64,34 +43,6 @@ function addNew() {
   showDialog.value = true
 }
 
-function handleCreate(newExerciseTypeRequest: ExerciseTypePostRequest) {
-  exerciseTypeServise.post(newExerciseTypeRequest).then((res) => {
-    isNew.value = false
-    selectedType.value = res
-    exerciseTypes.value.push(res)
-  })
-}
-
-function handleUpdate(updateData: ExerciseTypeUpdate) {
-  if (selectedType.value) {
-    const request: ExerciseTypePutRequest = {
-      id: selectedType.value.id,
-      ...updateData,
-    }
-    exerciseTypeServise.put(request).then(() => {
-      if (selectedType.value) {
-        exerciseTypes.value
-          .filter((et) => et.id === selectedType.value?.id)
-          .forEach((et) => {
-            et.note = updateData.note
-            et.media_type = updateData.media_type
-            et.media_address = updateData.media_address
-          })
-      }
-    })
-  }
-}
-
 function initExerciseTypes() {
   exerciseTypeDuplicateServise
     .post()
@@ -102,7 +53,7 @@ function initExerciseTypes() {
 <template>
   <DataTable
     :headers="headers"
-    :items="tableExerciseTypesRef"
+    :items="tableExerciseTypes"
     title="Exercise types"
     @row-click="rowClick"
     @add-new="addNew"
@@ -122,6 +73,7 @@ function initExerciseTypes() {
       >
     </template>
   </DataTable>
+
   <ExerciseTypeDialog
     v-model="showDialog"
     :exercise-type="selectedType"
