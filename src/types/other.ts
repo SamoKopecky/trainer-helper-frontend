@@ -18,13 +18,13 @@ export interface Timeslot {
   id: number
   trainer_id: string
   trainee_id: string | null
-  person_name?: string
+  user_name?: string
   name: string
   end: Date
   start: Date
 }
 
-export interface Person {
+export interface User {
   id: string
   name: string
   email: string

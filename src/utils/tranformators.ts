@@ -60,10 +60,10 @@ export function mergeTableDataAndWorkSetModel(
 }
 
 export function timeslotToAppTimeslot(timeslot: Timeslot): AppTimeslot {
-  const isAssigned = timeslot.person_name
+  const isAssigned = timeslot.user_name
   return {
     ...timeslot,
-    title: capitalizeWords(timeslot.person_name?.toString()) ?? EMPTY_USER,
+    title: capitalizeWords(timeslot.user_name?.toString()) ?? EMPTY_USER,
     start: new Date(timeslot.start),
     end: new Date(timeslot.end),
     class: isAssigned ? "assigned" : "no-user",

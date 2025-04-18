@@ -19,7 +19,7 @@ const {
   createTimeslot,
   deleteTimeslot,
   clickTimeslot,
-  updateEventPerson,
+  updateEventUser,
   eventMove,
 } = useCalendar(selectedEvent, showDialog, addChangeEvent)
 const { isTrainer } = useUser()
@@ -60,7 +60,7 @@ const theme = useTheme()
     :selected-event="selectedEvent"
     :is-trainer="isTrainer"
     @delete-cal-timeslot="deleteTimeslot"
-    @update-person="updateEventPerson"
+    @update-user="updateEventUser"
     v-model="showDialog"
   >
   </EventDialog>
