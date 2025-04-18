@@ -92,7 +92,6 @@ function saveButton() {
     emit("create:exerciseType", {
       note: noteRef.value,
       name: newNameRef.value,
-      // TODO: Work with files also
       media_address: youtubeLinkRef.value,
       media_type: mediaTypeRef.value,
     } as ExerciseTypePostRequest)
@@ -108,7 +107,6 @@ function emitUpdate() {
       media_type: mediaTypeRef.value,
       note: noteRef.value,
     }
-    console.log("sending", data)
     emit("update:exerciseType", data)
   }
 }
