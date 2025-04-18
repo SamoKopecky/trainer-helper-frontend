@@ -30,7 +30,7 @@ function deleteExercise(exerciseId: number) {
   emit("delete-exercise", exerciseId)
 }
 
-const emit = defineEmits(["update-table", "delete-exercise"])
+const emit = defineEmits(["update-table", "delete-exercise", "display:exerciseType"])
 const theme = useTheme()
 const groups = ref<number[]>()
 
@@ -62,6 +62,10 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
   })
   return res
 })
+
+function displayExerciseType(exerciseTypeId: number) {
+  emit("display:exerciseType", exerciseTypeId)
+}
 </script>
 
 <template>
@@ -104,25 +108,28 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
               :items="groups"
               @update:model-value="updateTable(row)"
             />
-            <v-autocomplete
-              v-else-if="column.type === 'exercise_types'"
-              v-model="row[column.key]"
-              class="autocomplete-input"
-              variant="plain"
-              item-title="name"
-              item-value="id"
-              density="compact"
-              hide-details="auto"
-              :items="exerciseTypes"
-              @update:model-value="updateTable(row)"
-            />
+            <div v-else-if="column.type === 'exercise_types'" class="d-inline-flex align-center">
+              <!-- TODO: Correctly flex -->
+              <v-autocomplete
+                v-model="row[column.key]"
+                class="autocomplete-input"
+                variant="plain"
+                item-title="name"
+                item-value="id"
+                density="compact"
+                hide-details="auto"
+                :items="exerciseTypes"
+                @update:model-value="updateTable(row)"
+              />
+              <v-icon @click="displayExerciseType(row[column.key])">mdi-close</v-icon>
+            </div>
             <v-icon
               v-else-if="column.type === 'button'"
               x-small
               color="red"
               @click="deleteExercise(row.exercise_id)"
             >
-              <v-icon>mdi-close</v-icon>
+              mdi-close
             </v-icon>
             <textarea
               v-else-if="column.type === 'textarea'"
