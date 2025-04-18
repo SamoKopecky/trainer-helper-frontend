@@ -40,5 +40,11 @@ export function useExerciseTypeDialog(exerciseTypes: Ref<ExerciseType[]>) {
     }
   }
 
-  return { showDialog, selectedType, handleCreate, handleUpdate, isNew }
+  function addNew() {
+    isNew.value = true
+    selectedType.value = undefined
+    showDialog.value = true
+  }
+
+  return { showDialog, selectedType, handleCreate, handleUpdate, isNew, addNew }
 }

@@ -9,14 +9,15 @@ import { ref, type PropType } from "vue"
 import { TimeslotService } from "@/services/timeslots"
 import { deepClone } from "@/utils/tranformators"
 import { useRouter } from "vue-router"
+import { useExerciseTypes } from "@/composables/useExerciseTypes"
+import { useExerciseTypeDialog } from "@/composables/useExerciseTypeDialog"
+import ExerciseTypeDialog from "@/components/ExerciseTypeDialog.vue"
 
-const emit = defineEmits([
-  "add-exercise",
-  "update-title",
-  "duplicate-timeslot",
-  "new-exercise-type",
-])
+const emit = defineEmits(["add-exercise", "update-title", "duplicate-timeslot"])
 const timeslotService = new TimeslotService()
+const { exerciseTypes } = useExerciseTypes()
+const { showDialog, selectedType, handleCreate, handleUpdate, isNew, addNew } =
+  useExerciseTypeDialog(exerciseTypes)
 
 const { appTimeslot } = defineProps({
   appTimeslot: {
@@ -102,10 +103,6 @@ function submitDuplicate() {
 function backToCalendar() {
   router.push({ path: "/calendar" })
 }
-
-function addNewExerciseType() {
-  console.log("adding new")
-}
 </script>
 
 <template>
@@ -139,10 +136,10 @@ function addNewExerciseType() {
     </v-card-text>
   </v-card>
   <slot />
-  <v-btn text="Add exercise" @click="addExercise" />
   <v-btn text="Go back" @click="backToCalendar" />
+  <v-btn text="Add exercise" @click="addExercise" />
+  <v-btn v-if="isTrainer" text="Add exercise type" @click="addNew" />
   <v-btn v-if="isTrainer" text="Duplicate from another timeslot" @click="duplicate" />
-  <v-btn v-if="isTrainer" text="Add exercise type" @click="addNewExerciseType" />
 
   <v-dialog v-model="duplicateDialog">
     <v-card title="Duplicate timeslot">
@@ -164,7 +161,13 @@ function addNewExerciseType() {
     </v-card>
   </v-dialog>
 
-
+  <ExerciseTypeDialog
+    v-model="showDialog"
+    :exercise-type="selectedType"
+    :is-new="isNew"
+    @update:exercise-type="handleUpdate"
+    @create:exercise-type="handleCreate"
+  />
 </template>
 
 <style scoped>
