@@ -22,7 +22,6 @@ const { columns, exercises } = defineProps({
 })
 
 function updateTable(row: ExerciseTableData) {
-  console.log(row)
   emit("update-table", row)
 }
 
