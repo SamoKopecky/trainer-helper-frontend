@@ -50,7 +50,9 @@ function sendEmail() {
   if (email.value && getUserFromEmail(email.value))
     userService
       .post({ email: email.value, username: getUserFromEmail(email.value)! })
-      .then(() => {
+      .then((res) => {
+        const newUser: User = { id: res.user_id, email: email.value!, nickname: "", name: "" }
+        users.value.push(newUser)
         addNotification("Email sent!", "success")
       })
       .catch((err) => {

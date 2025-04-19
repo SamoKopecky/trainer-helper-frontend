@@ -13,7 +13,7 @@ export class UserService extends ServiceI {
     return this.handleRequest({ method: Method.GET }) as Promise<User[]>
   }
 
-  async post(body: UserPostRequest): Promise<User> {
-    return this.handleRequest({ method: Method.POST, body: body }) as Promise<User>
+  async post(body: UserPostRequest): Promise<{ user_id: string }> {
+    return this.handleRequest({ method: Method.POST, body: body }) as Promise<{ user_id: string }>
   }
 }
