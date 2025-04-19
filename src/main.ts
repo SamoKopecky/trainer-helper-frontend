@@ -33,6 +33,7 @@ import {
   VCardActions,
   VBtnToggle,
   VFileInput,
+  VForm,
 } from "vuetify/components"
 import router from "./router"
 import VueKeyCloak from "@dsb-norge/vue-keycloak-js"
@@ -67,6 +68,7 @@ const vuetify = createVuetify({
     VCardActions,
     VBtnToggle,
     VFileInput,
+    VForm,
   },
   directives,
   icons: {

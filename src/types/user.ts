@@ -4,9 +4,3 @@ export interface User {
   nickname: string
   email: string
 }
-
-export interface UserTableRow {
-  id: number
-  name: string
-  nickname?: string
-}
