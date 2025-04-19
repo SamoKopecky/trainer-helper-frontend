@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { AppTimeslot } from "@/types/calendar"
 import type { Timeslot } from "@/types/other"
-import { capitalizeWords } from "@/utils/user"
 import { onMounted } from "vue"
 import { computed } from "vue"
 import { useTemplateRef, watch, watchEffect } from "vue"
@@ -45,7 +44,7 @@ const computedDuplicateTimeslots = computed(() => {
     const timeslotCopy = deepClone(timeslot)
     const dayString = timeslot.start.toLocaleString("en-US", { weekday: "long" })
     const date = timeslot.start.toLocaleDateString().split("/")
-    const userName = capitalizeWords(timeslot.user_name)
+    const userName = timeslot.user_nickname ?? timeslot.user_name
     timeslotCopy.name = `${userName} | ${dayString} ${date[1]}-${date[0]} | ${timeslot.name}`
     return timeslotCopy
   })

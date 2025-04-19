@@ -1,11 +1,12 @@
 export interface User {
   id: string
   name: string
+  nickname: string
   email: string
 }
 
 export interface UserTableRow {
   id: number
-  fullName: string
+  name: string
   nickname?: string
 }

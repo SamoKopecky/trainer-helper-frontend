@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ExerciseTypeTableRow } from "@/types/exerciseType"
 import { ref, type PropType } from "vue"
 
 const { items } = defineProps({
@@ -8,7 +7,8 @@ const { items } = defineProps({
     required: true,
   },
   items: {
-    type: Object as PropType<ExerciseTypeTableRow[]>,
+    // TODO: Add generics
+    type: Object as PropType<any[]>,
     required: true,
   },
   title: {
