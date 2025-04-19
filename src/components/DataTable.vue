@@ -7,7 +7,7 @@ const { items } = defineProps({
     required: true,
   },
   items: {
-    // TODO: Add generics
+    // TODO: Add genericts
     type: Object as PropType<any[]>,
     required: true,
   },

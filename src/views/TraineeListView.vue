@@ -2,8 +2,11 @@
 import DataTable from "@/components/DataTable.vue"
 import { UserService } from "@/services/user"
 import { onMounted } from "vue"
-import { ref } from "vue"
+import { ref, watchEffect } from "vue"
 import type { User } from "@/types/user"
+import { useTemplateRef } from "vue"
+import { useNotifications } from "@/composables/useNotifications"
+import NotificationFloat from "@/components/NotificationFloat.vue"
 
 const userService = new UserService()
 const headers = ref([
@@ -16,14 +19,44 @@ const headers = ref([
   { key: "email", title: "Email" },
   { key: "id", align: " d-none" },
 ])
-const users = ref<User[]>([])
 
-function rowClick(row: { item: any }) {
+const { notifications, addNotification } = useNotifications()
+const users = ref<User[]>([])
+const emailTemplate = useTemplateRef("emailInput")
+const email = ref<string>()
+const showNewDialog = ref(false)
+const isFormValid = ref(false)
+const isLoading = ref(false)
+
+const emailRules = [
+  (value: string) => !!value || "E-mail is required.",
+  (value: string) => /.+@.+\..+/.test(value) || "E-mail must be valid.",
+]
+
+watchEffect(() => {
+  if (emailTemplate.value) {
+    emailTemplate.value.focus()
+  }
+})
+
+function rowClick(row: { item: User }) {
   console.log(row.item)
 }
 
+function sendEmail() {
+  isLoading.value = true
+  console.log("sending to", email.value)
+  addNotification("Email sent!", "success")
+}
+
 function addNew() {
-  console.log("new")
+  email.value = ""
+  isLoading.value = false
+  showNewDialog.value = true
+}
+
+function exit() {
+  showNewDialog.value = false
 }
 
 onMounted(() => {
@@ -34,6 +67,8 @@ onMounted(() => {
 </script>
 
 <template>
+  <NotificationFloat :notifications="notifications" />
+
   <DataTable
     :headers="headers"
     :items="users"
@@ -41,4 +76,39 @@ onMounted(() => {
     @add-new="addNew"
     @row-click="rowClick"
   />
+
+  <v-dialog :model-value="showNewDialog" @update:model-value="exit">
+    <v-card>
+      <v-card-title> Invite new user </v-card-title>
+      <v-divider />
+      <v-form v-model="isFormValid">
+        <v-card-text>
+          <v-text-field
+            ref="emailInput"
+            label="Email adddress"
+            variant="outlined"
+            v-model="email"
+            clearable
+            placeholder="Enter email address..."
+            prepend-inner-icon="mdi-email"
+            :rules="emailRules"
+            validate-on="input"
+            @keydown.enter.prevent
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="grey-darken-1" variant="text" @click="exit">Exit</v-btn>
+          <v-btn
+            :disabled="!isFormValid"
+            :loading="isLoading"
+            color="blue-darken-1"
+            variant="text"
+            @click="sendEmail"
+            >Send</v-btn
+          >
+        </v-card-actions>
+      </v-form>
+    </v-card>
+  </v-dialog>
 </template>
