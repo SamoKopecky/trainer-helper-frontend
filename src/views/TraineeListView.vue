@@ -7,6 +7,7 @@ import type { User } from "@/types/user"
 import { useTemplateRef } from "vue"
 import { useNotifications } from "@/composables/useNotifications"
 import NotificationFloat from "@/components/NotificationFloat.vue"
+import { getUserFromEmail } from "@/utils/user"
 
 const userService = new UserService()
 const headers = ref([
@@ -45,8 +46,17 @@ function rowClick(row: { item: User }) {
 
 function sendEmail() {
   isLoading.value = true
-  console.log("sending to", email.value)
-  addNotification("Email sent!", "success")
+  // TODO: Fix this nonsense
+  if (email.value && getUserFromEmail(email.value))
+    userService
+      .post({ email: email.value, username: getUserFromEmail(email.value)! })
+      .then(() => {
+        addNotification("Email sent!", "success")
+      })
+      .catch((err) => {
+        addNotification(err, "error")
+      })
+      .finally(() => (isLoading.value = false))
 }
 
 function addNew() {

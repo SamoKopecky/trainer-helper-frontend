@@ -24,3 +24,12 @@ export function capitalizeWords(str?: string): string | undefined {
 export function getTimeslotUserName(timeslot: Timeslot): string {
   return timeslot.user_nickname ?? timeslot.user_name ?? EMPTY_USER
 }
+
+export function getUserFromEmail(email: string): string | null {
+  // TODO: Create class from email
+  if (!email.includes("@")) {
+    return null
+  }
+  const parts = email.split("@")
+  return parts[0]
+}
