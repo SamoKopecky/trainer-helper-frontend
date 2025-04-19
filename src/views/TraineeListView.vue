@@ -53,7 +53,7 @@ function sendEmail() {
       .then((res) => {
         const newUser: User = { id: res.user_id, email: email.value!, nickname: "", name: "" }
         users.value.push(newUser)
-        addNotification("Email sent!", "success")
+        addNotification("User added succsefully!", "success")
       })
       .catch((err) => {
         addNotification(err, "error")

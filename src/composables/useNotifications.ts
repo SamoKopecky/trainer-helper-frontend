@@ -9,7 +9,6 @@ export function useNotifications() {
   const notifications = ref<Map<string, ChangeNotification>>(new Map())
 
   function addNotification(text: string, type: NotificationType) {
-    console.log(text)
     const notificationId = randomId()
     notifications.value.set(notificationId, {
       text,
