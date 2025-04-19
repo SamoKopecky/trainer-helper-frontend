@@ -160,11 +160,11 @@ function emitUpdate() {
           divided
           class="mb-4 d-flex"
         >
-          <v-btn value="YOUTUBE" class="flex-grow-1">
+          <v-btn :value="MediaType.Youtube" class="flex-grow-1">
             <v-icon start>mdi-link</v-icon>
             YouTube Link
           </v-btn>
-          <v-btn value="FILE" class="flex-grow-1">
+          <v-btn :value="MediaType.File" class="flex-grow-1">
             <v-icon start>mdi-upload</v-icon>
             Upload File
           </v-btn>

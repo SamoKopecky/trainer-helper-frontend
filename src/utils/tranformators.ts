@@ -3,8 +3,7 @@ import type { AppTimeslot } from "@/types/calendar"
 import type { ExerciseTableData } from "@/types/exercise"
 import type { ExerciseType, ExerciseTypeTableRow } from "@/types/exerciseType"
 import type { Timeslot, WorkSet } from "@/types/other"
-import { EMPTY_USER } from "@/constants"
-import { capitalizeWords } from "./user"
+import { getTimeslotUserName } from "./user"
 
 export function deepClone(obj: unknown) {
   return JSON.parse(JSON.stringify(obj))
@@ -64,7 +63,7 @@ export function timeslotToAppTimeslot(timeslot: Timeslot): AppTimeslot {
   const isAssigned = timeslot.user_name
   return {
     ...timeslot,
-    title: capitalizeWords(timeslot.user_name?.toString()) ?? EMPTY_USER,
+    title: getTimeslotUserName(timeslot),
     start: new Date(timeslot.start),
     end: new Date(timeslot.end),
     class: isAssigned ? "assigned" : "no-user",

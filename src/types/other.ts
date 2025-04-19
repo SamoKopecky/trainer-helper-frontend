@@ -9,8 +9,10 @@ export interface WorkSet {
 export interface Timeslot {
   id: number
   trainer_id: string
-  trainee_id: string | null
+  trainee_id?: string
+  // TODO: Maybe think about separating this into a user call instead
   user_name?: string
+  user_nickname?: string
   name: string
   end: Date
   start: Date
