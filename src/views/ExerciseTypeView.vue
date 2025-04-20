@@ -23,7 +23,8 @@ const headers = ref([
   { key: "id", align: " d-none" },
 ])
 const exerciseTypeDuplicateServise = new ExerciseTypeDuplicateService()
-const { exerciseTypes } = useExerciseTypes()
+const loading = ref(false)
+const { exerciseTypes } = useExerciseTypes(loading)
 const tableExerciseTypes: ComputedRef<ExerciseTypeTableRow[]> = computed(() =>
   exerciseTypes.value.map((et) => exerciseTypeToRow(et)),
 )
@@ -48,6 +49,7 @@ function initExerciseTypes() {
   <DataTable
     :headers="headers"
     :items="tableExerciseTypes"
+    :loading="loading"
     title="Exercise types"
     @row-click="rowClick"
     @add-new="addNew"

@@ -15,6 +15,10 @@ const { items } = defineProps({
     type: String,
     required: true,
   },
+  loading: {
+    type: Boolean,
+    requred: true,
+  },
 })
 
 const search = ref<string>()
@@ -42,7 +46,13 @@ function addNew() {
       ></v-text-field>
       <v-btn style="margin-top: 0.5rem" @click="addNew">Add new</v-btn>
 
-      <v-data-table :headers="headers" :items="items" :search="search" @click:row="rowClick">
+      <v-data-table
+        :loading="loading"
+        :headers="headers"
+        :items="items"
+        :search="search"
+        @click:row="rowClick"
+      >
         <!-- Hack to use slots in parent -->
         <template v-for="header in headers" #[`item.${header.key}`]="{ item }">
           <slot :name="`item.${header.key}`" :item="item" :value="item[header.key]">

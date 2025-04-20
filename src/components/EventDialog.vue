@@ -65,6 +65,10 @@ function buttonClick() {
   )
 }
 
+function getUserDisplaytitle(user: User): string {
+  return user.nickname || user.name || user.email
+}
+
 onMounted(() => {
   userService.get().then((res) => (users.value = res))
 })
@@ -84,7 +88,7 @@ onMounted(() => {
             v-if="titleEditable"
             v-model="selectedId"
             :items="users"
-            item-title="name"
+            :item-title="getUserDisplaytitle"
             item-value="id"
             placeholder="Enter name"
             variant="plain"

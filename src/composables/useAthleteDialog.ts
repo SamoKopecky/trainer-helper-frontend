@@ -12,18 +12,26 @@ export function useAthleteDialog(
   const user = ref<User | undefined>()
   const showDialog = ref(false)
 
-  function deleteUser(userId?: string) {
-    if (userId)
+  function deleteUser() {
+    if (user.value)
       userService
-        .delete({ id: userId })
+        .delete({ id: user.value?.id })
         .then(() => addNotification("User deleted succsefully!", "success"))
         .catch((err) => addNotification(err, "error"))
         .finally(() => {
           showDialog.value = false
           // Remove removed user
-          users.value = users.value.filter((u) => u.id !== userId)
+          users.value = users.value.filter((u) => u.id !== user.value!.id)
         })
   }
 
-  return { user, showDialog, deleteUser }
+  function updateNickname(nickname: string) {
+    if (user.value)
+      userService
+        .put({ nickname: nickname, id: user.value.id })
+        .then(() => (user.value!.nickname = nickname))
+        .catch((err) => addNotification(err, "error"))
+  }
+
+  return { user, showDialog, deleteUser, updateNickname }
 }

@@ -10,6 +10,11 @@ export interface UserDeleteRequest {
   id: string
 }
 
+export interface UserPutRequest {
+  id: string
+  nickname: string
+}
+
 export class UserService extends ServiceI {
   route = Route.User
 
@@ -23,5 +28,9 @@ export class UserService extends ServiceI {
 
   async delete(body: UserDeleteRequest): Promise<void> {
     return this.handleRequest({ method: Method.DELETE, body: body }) as Promise<void>
+  }
+
+  async put(body: UserPutRequest): Promise<void> {
+    return this.handleRequest({ method: Method.PUT, body: body }) as Promise<void>
   }
 }

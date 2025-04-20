@@ -23,6 +23,7 @@ const headers = ref([
 ])
 
 const users = ref<User[]>([])
+const loading = ref(false)
 const userService = new UserService()
 const { notifications, addNotification } = useNotifications()
 const {
@@ -30,10 +31,9 @@ const {
   showDialog: showNewDialog,
   sendEmail,
 } = useNewAthleteDialog(addNotification, users)
-const { showDialog, user, deleteUser } = useAthleteDialog(addNotification, users)
+const { showDialog, user, deleteUser, updateNickname } = useAthleteDialog(addNotification, users)
 
 function rowClick(row: { item: User }) {
-  console.log(row.item)
   showDialog.value = true
   user.value = row.item
 }
@@ -44,8 +44,10 @@ function addNew() {
 }
 
 onMounted(() => {
+  loading.value = true
   userService.get().then((res) => {
     users.value = res
+    loading.value = false
   })
 })
 </script>
@@ -56,6 +58,7 @@ onMounted(() => {
   <DataTable
     :headers="headers"
     :items="users"
+    :loading="loading"
     title="Athletes"
     @add-new="addNew"
     @row-click="rowClick"
@@ -65,6 +68,7 @@ onMounted(() => {
   <AthleteDialog
     v-model="showDialog"
     :user="user"
-    @delete:user="deleteUser(user?.id)"
+    @delete:user="deleteUser"
+    @update:nickname="updateNickname"
   ></AthleteDialog>
 </template>

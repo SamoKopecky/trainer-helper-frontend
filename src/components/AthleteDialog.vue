@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { User } from "@/types/user"
 import { watchDebounced } from "@vueuse/core"
-import { ref, type PropType } from "vue"
+import { useTemplateRef, watchEffect } from "vue"
+import { ref, watch, type PropType } from "vue"
 
-defineProps({
+const props = defineProps({
   modelValue: {
     type: Boolean,
     required: true,
@@ -16,7 +17,21 @@ defineProps({
 })
 
 const emit = defineEmits(["update:modelValue", "update:nickname", "delete:user"])
+const input = useTemplateRef("input")
 const nickname = ref<string>()
+
+watch(
+  () => props.user,
+  () => {
+    if (props.user) nickname.value = props.user?.nickname
+  },
+)
+
+watchEffect(() => {
+  if (input.value) {
+    input.value.focus()
+  }
+})
 
 watchDebounced(
   nickname,
@@ -48,6 +63,7 @@ function unregisterUser() {
       <v-divider />
       <v-card-text>
         <v-text-field
+          ref="input"
           label="Nickname"
           variant="outlined"
           v-model="nickname"
