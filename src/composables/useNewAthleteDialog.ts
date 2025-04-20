@@ -19,7 +19,8 @@ export function useNewAthleteDialog(
       userService
         .post({ email: email, username: getUserFromEmail(email)! })
         .then((res) => {
-          const newUser: User = { id: res.user_id, email: email, nickname: "", name: "" }
+          // TODO: fill name and username
+          const newUser: User = { id: res.user_id, email: email!, nickname: "", name: "" }
           users.value.push(newUser)
           addNotification("User added succsefully!", "success")
         })
