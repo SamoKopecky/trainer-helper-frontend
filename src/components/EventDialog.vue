@@ -3,9 +3,9 @@ import type { CalTimeslot } from "@/types/calendar"
 import { useRouter } from "vue-router"
 import { ref, useTemplateRef, watch, watchEffect, type PropType } from "vue"
 import { EMPTY_USER } from "@/constants"
-import type { Person } from "@/types/other"
+import type { User } from "@/types/user"
 import { onMounted } from "vue"
-import { PersonService } from "../services/person"
+import { UserService } from "../services/user"
 
 const { selectedEvent, modelValue } = defineProps({
   selectedEvent: {
@@ -32,11 +32,11 @@ watch(
 )
 
 const selectedId = ref<string | undefined>()
-const persons = ref<Person[]>()
+const users = ref<User[]>()
 const titleEditable = ref(false)
 const router = useRouter()
-const emit = defineEmits(["delete-cal-timeslot", "update:modelValue", "update-person"])
-const personService = new PersonService()
+const emit = defineEmits(["delete-cal-timeslot", "update:modelValue", "update-user"])
+const userService = new UserService()
 const input = useTemplateRef("input")
 
 watchEffect(() => {
@@ -60,13 +60,17 @@ function closeDialog() {
 function buttonClick() {
   titleEditable.value = !titleEditable.value
   emit(
-    "update-person",
-    persons.value?.find((p) => p.id === selectedId.value),
+    "update-user",
+    users.value?.find((p) => p.id === selectedId.value),
   )
 }
 
+function getUserDisplaytitle(user: User): string {
+  return user.nickname || user.name || user.email
+}
+
 onMounted(() => {
-  personService.get().then((res) => (persons.value = res))
+  userService.get().then((res) => (users.value = res))
 })
 </script>
 
@@ -83,8 +87,8 @@ onMounted(() => {
             ref="input"
             v-if="titleEditable"
             v-model="selectedId"
-            :items="persons"
-            item-title="name"
+            :items="users"
+            :item-title="getUserDisplaytitle"
             item-value="id"
             placeholder="Enter name"
             variant="plain"

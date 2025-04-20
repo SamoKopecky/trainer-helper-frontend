@@ -6,7 +6,7 @@ import {
   type GroupIdDiff,
   type WorkSetCountDiff,
   type WorkSetDiff,
-} from "@/types/exercises"
+} from "@/types/exercise"
 
 const DATA_DIFF_MAP: Record<keyof ExerciseTableData, ExerciseUpdateType | null> = {
   note: ExerciseUpdateType.Exercise,
@@ -15,7 +15,7 @@ const DATA_DIFF_MAP: Record<keyof ExerciseTableData, ExerciseUpdateType | null> 
   rpe: ExerciseUpdateType.WorkSet,
   is_main: null,
   group_id: ExerciseUpdateType.GroupId,
-  set_type: ExerciseUpdateType.Exercise,
+  exercise_type_id: ExerciseUpdateType.Exercise,
   exercise_id: null,
   work_set_id: null,
   work_set_count: ExerciseUpdateType.WorkSetCount,
@@ -34,7 +34,7 @@ export function isWorkSetDiff(data: Diff): data is WorkSetDiff {
 }
 
 export function isExerciseDiff(data: Diff): data is ExerciseDiff {
-  return "note" in data || "set_type" in data
+  return "note" in data || "exercise_type_id" in data
 }
 
 export function isGroupIdDiff(data: Diff): data is GroupIdDiff {

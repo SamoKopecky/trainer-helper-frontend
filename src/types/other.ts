@@ -1,5 +1,3 @@
-import { SetType } from "./exercises"
-
 export interface WorkSet {
   id: number
   exercise_id: number
@@ -8,28 +6,16 @@ export interface WorkSet {
   rpe: number | null
 }
 
-export interface Exercise {
-  id: number
-  group_id: number
-  note: string | null
-  set_type: SetType
-  work_set_count: number
-}
-
 export interface Timeslot {
   id: number
   trainer_id: string
-  trainee_id: string | null
-  person_name: string | null
+  trainee_id?: string
+  // TODO: Maybe think about separating this into a user call instead
+  user_name?: string
+  user_nickname?: string
   name: string
   end: Date
   start: Date
-}
-
-export interface Person {
-  id: string
-  name: string
-  email: string
 }
 
 export type NotificationType = "success" | "info" | "warning" | "error" | undefined

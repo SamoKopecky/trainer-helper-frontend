@@ -26,7 +26,7 @@ import {
   type WorkSetCountDiff,
   type GroupIdDiff,
   ExerciseUpdateType,
-} from "@/types/exercises"
+} from "@/types/exercise"
 import type { NotificationType } from "@/types/other"
 import type { Ref } from "vue"
 import { TimeslotService } from "@/services/timeslots"

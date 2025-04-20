@@ -5,7 +5,8 @@ import { TimeslotMoveEvent } from "@/changeEvents/timestlotMove"
 import { TimeslotService, type TimeslotGetRequest } from "@/services/timeslots"
 import type { AppTimeslot } from "@/types/calendar"
 import type { CalTimeslot } from "@/types/calendar"
-import type { Person, Timeslot } from "@/types/other"
+import type { Timeslot } from "@/types/other"
+import type { User } from "@/types/user"
 import type { UnresolvedCalTimeslot, UnresolvedVueCalTimeslot, VueCalRef } from "@/types/vuecal"
 import { timeslotToAppTimeslot } from "@/utils/tranformators"
 import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
@@ -53,11 +54,11 @@ export function useCalendar(
     )
   }
 
-  function updateEventPerson(person: Person | undefined) {
-    if (selectedEvent.value && person) {
-      selectedEvent.value.title = person.name
+  function updateEventUser(user: User | undefined) {
+    if (selectedEvent.value && user) {
+      selectedEvent.value.title = user.nickname ?? user.name
       selectedEvent.value.class = "assigned"
-      timeslotService.put({ id: selectedEvent.value.id, trainee_id: person.id })
+      timeslotService.put({ id: selectedEvent.value.id, trainee_id: user.id })
     }
   }
 
@@ -84,7 +85,7 @@ export function useCalendar(
     clickTimeslot,
     deleteTimeslot,
     createTimeslot,
-    updateEventPerson,
+    updateEventUser,
     eventMove,
   }
 }

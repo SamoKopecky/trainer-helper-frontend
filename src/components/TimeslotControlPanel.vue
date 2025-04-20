@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { AppTimeslot } from "@/types/calendar"
 import type { Timeslot } from "@/types/other"
-import { capitalizeWords } from "@/utils/user"
 import { onMounted } from "vue"
 import { computed } from "vue"
 import { useTemplateRef, watch, watchEffect } from "vue"
@@ -10,7 +9,13 @@ import { TimeslotService } from "@/services/timeslots"
 import { deepClone } from "@/utils/tranformators"
 import { useRouter } from "vue-router"
 
-const emit = defineEmits(["add-exercise", "update-title", "duplicate-timeslot"])
+// TODO: Rewrite all events in create:...
+const emit = defineEmits([
+  "add-exercise",
+  "update-title",
+  "duplicate-timeslot",
+  "create:exercise-type",
+])
 const timeslotService = new TimeslotService()
 
 const { appTimeslot } = defineProps({
@@ -27,7 +32,7 @@ const { appTimeslot } = defineProps({
 
 const router = useRouter()
 const nameEditable = ref(false)
-const dialogEnabled = ref(false)
+const duplicateDialog = ref(false)
 const timeslotName = ref<string | unknown>()
 const nameInput = useTemplateRef("nameInput")
 const duplicateInput = useTemplateRef("duplicateInput")
@@ -39,8 +44,8 @@ const computedDuplicateTimeslots = computed(() => {
     const timeslotCopy = deepClone(timeslot)
     const dayString = timeslot.start.toLocaleString("en-US", { weekday: "long" })
     const date = timeslot.start.toLocaleDateString().split("/")
-    const personName = capitalizeWords(timeslot.person_name as string | undefined)
-    timeslotCopy.name = `${personName} | ${dayString} ${date[1]}-${date[0]} | ${timeslot.name}`
+    const userName = timeslot.user_nickname ?? timeslot.user_name
+    timeslotCopy.name = `${userName} | ${dayString} ${date[1]}-${date[0]} | ${timeslot.name}`
     return timeslotCopy
   })
 })
@@ -75,10 +80,10 @@ onMounted(() => {
 })
 
 function duplicate() {
-  dialogEnabled.value = true
+  duplicateDialog.value = true
 }
 
-function buttonClick() {
+function submitTitle() {
   nameEditable.value = !nameEditable.value
   if (nameEditable.value === false) {
     emit("update-title", timeslotName.value)
@@ -90,12 +95,16 @@ function addExercise() {
 }
 
 function submitDuplicate() {
-  dialogEnabled.value = false
+  duplicateDialog.value = false
   emit("duplicate-timeslot", duplicateTimeslotId.value)
 }
 
 function backToCalendar() {
   router.push({ path: "/calendar" })
+}
+
+function addNewExerciseType() {
+  emit("create:exercise-type")
 }
 </script>
 
@@ -117,12 +126,12 @@ function backToCalendar() {
             variant="plain"
             density="compact"
             hide-details
-            @keydown.enter="buttonClick"
+            @keydown.enter="submitTitle"
           />
           <span v-if="!nameEditable">
             {{ appTimeslot?.name ?? "Title" }}
           </span>
-          <v-icon v-if="isTrainer" small class="ml-2" @click="buttonClick">
+          <v-icon v-if="isTrainer" small class="ml-2" @click="submitTitle">
             {{ nameEditable ? "mdi-check" : "mdi-pencil" }}
           </v-icon>
         </v-col>
@@ -130,11 +139,12 @@ function backToCalendar() {
     </v-card-text>
   </v-card>
   <slot />
-  <v-btn text="Add exercise" @click="addExercise" />
   <v-btn text="Go back" @click="backToCalendar" />
+  <v-btn text="Add exercise" @click="addExercise" />
+  <v-btn v-if="isTrainer" text="Add exercise type" @click="addNewExerciseType" />
   <v-btn v-if="isTrainer" text="Duplicate from another timeslot" @click="duplicate" />
 
-  <v-dialog v-model="dialogEnabled">
+  <v-dialog v-model="duplicateDialog">
     <v-card title="Duplicate timeslot">
       <v-card-text>
         <v-autocomplete

@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import { ref, watch, type ComputedRef } from "vue"
 import { useTheme } from "vuetify"
-import {
-  getAllGroupIds,
-  generateSetTypes,
-  getColumns,
-  getRowspan,
-  groupBy,
-} from "../utils/exerciseTable"
+import { getAllGroupIds, getColumns, getRowspan, groupBy } from "../utils/exerciseTable"
 import { computed } from "vue"
-import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercises"
+import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercise"
+import type { ExerciseType } from "@/types/exerciseType"
 
 const { columns, exercises } = defineProps({
   columns: {
@@ -18,6 +13,10 @@ const { columns, exercises } = defineProps({
   },
   exercises: {
     type: Array<ExerciseTableData>,
+    required: true,
+  },
+  exerciseTypes: {
+    type: Array<ExerciseType>,
     required: true,
   },
 })
@@ -30,15 +29,14 @@ function deleteExercise(exerciseId: number) {
   emit("delete-exercise", exerciseId)
 }
 
-const emit = defineEmits(["update-table", "delete-exercise"])
+const emit = defineEmits(["update-table", "delete-exercise", "display:exerciseType"])
 const theme = useTheme()
-const selectItems = ref<Map<string, (string | number)[]>>(new Map())
-selectItems.value.set("set_type", generateSetTypes())
+const groups = ref<number[]>()
 
 watch(
   () => exercises,
   (newExercises) => {
-    selectItems.value.set("group_id", getAllGroupIds(newExercises))
+    groups.value = getAllGroupIds(newExercises)
   },
   { deep: true },
 )
@@ -63,6 +61,10 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
   })
   return res
 })
+
+function displayExerciseType(exerciseTypeId: number) {
+  emit("display:exerciseType", exerciseTypeId)
+}
 </script>
 
 <template>
@@ -96,22 +98,37 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
               @change="updateTable(row)"
             />
             <v-autocomplete
-              v-else-if="column.type === 'select'"
+              v-else-if="column.type === 'groups'"
               v-model="row[column.key]"
               class="autocomplete-input"
               variant="plain"
               density="compact"
               hide-details="auto"
-              :items="selectItems.get(column.key)"
+              :items="groups"
               @update:model-value="updateTable(row)"
             />
+            <div v-else-if="column.type === 'exercise_types'" class="d-inline-flex align-center">
+              <!-- TODO: Correctly flex -->
+              <v-autocomplete
+                v-model="row[column.key]"
+                class="autocomplete-input"
+                variant="plain"
+                item-title="name"
+                item-value="id"
+                density="compact"
+                hide-details="auto"
+                :items="exerciseTypes"
+                @update:model-value="updateTable(row)"
+              />
+              <v-icon @click="displayExerciseType(row[column.key])">mdi-close</v-icon>
+            </div>
             <v-icon
               v-else-if="column.type === 'button'"
               x-small
               color="red"
               @click="deleteExercise(row.exercise_id)"
             >
-              <v-icon>mdi-close</v-icon>
+              mdi-close
             </v-icon>
             <textarea
               v-else-if="column.type === 'textarea'"
@@ -144,6 +161,11 @@ textarea {
   -moz-box-sizing: border-box; /* FF1+ */
   box-sizing: border-box; /* Chrome, IE8, Opera, Safari 5.1*/
 }
+
+/*
+yellow: fde800
+black : 000000
+*/
 
 .light {
   background-color: #ffffff;

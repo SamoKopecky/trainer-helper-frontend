@@ -1,9 +1,9 @@
 import type { ExerciseResponse } from "@/services/exercise"
 import type { AppTimeslot } from "@/types/calendar"
-import type { ExerciseTableData } from "@/types/exercises"
+import type { ExerciseTableData } from "@/types/exercise"
+import type { ExerciseType, ExerciseTypeTableRow } from "@/types/exerciseType"
 import type { Timeslot, WorkSet } from "@/types/other"
-import { EMPTY_USER } from "@/constants"
-import { capitalizeWords } from "./user"
+import { getTimeslotUserName } from "./user"
 
 export function deepClone(obj: unknown) {
   return JSON.parse(JSON.stringify(obj))
@@ -19,7 +19,7 @@ export function responseToTableData(response: ExerciseResponse): ExerciseTableDa
       is_main: index === 0,
       note: response.note,
       group_id: response.group_id,
-      set_type: response.set_type,
+      exercise_type_id: response.exercise_type_id,
       exercise_id: response.id,
       work_set_count: response.work_sets.length,
       // Needs to be updated manually
@@ -52,7 +52,7 @@ export function mergeTableDataAndWorkSetModel(
     rpe: work_set.rpe,
     note: tableRow.note,
     group_id: tableRow.group_id,
-    set_type: tableRow.set_type,
+    exercise_type_id: tableRow.exercise_type_id,
     is_main: is_main,
     work_set_count: count,
     work_set_count_display: count,
@@ -60,12 +60,23 @@ export function mergeTableDataAndWorkSetModel(
 }
 
 export function timeslotToAppTimeslot(timeslot: Timeslot): AppTimeslot {
-  const isAssigned = timeslot.person_name
+  const isAssigned = timeslot.user_name
   return {
     ...timeslot,
-    title: capitalizeWords(timeslot.person_name?.toString()) ?? EMPTY_USER,
+    title: getTimeslotUserName(timeslot),
     start: new Date(timeslot.start),
     end: new Date(timeslot.end),
     class: isAssigned ? "assigned" : "no-user",
+  }
+}
+
+export function exerciseTypeToRow(exerciseType: ExerciseType): ExerciseTypeTableRow {
+  const hasMedia = Boolean(exerciseType.media_address)
+  return {
+    name: exerciseType.name,
+    mediaType: exerciseType.media_type,
+    hasMedia: hasMedia,
+    hasMediaVal: hasMedia ? "Yes" : "No",
+    id: exerciseType.id,
   }
 }
