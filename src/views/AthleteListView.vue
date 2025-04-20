@@ -5,7 +5,9 @@ import type { User } from "@/types/user"
 import { useNotifications } from "@/composables/useNotifications"
 import NotificationFloat from "@/components/NotificationFloat.vue"
 import NewAthleteDialog from "@/components/NewAthleteDialog.vue"
+import AthleteDialog from "@/components/AthleteDialog.vue"
 import { useNewAthleteDialog } from "@/composables/useNewAthleteDialog"
+import { useAthleteDialog } from "@/composables/useAthleteDialog"
 import { onMounted } from "vue"
 import { UserService } from "@/services/user"
 
@@ -23,15 +25,22 @@ const headers = ref([
 const users = ref<User[]>([])
 const userService = new UserService()
 const { notifications, addNotification } = useNotifications()
-const { isLoading, showDialog, sendEmail } = useNewAthleteDialog(addNotification, users)
+const {
+  isLoading,
+  showDialog: showNewDialog,
+  sendEmail,
+} = useNewAthleteDialog(addNotification, users)
+const { showDialog, user, deleteUser } = useAthleteDialog(addNotification, users)
 
 function rowClick(row: { item: User }) {
   console.log(row.item)
+  showDialog.value = true
+  user.value = row.item
 }
 
 function addNew() {
   isLoading.value = false
-  showDialog.value = true
+  showNewDialog.value = true
 }
 
 onMounted(() => {
@@ -52,5 +61,10 @@ onMounted(() => {
     @row-click="rowClick"
   />
 
-  <NewAthleteDialog v-model="showDialog" :is-loading="isLoading" @create:email="sendEmail" />
+  <NewAthleteDialog v-model="showNewDialog" :is-loading="isLoading" @create:email="sendEmail" />
+  <AthleteDialog
+    v-model="showDialog"
+    :user="user"
+    @delete:user="deleteUser(user?.id)"
+  ></AthleteDialog>
 </template>

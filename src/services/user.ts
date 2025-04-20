@@ -6,6 +6,10 @@ export interface UserPostRequest {
   username: string
 }
 
+export interface UserDeleteRequest {
+  id: string
+}
+
 export class UserService extends ServiceI {
   route = Route.User
 
@@ -15,5 +19,9 @@ export class UserService extends ServiceI {
 
   async post(body: UserPostRequest): Promise<{ user_id: string }> {
     return this.handleRequest({ method: Method.POST, body: body }) as Promise<{ user_id: string }>
+  }
+
+  async delete(body: UserDeleteRequest): Promise<void> {
+    return this.handleRequest({ method: Method.DELETE, body: body }) as Promise<void>
   }
 }
