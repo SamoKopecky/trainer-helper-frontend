@@ -196,9 +196,7 @@ export function useExercises(
   }
 
   async function handlePromise(promise: Promise<unknown>): Promise<unknown> {
-    return promise
-      .then(() => addNotification("Update succesful", "success"))
-      .catch((error: Error) => addNotification(error.message, "error"))
+    return promise.catch((error: Error) => addNotification(error.message, "error"))
   }
 
   function updateTitle(title: string | undefined) {

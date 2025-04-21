@@ -13,6 +13,7 @@ export interface ExerciseTableColumn {
   type: string | null
   name: string
   is_multirow: boolean
+  align: "center" | "left"
 }
 
 export enum ExerciseUpdateType {

@@ -17,14 +17,20 @@ import { useExerciseTypeDialog } from "@/composables/useExerciseTypeDialog"
 import ExerciseTypeDialog from "@/components/ExerciseTypeDialog.vue"
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
-  { key: "group_id", type: "groups", name: "Group", is_multirow: true },
-  { key: "exercise_type_id", type: "exercise_types", name: "Exercise Type", is_multirow: true },
-  { key: "work_set_count", type: "number", name: "Set count", is_multirow: true },
-  { key: "reps", type: "number", name: "Reps", is_multirow: false },
-  { key: "intensity", type: "text", name: "Intensity", is_multirow: false },
-  { key: "rpe", type: "number", name: "RPE", is_multirow: false },
-  { key: "note", type: "textarea", name: "Note", is_multirow: true },
-  { key: "delete", type: "button", name: "", is_multirow: true },
+  { key: "group_id", type: "groups", name: "Group", is_multirow: true, align: "left" },
+  {
+    key: "exercise_type_id",
+    type: "exercise_types",
+    name: "Exercise Type",
+    is_multirow: true,
+    align: "left",
+  },
+  { key: "work_set_count", type: "number", name: "Set count", is_multirow: true, align: "center" },
+  { key: "reps", type: "number", name: "Reps", is_multirow: false, align: "center" },
+  { key: "intensity", type: "text", name: "Intensity", is_multirow: false, align: "center" },
+  { key: "rpe", type: "number", name: "RPE", is_multirow: false, align: "center" },
+  { key: "note", type: "textarea", name: "Note", is_multirow: true, align: "left" },
+  { key: "delete", type: "button", name: "", is_multirow: true, align: "center" },
 ]
 
 defineProps({

@@ -85,7 +85,11 @@ function displayExerciseType(exerciseTypeId: number) {
     <table class="custom-table">
       <thead>
         <tr>
-          <th v-for="column in localColumns" :key="column.key">
+          <th
+            v-for="column in localColumns"
+            :key="column.key"
+            :style="{ 'text-align': column.align }"
+          >
             {{ column.name }}
           </th>
         </tr>
@@ -154,11 +158,17 @@ function displayExerciseType(exerciseTypeId: number) {
             >
               mdi-close
             </v-icon>
-            <textarea
+            <v-textarea
               v-else-if="column.type === 'textarea'"
+              variant="plain"
+              hide-details="auto"
+              auto-grow
+              clearable
+              :rows="getRowspan(row, column)"
               v-model="row[column.key]"
               @change="updateTable(row)"
-            />
+              placeholder="Click to enter notes"
+            ></v-textarea>
           </td>
         </tr>
       </tbody>
@@ -190,16 +200,36 @@ black : 000000
   max-height: 100%;
 }
 
-.custom-table {
-  width: 100%;
-  border-collapse: collapse;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+@media (max-width: 2560px) {
+  .custom-table {
+    width: 50%;
+    border-collapse: collapse;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
 }
 
-.custom-table th,
-.custom-table td {
+@media (max-width: 1920px) {
+  .custom-table {
+    width: 65%;
+    border-collapse: collapse;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 1280px) {
+  .custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+}
+
+th,
+td {
   text-align: left;
-  padding-bottom: 5px;
+  padding-bottom: 0.3rem;
+  padding-right: 0.25rem;
+  padding-left: 0.25rem;
 }
 
 .light .custom-table th {
@@ -248,178 +278,37 @@ input[type="number"] {
 input {
   box-sizing: border-box; /* Include padding and border in width calculation */
   width: 100%;
+  text-align: center;
 }
 
-textarea {
-  border: none;
-  -webkit-box-sizing: border-box; /* <=iOS4, <= Android  2.3 */
-  -moz-box-sizing: border-box; /* FF1+ */
-  box-sizing: border-box; /* Chrome, IE8, Opera, Safari 5.1*/
+.col-group-id {
+  width: 5%;
 }
 
-@media (max-width: 2560px) {
-  .col-reps {
-    width: 5%;
-  }
-
-  .col-rpe {
-    width: 5%;
-  }
-
-  .col-work-set-count {
-    width: 5%;
-  }
-
-  .col-intensity {
-    width: 5%;
-  }
-
-  .col-group-id {
-    width: 5%;
-  }
-
-  .col-exercise-type-id {
-    width: 20%;
-  }
-
-  .col-note {
-    width: 35%;
-    min-width: 100px;
-  }
-
-  .col-delete {
-    width: 5%;
-  }
+.col-reps {
+  width: 5%;
 }
 
-@media (max-width: 1920px) {
-  .col-reps {
-    width: 5%;
-  }
-
-  .col-rpe {
-    width: 5%;
-  }
-
-  .col-work-set-count {
-    width: 5%;
-  }
-
-  .col-intensity {
-    width: 5%;
-  }
-
-  .col-group-id {
-    width: 5%;
-  }
-
-  .col-exercise-type-id {
-    width: 20%;
-  }
-
-  .col-note {
-    width: 20%;
-    min-width: 150px;
-  }
-
-  .col-delete {
-    width: 5%;
-  }
+.col-rpe {
+  width: 5%;
+  max-width: 65px;
 }
 
-@media (max-width: 1280px) {
-  .col-reps {
-    width: 5%;
-  }
-
-  .col-rpe {
-    width: 5%;
-  }
-
-  .col-work-set-count {
-    width: 7%;
-  }
-
-  .col-intensity {
-    width: 7%;
-  }
-
-  .col-exercise-type-id {
-    width: 30%;
-  }
-
-  .col-note {
-    width: 42%;
-  }
+.col-work-set-count {
+  width: 7%;
 }
 
-@media (max-width: 960px) {
-  .col-reps {
-    width: 5%;
-  }
-
-  .col-rpe {
-    width: 5%;
-  }
-
-  .col-work-set-count {
-    width: 5%;
-  }
-
-  .col-intensity {
-    width: 5%;
-  }
-
-  .col-group-id {
-    width: 5%;
-  }
-
-  .col-exercise-type-id {
-    width: 20%;
-  }
-
-  .col-note {
-    width: 20%;
-    min-width: 150px;
-  }
-
-  .col-delete {
-    width: 1%;
-  }
+.col-intensity {
+  width: 7%;
 }
 
-@media (max-width: 600px) {
-  .col-reps {
-    width: 5%;
-  }
+.col-exercise-type-id {
+  width: 30%;
+  min-width: 200px;
+}
 
-  .col-rpe {
-    width: 5%;
-  }
-
-  .col-work-set-count {
-    width: 5%;
-  }
-
-  .col-intensity {
-    width: 5%;
-  }
-
-  .col-group-id {
-    width: 5%;
-  }
-
-  .col-exercise-type-id {
-    width: 20%;
-  }
-
-  .col-note {
-    width: 20%;
-    min-width: 150px;
-  }
-
-  .col-delete {
-    width: 1%;
-  }
+.col-note {
+  width: 41%;
+  min-width: 300px;
 }
 </style>
