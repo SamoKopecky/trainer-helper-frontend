@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, watch, type ComputedRef } from "vue"
 import { useTheme } from "vuetify"
-import { getAllGroupIds, getColumns, getRowspan, groupBy } from "../utils/exerciseTable"
+import { getAllGroupIds, getColumns, getRowspan, groupBy } from "@/utils/exerciseTable"
 import { computed } from "vue"
 import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercise"
 import type { ExerciseType } from "@/types/exerciseType"
 
-const { columns, exercises } = defineProps({
+const { exerciseTypes, columns, exercises } = defineProps({
   columns: {
     type: Array<ExerciseTableColumn>,
     required: true,
@@ -31,7 +31,14 @@ function deleteExercise(exerciseId: number) {
 
 const emit = defineEmits(["update-table", "delete-exercise", "display:exerciseType"])
 const theme = useTheme()
+const editable = ref(false)
 const groups = ref<number[]>()
+const localColumns = computed(() => {
+  if (editable.value === false) {
+    return columns.filter((c) => c.key !== "delete")
+  }
+  return columns
+})
 
 watch(
   () => exercises,
@@ -62,6 +69,10 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
   return res
 })
 
+function getExerciseType(id: number): string {
+  return exerciseTypes.find((e) => e.id === id)?.name ?? ""
+}
+
 function displayExerciseType(exerciseTypeId: number) {
   emit("display:exerciseType", exerciseTypeId)
 }
@@ -69,11 +80,16 @@ function displayExerciseType(exerciseTypeId: number) {
 
 <template>
   <div :class="theme.global.current.value" />
+  <v-checkbox v-model="editable" label="Edit table"></v-checkbox>
   <div class="table-container">
     <table class="custom-table">
       <thead>
         <tr>
-          <th v-for="column in columns" :key="column.key">
+          <th
+            v-for="column in localColumns"
+            :key="column.key"
+            :style="{ 'text-align': column.align }"
+          >
             {{ column.name }}
           </th>
         </tr>
@@ -85,57 +101,75 @@ function displayExerciseType(exerciseTypeId: number) {
           :class="{ 'last-border': drawWhen.includes(row.work_set_id) }"
         >
           <td
-            v-for="column in getColumns(columns, row)"
+            v-for="column in getColumns(localColumns, row)"
             :key="column.key"
             :rowspan="getRowspan(row, column)"
             :class="`col-${column.key.replace(/\_/g, '-')}`"
           >
             <input
-              onfocus="this.value=''"
+              class="custom-table"
               v-if="column.type === 'number' || column.type === 'text'"
               v-model="row[column.key]"
               :type="column.type"
               @change="updateTable(row)"
             />
-            <v-autocomplete
-              v-else-if="column.type === 'groups'"
-              v-model="row[column.key]"
-              class="autocomplete-input"
-              variant="plain"
-              density="compact"
-              hide-details="auto"
-              :items="groups"
-              @update:model-value="updateTable(row)"
-            />
-            <div v-else-if="column.type === 'exercise_types'" class="d-inline-flex align-center">
-              <!-- TODO: Correctly flex -->
+
+            <div v-else-if="column.type === 'groups'">
               <v-autocomplete
+                v-if="editable"
                 v-model="row[column.key]"
                 class="autocomplete-input"
                 variant="plain"
-                item-title="name"
-                item-value="id"
                 density="compact"
                 hide-details="auto"
-                :items="exerciseTypes"
+                :items="groups"
                 @update:model-value="updateTable(row)"
               />
-              <v-icon @click="displayExerciseType(row[column.key])">mdi-close</v-icon>
+              <span v-else> {{ row[column.key] }}</span>
+            </div>
+
+            <div v-else-if="column.type === 'exercise_types'">
+              <div v-if="editable" class="d-flex align-center">
+                <v-icon class="mr-2" @click="displayExerciseType(row[column.key])"
+                  >mdi-information-outline</v-icon
+                >
+                <v-autocomplete
+                  v-model="row[column.key]"
+                  class="autocomplete-input"
+                  variant="plain"
+                  item-title="name"
+                  item-value="id"
+                  density="compact"
+                  hide-details="auto"
+                  :items="exerciseTypes"
+                  @update:model-value="updateTable(row)"
+                />
+              </div>
+              <div v-else>
+                <span @click="displayExerciseType(row[column.key])" style="cursor: pointer">
+                  {{ getExerciseType(row[column.key]) }}
+                </span>
+              </div>
             </div>
             <v-icon
-              v-else-if="column.type === 'button'"
+              v-else-if="column.type === 'button' && editable === true"
               x-small
               color="red"
               @click="deleteExercise(row.exercise_id)"
             >
               mdi-close
             </v-icon>
-            <textarea
+            <v-textarea
               v-else-if="column.type === 'textarea'"
+              variant="plain"
+              hide-details="auto"
+              auto-grow
+              clearable
+              :rows="getRowspan(row, column)"
               v-model="row[column.key]"
               @change="updateTable(row)"
-            />
-            <span v-else>{{ row[column.key] }}</span>
+              placeholder="Click to enter notes"
+            ></v-textarea>
           </td>
         </tr>
       </tbody>
@@ -143,25 +177,7 @@ function displayExerciseType(exerciseTypeId: number) {
   </div>
 </template>
 
-<style>
-.clickable-icon {
-  cursor: pointer; /* Makes the icon clickable */
-}
-
-.autocomplete-input {
-  style: "display: flex";
-  align-items: "center";
-  width: 100%;
-}
-
-textarea {
-  border: none;
-  width: 100%;
-  -webkit-box-sizing: border-box; /* <=iOS4, <= Android  2.3 */
-  -moz-box-sizing: border-box; /* FF1+ */
-  box-sizing: border-box; /* Chrome, IE8, Opera, Safari 5.1*/
-}
-
+<style lang="css" scoped>
 /*
 yellow: fde800
 black : 000000
@@ -178,21 +194,43 @@ black : 000000
 }
 
 .table-container {
+  padding-left: 1rem;
+  padding-right: 1rem;
   overflow-x: auto; /* Enable horizontal scrolling */
   max-width: 100%; /* Limit the container width to fit the parent */
   max-height: 100%;
 }
 
-.custom-table {
-  width: 100%;
-  border-collapse: collapse;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+@media (max-width: 2560px) {
+  .custom-table {
+    width: 50%;
+    border-collapse: collapse;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
 }
 
-.custom-table th,
-.custom-table td {
-  padding: 3px 10px;
+@media (max-width: 1920px) {
+  .custom-table {
+    width: 65%;
+    border-collapse: collapse;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 1280px) {
+  .custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+}
+
+th,
+td {
   text-align: left;
+  padding-bottom: 0.3rem;
+  padding-right: 0.25rem;
+  padding-left: 0.25rem;
 }
 
 .light .custom-table th {
@@ -241,14 +279,20 @@ input[type="number"] {
 input {
   box-sizing: border-box; /* Include padding and border in width calculation */
   width: 100%;
+  text-align: center;
+}
+
+.col-group-id {
+  width: 5%;
 }
 
 .col-reps {
-  width: 6%;
+  width: 5%;
 }
 
 .col-rpe {
   width: 5%;
+  max-width: 65px;
 }
 
 .col-work-set-count {
@@ -256,26 +300,16 @@ input {
 }
 
 .col-intensity {
-  width: 5%;
+  width: 7%;
 }
 
-.col-group-id {
-  width: 5%;
-}
-
-.col-set-type {
-  width: 15%;
-  min-width: 250px;
+.col-exercise-type-id {
+  width: 30%;
+  min-width: 200px;
 }
 
 .col-note {
-  width: 45%;
-  min-width: 150px;
-}
-
-.col-delete {
-  width: 2%;
-  text-align: center;
-  align-items: center;
+  width: 41%;
+  min-width: 300px;
 }
 </style>
