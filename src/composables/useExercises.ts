@@ -178,6 +178,15 @@ export function useExercises(
     )
   }
 
+  function copyWorkSet(row: ExerciseTableData) {
+    // TODO: Add bulk update call and which key was changed as param
+    exercises.value
+      .filter((e) => e.exercise_id === row.exercise_id)
+      .forEach((e) => {
+        e.reps = row.reps
+      })
+  }
+
   function updateTable(newRow: ExerciseTableData) {
     const oldRow = exercisesOld.get(newRow.work_set_id)
     if (!oldRow) {
@@ -206,5 +215,5 @@ export function useExercises(
     }
   }
 
-  return { exercises, addExercise, deleteExercise, updateTable, updateTitle }
+  return { exercises, addExercise, deleteExercise, updateTable, updateTitle, copyWorkSet }
 }
