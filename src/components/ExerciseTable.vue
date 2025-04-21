@@ -29,7 +29,12 @@ function deleteExercise(exerciseId: number) {
   emit("delete-exercise", exerciseId)
 }
 
-const emit = defineEmits(["update-table", "delete-exercise", "display:exerciseType"])
+const emit = defineEmits([
+  "update-table",
+  "delete-exercise",
+  "display:exerciseType",
+  "update:copyWorkSet",
+])
 const theme = useTheme()
 const editable = ref(false)
 const groups = ref<number[]>()
@@ -95,6 +100,7 @@ function displayExerciseType(exerciseTypeId: number) {
         </tr>
       </thead>
       <tbody>
+        <!-- Simplify this to only draw line on new exercise even only multigroup maybe?-->
         <tr
           v-for="row in exercises"
           :key="row.work_set_id"
@@ -106,12 +112,40 @@ function displayExerciseType(exerciseTypeId: number) {
             :rowspan="getRowspan(row, column)"
             :class="`col-${column.key.replace(/\_/g, '-')}`"
           >
-            <input
+            <div
               v-if="column.type === 'number' || column.type === 'text'"
-              v-model="row[column.key]"
-              :type="column.type"
-              @change="updateTable(row)"
-            />
+              class="d-flex align-center"
+            >
+              <input v-model="row[column.key]" :type="column.type" @change="updateTable(row)" />
+              <!-- TODO: Also check if exercise has 1 set -->
+              <v-tooltip
+                location="top"
+                text="Copy"
+                v-if="row.is_main && column.key != 'work_set_count'"
+              >
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    icon
+                    size="small"
+                    variant="text"
+                    density="compact"
+                    @click="emit('update:copyWorkSet', row, column.key)"
+                  >
+                    <v-icon>mdi-menu-down</v-icon>
+                  </v-btn>
+                </template>
+              </v-tooltip>
+              <!-- Spacer -->
+              <v-btn
+                v-else
+                icon
+                size="small"
+                style="visibility: hidden"
+                variant="text"
+                density="compact"
+              />
+            </div>
 
             <div v-else-if="column.type === 'groups'">
               <v-autocomplete
@@ -138,7 +172,6 @@ function displayExerciseType(exerciseTypeId: number) {
                       density="compact"
                       color="info"
                       @click="displayExerciseType(row[column.key])"
-                      class="mr-1"
                     >
                       <v-icon>mdi-information-outline</v-icon>
                     </v-btn>
@@ -353,7 +386,6 @@ input {
 
 .col-rpe {
   width: 5%;
-  max-width: 65px;
 }
 
 .col-work-set-count {

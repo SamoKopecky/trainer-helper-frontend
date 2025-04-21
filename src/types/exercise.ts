@@ -33,9 +33,9 @@ export interface ExerciseDiff extends Diff {
 }
 
 export interface WorkSetDiff extends Diff {
-  rpe: number | null
-  intensity: string | null
-  reps: number | null
+  rpe?: number
+  intensity?: string
+  reps?: number
 }
 
 export interface GroupIdDiff extends Diff {

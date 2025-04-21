@@ -51,11 +51,8 @@ onMounted(() => {
 })
 
 const { notifications, addNotification } = useNotifications()
-const { exercises, addExercise, deleteExercise, updateTable, updateTitle } = useExercises(
-  timeslotId,
-  exerciseRes,
-  addNotification,
-)
+const { exercises, addExercise, deleteExercise, updateTable, updateTitle, copyWorkSet } =
+  useExercises(timeslotId, exerciseRes, addNotification)
 const { exerciseTypes } = useExerciseTypes()
 const { showDialog, selectedType, handleCreate, handleUpdate, isNew, addNew } =
   useExerciseTypeDialog(exerciseTypes)
@@ -93,6 +90,7 @@ function displayExerciseType(exerciseTypeId: number) {
       @update-table="updateTable"
       @delete-exercise="deleteExercise"
       @display:exercise-type="displayExerciseType"
+      @update:copy-work-set="copyWorkSet"
     />
   </TimeslotControlPanel>
 
