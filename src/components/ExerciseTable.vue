@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, watch, type ComputedRef } from "vue"
 import { useTheme } from "vuetify"
-import { getAllGroupIds, getColumns, getRowspan, groupBy } from "../utils/exerciseTable"
+import { getAllGroupIds, getColumns, getRowspan, groupBy } from "@/utils/exerciseTable"
 import { computed } from "vue"
 import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercise"
 import type { ExerciseType } from "@/types/exerciseType"
 
-const { columns, exercises } = defineProps({
+const { exerciseTypes, columns, exercises } = defineProps({
   columns: {
     type: Array<ExerciseTableColumn>,
     required: true,
@@ -31,7 +31,14 @@ function deleteExercise(exerciseId: number) {
 
 const emit = defineEmits(["update-table", "delete-exercise", "display:exerciseType"])
 const theme = useTheme()
+const editable = ref(false)
 const groups = ref<number[]>()
+const localColumns = computed(() => {
+  if (editable.value === false) {
+    return columns.filter((c) => c.key !== "delete")
+  }
+  return columns
+})
 
 watch(
   () => exercises,
@@ -62,6 +69,10 @@ const drawWhen: ComputedRef<number[]> = computed(() => {
   return res
 })
 
+function getExerciseType(id: number): string {
+  return exerciseTypes.find((e) => e.id === id)?.name ?? ""
+}
+
 function displayExerciseType(exerciseTypeId: number) {
   emit("display:exerciseType", exerciseTypeId)
 }
@@ -69,11 +80,12 @@ function displayExerciseType(exerciseTypeId: number) {
 
 <template>
   <div :class="theme.global.current.value" />
+  <v-checkbox v-model="editable" label="Edit table"></v-checkbox>
   <div class="table-container">
     <table class="custom-table">
       <thead>
         <tr>
-          <th v-for="column in columns" :key="column.key">
+          <th v-for="column in localColumns" :key="column.key">
             {{ column.name }}
           </th>
         </tr>
@@ -85,45 +97,57 @@ function displayExerciseType(exerciseTypeId: number) {
           :class="{ 'last-border': drawWhen.includes(row.work_set_id) }"
         >
           <td
-            v-for="column in getColumns(columns, row)"
+            v-for="column in getColumns(localColumns, row)"
             :key="column.key"
             :rowspan="getRowspan(row, column)"
             :class="`col-${column.key.replace(/\_/g, '-')}`"
           >
             <input
-              onfocus="this.value=''"
               v-if="column.type === 'number' || column.type === 'text'"
               v-model="row[column.key]"
               :type="column.type"
               @change="updateTable(row)"
             />
-            <v-autocomplete
-              v-else-if="column.type === 'groups'"
-              v-model="row[column.key]"
-              class="autocomplete-input"
-              variant="plain"
-              density="compact"
-              hide-details="auto"
-              :items="groups"
-              @update:model-value="updateTable(row)"
-            />
-            <div v-else-if="column.type === 'exercise_types'" class="d-inline-flex align-center">
-              <!-- TODO: Correctly flex -->
+
+            <div v-else-if="column.type === 'groups'">
               <v-autocomplete
+                v-if="editable"
                 v-model="row[column.key]"
                 class="autocomplete-input"
                 variant="plain"
-                item-title="name"
-                item-value="id"
                 density="compact"
                 hide-details="auto"
-                :items="exerciseTypes"
+                :items="groups"
                 @update:model-value="updateTable(row)"
               />
-              <v-icon @click="displayExerciseType(row[column.key])">mdi-close</v-icon>
+              <span v-else> {{ row[column.key] }}</span>
+            </div>
+
+            <div v-else-if="column.type === 'exercise_types'">
+              <div v-if="editable" class="d-flex align-center">
+                <v-icon class="mr-2" @click="displayExerciseType(row[column.key])"
+                  >mdi-information-outline</v-icon
+                >
+                <v-autocomplete
+                  v-model="row[column.key]"
+                  class="autocomplete-input"
+                  variant="plain"
+                  item-title="name"
+                  item-value="id"
+                  density="compact"
+                  hide-details="auto"
+                  :items="exerciseTypes"
+                  @update:model-value="updateTable(row)"
+                />
+              </div>
+              <div v-else>
+                <span @click="displayExerciseType(row[column.key])" style="cursor: pointer">
+                  {{ getExerciseType(row[column.key]) }}
+                </span>
+              </div>
             </div>
             <v-icon
-              v-else-if="column.type === 'button'"
+              v-else-if="column.type === 'button' && editable === true"
               x-small
               color="red"
               @click="deleteExercise(row.exercise_id)"
@@ -135,7 +159,6 @@ function displayExerciseType(exerciseTypeId: number) {
               v-model="row[column.key]"
               @change="updateTable(row)"
             />
-            <span v-else>{{ row[column.key] }}</span>
           </td>
         </tr>
       </tbody>
@@ -143,25 +166,7 @@ function displayExerciseType(exerciseTypeId: number) {
   </div>
 </template>
 
-<style>
-.clickable-icon {
-  cursor: pointer; /* Makes the icon clickable */
-}
-
-.autocomplete-input {
-  style: "display: flex";
-  align-items: "center";
-  width: 100%;
-}
-
-textarea {
-  border: none;
-  width: 100%;
-  -webkit-box-sizing: border-box; /* <=iOS4, <= Android  2.3 */
-  -moz-box-sizing: border-box; /* FF1+ */
-  box-sizing: border-box; /* Chrome, IE8, Opera, Safari 5.1*/
-}
-
+<style lang="css">
 /*
 yellow: fde800
 black : 000000
@@ -178,6 +183,8 @@ black : 000000
 }
 
 .table-container {
+  padding-left: 1rem;
+  padding-right: 1rem;
   overflow-x: auto; /* Enable horizontal scrolling */
   max-width: 100%; /* Limit the container width to fit the parent */
   max-height: 100%;
@@ -191,8 +198,8 @@ black : 000000
 
 .custom-table th,
 .custom-table td {
-  padding: 3px 10px;
   text-align: left;
+  padding-bottom: 5px;
 }
 
 .light .custom-table th {
@@ -243,39 +250,176 @@ input {
   width: 100%;
 }
 
-.col-reps {
-  width: 6%;
+textarea {
+  border: none;
+  -webkit-box-sizing: border-box; /* <=iOS4, <= Android  2.3 */
+  -moz-box-sizing: border-box; /* FF1+ */
+  box-sizing: border-box; /* Chrome, IE8, Opera, Safari 5.1*/
 }
 
-.col-rpe {
-  width: 5%;
+@media (max-width: 2560px) {
+  .col-reps {
+    width: 5%;
+  }
+
+  .col-rpe {
+    width: 5%;
+  }
+
+  .col-work-set-count {
+    width: 5%;
+  }
+
+  .col-intensity {
+    width: 5%;
+  }
+
+  .col-group-id {
+    width: 5%;
+  }
+
+  .col-exercise-type-id {
+    width: 20%;
+  }
+
+  .col-note {
+    width: 35%;
+    min-width: 100px;
+  }
+
+  .col-delete {
+    width: 5%;
+  }
 }
 
-.col-work-set-count {
-  width: 7%;
+@media (max-width: 1920px) {
+  .col-reps {
+    width: 5%;
+  }
+
+  .col-rpe {
+    width: 5%;
+  }
+
+  .col-work-set-count {
+    width: 5%;
+  }
+
+  .col-intensity {
+    width: 5%;
+  }
+
+  .col-group-id {
+    width: 5%;
+  }
+
+  .col-exercise-type-id {
+    width: 20%;
+  }
+
+  .col-note {
+    width: 20%;
+    min-width: 150px;
+  }
+
+  .col-delete {
+    width: 5%;
+  }
 }
 
-.col-intensity {
-  width: 5%;
+@media (max-width: 1280px) {
+  .col-reps {
+    width: 5%;
+  }
+
+  .col-rpe {
+    width: 5%;
+  }
+
+  .col-work-set-count {
+    width: 7%;
+  }
+
+  .col-intensity {
+    width: 7%;
+  }
+
+  .col-exercise-type-id {
+    width: 30%;
+  }
+
+  .col-note {
+    width: 42%;
+  }
 }
 
-.col-group-id {
-  width: 5%;
+@media (max-width: 960px) {
+  .col-reps {
+    width: 5%;
+  }
+
+  .col-rpe {
+    width: 5%;
+  }
+
+  .col-work-set-count {
+    width: 5%;
+  }
+
+  .col-intensity {
+    width: 5%;
+  }
+
+  .col-group-id {
+    width: 5%;
+  }
+
+  .col-exercise-type-id {
+    width: 20%;
+  }
+
+  .col-note {
+    width: 20%;
+    min-width: 150px;
+  }
+
+  .col-delete {
+    width: 1%;
+  }
 }
 
-.col-set-type {
-  width: 15%;
-  min-width: 250px;
-}
+@media (max-width: 600px) {
+  .col-reps {
+    width: 5%;
+  }
 
-.col-note {
-  width: 45%;
-  min-width: 150px;
-}
+  .col-rpe {
+    width: 5%;
+  }
 
-.col-delete {
-  width: 2%;
-  text-align: center;
-  align-items: center;
+  .col-work-set-count {
+    width: 5%;
+  }
+
+  .col-intensity {
+    width: 5%;
+  }
+
+  .col-group-id {
+    width: 5%;
+  }
+
+  .col-exercise-type-id {
+    width: 20%;
+  }
+
+  .col-note {
+    width: 20%;
+    min-width: 150px;
+  }
+
+  .col-delete {
+    width: 1%;
+  }
 }
 </style>

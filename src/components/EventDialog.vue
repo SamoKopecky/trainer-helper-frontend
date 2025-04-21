@@ -46,7 +46,7 @@ watchEffect(() => {
 })
 
 function redirectExercise(timeslot: CalTimeslot | null) {
-  router.push({ path: `/exercise/${timeslot?.id}` })
+  router.push({ path: `/timeslot/${timeslot?.id}` })
 }
 
 function deleteCalTimeslot(event: CalTimeslot | null) {
