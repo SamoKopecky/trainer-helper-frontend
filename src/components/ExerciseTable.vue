@@ -107,6 +107,7 @@ function displayExerciseType(exerciseTypeId: number) {
             :class="`col-${column.key.replace(/\_/g, '-')}`"
           >
             <input
+              class="custom-table"
               v-if="column.type === 'number' || column.type === 'text'"
               v-model="row[column.key]"
               :type="column.type"
@@ -176,7 +177,7 @@ function displayExerciseType(exerciseTypeId: number) {
   </div>
 </template>
 
-<style lang="css">
+<style lang="css" scoped>
 /*
 yellow: fde800
 black : 000000

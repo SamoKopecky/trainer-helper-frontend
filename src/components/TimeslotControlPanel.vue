@@ -146,10 +146,11 @@ function addNewExerciseType() {
 
   <v-dialog v-model="duplicateDialog">
     <v-card title="Duplicate timeslot">
-      <v-spacer></v-spacer>
+      <v-divider />
       <v-card-text>
         <v-autocomplete
           ref="duplicateInput"
+          variant="outlined"
           v-model="duplicateTimeslotId"
           :items="computedDuplicateTimeslots"
           item-title="name"
