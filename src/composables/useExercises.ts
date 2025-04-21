@@ -10,7 +10,7 @@ import {
   type ExerciseResponse,
   type FullExerciseResponse,
 } from "@/services/exercise"
-import { WorkSetService } from "@/services/worksets"
+import { WorkSetService, WorkSetsService } from "@/services/worksets"
 import { ExerciseCountService } from "@/services/exerciseCount"
 import {
   isExerciseDiff,
@@ -37,6 +37,7 @@ export function useExercises(
   addNotification: (text: string, type: NotificationType) => void,
 ) {
   const workSetService = new WorkSetService()
+  const workSetsService = new WorkSetsService()
   const exerciseService = new ExerciseService()
   const timeslotService = new TimeslotService()
   const exerciseCountService = new ExerciseCountService()
@@ -178,13 +179,28 @@ export function useExercises(
     )
   }
 
-  function copyWorkSet(row: ExerciseTableData) {
-    // TODO: Add bulk update call and which key was changed as param
-    exercises.value
-      .filter((e) => e.exercise_id === row.exercise_id)
-      .forEach((e) => {
-        e.reps = row.reps
-      })
+  // TODO: Use key as type
+  function copyWorkSet(row: ExerciseTableData, key: string) {
+    const changedWorkSets = exercises.value.filter((e) => e.exercise_id === row.exercise_id)
+
+    changedWorkSets.forEach((e) => {
+      e[key] = row[key]
+      exercisesOld.set(e.work_set_id, deepClone(e))
+    })
+
+    handlePromise(
+      workSetsService.put(
+        changedWorkSets.map((ws) => {
+          const wsType = tableDataToWorkSet(ws)
+          return {
+            id: wsType.id,
+            intensity: wsType.intensity,
+            reps: wsType.reps,
+            rpe: wsType.rpe,
+          }
+        }),
+      ),
+    )
   }
 
   function updateTable(newRow: ExerciseTableData) {

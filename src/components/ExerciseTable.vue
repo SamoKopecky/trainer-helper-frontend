@@ -120,7 +120,7 @@ function displayExerciseType(exerciseTypeId: number) {
               <!-- TODO: Also check if exercise has 1 set -->
               <v-tooltip
                 location="top"
-                text="Copy down"
+                text="Copy"
                 v-if="row.is_main && column.key != 'work_set_count'"
               >
                 <template #activator="{ props }">
@@ -130,7 +130,7 @@ function displayExerciseType(exerciseTypeId: number) {
                     size="small"
                     variant="text"
                     density="compact"
-                    @click="emit('update:copyWorkSet', row)"
+                    @click="emit('update:copyWorkSet', row, column.key)"
                   >
                     <v-icon>mdi-menu-down</v-icon>
                   </v-btn>
