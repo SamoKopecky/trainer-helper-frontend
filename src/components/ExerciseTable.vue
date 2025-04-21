@@ -79,8 +79,8 @@ function displayExerciseType(exerciseTypeId: number) {
 </script>
 
 <template>
+  <v-checkbox v-model="editable" hide-details label="Edit table"></v-checkbox>
   <div :class="theme.global.current.value" />
-  <v-checkbox v-model="editable" label="Edit table"></v-checkbox>
   <div class="table-container">
     <table class="custom-table">
       <thead>
@@ -107,7 +107,6 @@ function displayExerciseType(exerciseTypeId: number) {
             :class="`col-${column.key.replace(/\_/g, '-')}`"
           >
             <input
-              class="custom-table"
               v-if="column.type === 'number' || column.type === 'text'"
               v-model="row[column.key]"
               :type="column.type"
@@ -130,9 +129,21 @@ function displayExerciseType(exerciseTypeId: number) {
 
             <div v-else-if="column.type === 'exercise_types'">
               <div v-if="editable" class="d-flex align-center">
-                <v-icon class="mr-2" @click="displayExerciseType(row[column.key])"
-                  >mdi-information-outline</v-icon
-                >
+                <v-tooltip location="top" text="Show exercise details">
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      icon
+                      variant="text"
+                      density="compact"
+                      color="info"
+                      @click="displayExerciseType(row[column.key])"
+                      class="mr-1"
+                    >
+                      <v-icon>mdi-information-outline</v-icon>
+                    </v-btn>
+                  </template>
+                </v-tooltip>
                 <v-autocomplete
                   v-model="row[column.key]"
                   class="autocomplete-input"
@@ -146,19 +157,39 @@ function displayExerciseType(exerciseTypeId: number) {
                 />
               </div>
               <div v-else>
-                <span @click="displayExerciseType(row[column.key])" style="cursor: pointer">
-                  {{ getExerciseType(row[column.key]) }}
-                </span>
+                <v-tooltip location="top" text="Show exercise details">
+                  <template #activator="{ props }">
+                    <v-chip
+                      v-bind="props"
+                      label
+                      variant="text"
+                      @click="displayExerciseType(row[column.key])"
+                      class="chip"
+                    >
+                      {{ getExerciseType(row[column.key]) }}
+                    </v-chip>
+                  </template>
+                </v-tooltip>
               </div>
             </div>
-            <v-icon
-              v-else-if="column.type === 'button' && editable === true"
-              x-small
-              color="red"
-              @click="deleteExercise(row.exercise_id)"
-            >
-              mdi-close
-            </v-icon>
+
+            <div v-else-if="column.type === 'button' && editable === true" class="text-center">
+              <v-tooltip location="top" text="Delete Exercise">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    icon
+                    variant="text"
+                    density="compact"
+                    color="error"
+                    @click="deleteExercise(row.exercise_id)"
+                  >
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </template>
+              </v-tooltip>
+            </div>
+
             <v-textarea
               v-else-if="column.type === 'textarea'"
               variant="plain"
@@ -201,28 +232,61 @@ black : 000000
   max-width: 100%; /* Limit the container width to fit the parent */
   max-height: 100%;
 }
+.custom-table th {
+  white-space: nowrap;
+  padding: 10px 8px; /* Slightly more vertical padding */
+  /* Use Vuetify variables for header background/color */
+  background-color: rgba(var(--v-theme-on-surface), 0.03); /* Very subtle background */
+  color: rgba(var(--v-theme-on-surface), 0.87); /* Standard text color */
+  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); /* Clear separation */
+  font-weight: 600; /* Slightly bolder */
+}
 
 @media (max-width: 2560px) {
   .custom-table {
     width: 50%;
+    font-size: 1rem;
     border-collapse: collapse;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  .chip {
+    font-size: 1rem;
   }
 }
 
 @media (max-width: 1920px) {
   .custom-table {
-    width: 65%;
+    width: 70%;
+    font-size: 1rem;
     border-collapse: collapse;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  .chip {
+    font-size: 1rem;
   }
 }
 
 @media (max-width: 1280px) {
   .custom-table {
     width: 100%;
+    font-size: 1rem;
     border-collapse: collapse;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  .chip {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .custom-table {
+    width: 100%;
+    font-size: 0.8rem;
+    border-collapse: collapse;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  .chip {
+    font-size: 0.8rem;
   }
 }
 
@@ -258,10 +322,6 @@ td {
 
 .dark .custom-table tr:hover {
   background-color: #333333;
-}
-
-.custom-table tr:last-child {
-  border-bottom: none;
 }
 
 /* Chrome, Safari, Edge, Opera */

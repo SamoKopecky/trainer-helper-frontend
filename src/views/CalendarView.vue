@@ -67,12 +67,6 @@ const theme = useTheme()
 </template>
 
 <style>
-.vuecal--default-theme .vuecal__cell--selected::before {
-  background-color: transparent;
-}
-.vuecal__event.no-user {
-  background-color: #79797a;
-}
 .vuecal {
   .vuecal__scrollable--month-view {
     .vuecal__cell {
@@ -94,5 +88,11 @@ const theme = useTheme()
       justify-content: flex-start;
     }
   }
+}
+.vuecal--default-theme .vuecal__cell--selected::before {
+  background-color: transparent;
+}
+.vuecal__event.no-user {
+  background-color: #79797a;
 }
 </style>

@@ -35,6 +35,8 @@ import {
   VFileInput,
   VForm,
   VCheckbox,
+  VTooltip,
+  VChip,
 } from "vuetify/components"
 import router from "./router"
 import VueKeyCloak from "@dsb-norge/vue-keycloak-js"
@@ -71,6 +73,8 @@ const vuetify = createVuetify({
     VFileInput,
     VForm,
     VCheckbox,
+    VTooltip,
+    VChip,
   },
   directives,
   icons: {
