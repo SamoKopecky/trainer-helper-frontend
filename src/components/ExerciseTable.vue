@@ -168,6 +168,7 @@ function displayExerciseType(exerciseTypeId: number) {
               :rows="getRowspan(row, column)"
               v-model="row[column.key]"
               @change="updateTable(row)"
+              @click:clear="updateTable(row)"
               placeholder="Click to enter notes"
             ></v-textarea>
           </td>
