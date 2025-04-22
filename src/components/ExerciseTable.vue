@@ -51,13 +51,16 @@ watch(
   { deep: true },
 )
 
+const exercisesByExerciseId: ComputedRef<Map<number, ExerciseTableData[]>> = computed(() => {
+  return groupBy(exercises, (exercise) => exercise.exercise_id)
+})
+
 const lineDrawIds: ComputedRef<{ groupIds: number[]; exerciseIds: number[] }> = computed(() => {
   const groupIds: number[] = []
   const exerciseIds: number[] = []
   const exercisesByGroupId = groupBy(exercises, (exercise) => exercise.group_id)
-  const exercisesByExerciseId = groupBy(exercises, (exercise) => exercise.exercise_id)
 
-  exercisesByExerciseId.forEach((exerciseGroup) => {
+  exercisesByExerciseId.value.forEach((exerciseGroup) => {
     exerciseGroup.forEach((row, index) => {
       // Only get work sets that are at the end of exercise
       if (index === exerciseGroup.length - 1) {
@@ -73,6 +76,13 @@ const lineDrawIds: ComputedRef<{ groupIds: number[]; exerciseIds: number[] }> = 
   })
   return { groupIds: groupIds, exerciseIds: exerciseIds }
 })
+
+function isCopyValid(row: ExerciseTableData, column: ExerciseTableColumn): boolean {
+  const exerciseGroup = exercisesByExerciseId.value.get(row.exercise_id)
+  if (exerciseGroup)
+    return row.is_main && column.key != "work_set_count" && exerciseGroup.length > 1
+  return false
+}
 
 function getExerciseType(id: number): string {
   return exerciseTypes.find((e) => e.id === id)?.name ?? ""
@@ -119,11 +129,10 @@ function displayExerciseType(exerciseTypeId: number) {
               class="d-flex align-center"
             >
               <input v-model="row[column.key]" :type="column.type" @change="updateTable(row)" />
-              <!-- TODO: Also check if exercise has 1 set -->
               <v-tooltip
                 location="top"
                 text="Copy"
-                v-if="row.is_main && column.key != 'work_set_count'"
+                v-if="isCopyValid(row, column)"
               >
                 <template #activator="{ props }">
                   <v-btn
