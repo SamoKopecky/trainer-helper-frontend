@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, watch, type ComputedRef } from "vue"
-import { useTheme } from "vuetify"
 import { getAllGroupIds, getColumns, getRowspan, groupBy } from "@/utils/exerciseTable"
 import { computed } from "vue"
 import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercise"
@@ -35,7 +34,6 @@ const emit = defineEmits([
   "display:exerciseType",
   "update:copyWorkSet",
 ])
-const theme = useTheme()
 const editable = ref(false)
 const groups = ref<number[]>()
 const localColumns = computed(() => {
@@ -53,25 +51,27 @@ watch(
   { deep: true },
 )
 
-const drawWhen: ComputedRef<number[]> = computed(() => {
-  const res: number[] = []
+const lineDrawIds: ComputedRef<{ groupIds: number[]; exerciseIds: number[] }> = computed(() => {
+  const groupIds: number[] = []
+  const exerciseIds: number[] = []
   const exercisesByGroupId = groupBy(exercises, (exercise) => exercise.group_id)
   const exercisesByExerciseId = groupBy(exercises, (exercise) => exercise.exercise_id)
 
   exercisesByExerciseId.forEach((exerciseGroup) => {
     exerciseGroup.forEach((row, index) => {
-      const group = exercisesByGroupId.get(row.group_id) as ExerciseTableData[]
-      if (
-        index === exerciseGroup.length - 1 &&
-        exerciseGroup.length !== group.length &&
-        group[group.length - 1].exercise_id !== row.exercise_id
-      ) {
-        return
+      // Only get work sets that are at the end of exercise
+      if (index === exerciseGroup.length - 1) {
+        const group = exercisesByGroupId.get(row.group_id) as ExerciseTableData[]
+        // Only get work sets that are at the end of a multigroup exercise
+        if (group[group.length - 1].exercise_id !== row.exercise_id) {
+          exerciseIds.push(row.work_set_id)
+        } else {
+          groupIds.push(row.work_set_id)
+        }
       }
-      res.push(row.work_set_id)
     })
   })
-  return res
+  return { groupIds: groupIds, exerciseIds: exerciseIds }
 })
 
 function getExerciseType(id: number): string {
@@ -85,7 +85,6 @@ function displayExerciseType(exerciseTypeId: number) {
 
 <template>
   <v-checkbox v-model="editable" hide-details label="Edit table"></v-checkbox>
-  <div :class="theme.global.current.value" />
   <div class="table-container">
     <table class="custom-table">
       <thead>
@@ -104,7 +103,10 @@ function displayExerciseType(exerciseTypeId: number) {
         <tr
           v-for="row in exercises"
           :key="row.work_set_id"
-          :class="{ 'last-border': drawWhen.includes(row.work_set_id) }"
+          :class="{
+            'last-border': lineDrawIds.groupIds.includes(row.work_set_id),
+            'exercise-mulitigroup': lineDrawIds.exerciseIds.includes(row.work_set_id),
+          }"
         >
           <td
             v-for="column in getColumns(localColumns, row)"
@@ -161,6 +163,7 @@ function displayExerciseType(exerciseTypeId: number) {
               <span v-else> {{ row[column.key] }}</span>
             </div>
 
+            <!-- Exercise Type -->
             <div v-else-if="column.type === 'exercise_types'">
               <div v-if="editable" class="d-flex align-center">
                 <v-tooltip location="top" text="Show exercise details">
@@ -168,6 +171,7 @@ function displayExerciseType(exerciseTypeId: number) {
                     <v-btn
                       v-bind="props"
                       icon
+                      class="mr-1"
                       variant="text"
                       density="compact"
                       color="info"
@@ -243,21 +247,6 @@ function displayExerciseType(exerciseTypeId: number) {
 </template>
 
 <style lang="css" scoped>
-/*
-yellow: fde800
-black : 000000
-*/
-
-.light {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.dark {
-  background-color: #121212;
-  color: #ffffff;
-}
-
 .table-container {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -331,30 +320,16 @@ td {
   padding-left: 0.25rem;
 }
 
-.light .custom-table th {
-  background-color: #f5f5f5;
-  color: #424242;
-}
-
-.dark .custom-table th {
-  background-color: #333333;
-  color: #ffffff;
-}
-
 .custom-table tr {
   transition: background-color 0.3s;
 }
 
 .last-border {
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid;
 }
 
-.light .custom-table tr:hover {
-  background-color: #f1f1f1;
-}
-
-.dark .custom-table tr:hover {
-  background-color: #333333;
+.exercise-mulitigroup {
+  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 
 /* Chrome, Safari, Edge, Opera */
