@@ -5,13 +5,13 @@ export function getColumns(
   row: ExerciseTableData,
 ): ExerciseTableColumn[] {
   if (!row.is_main) {
-    return columns.filter((row) => !row.is_multirow)
+    return columns.filter((row) => !row.isMultirow)
   }
   return columns
 }
 
 export function getRowspan(row: ExerciseTableData, column: ExerciseTableColumn): number {
-  if (row.is_main && column.is_multirow) {
+  if (row.is_main && column.isMultirow) {
     return row.work_set_count_display
   }
   return 1

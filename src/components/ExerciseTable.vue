@@ -34,10 +34,10 @@ const emit = defineEmits([
   "display:exerciseType",
   "update:copyWorkSet",
 ])
-const editable = ref(false)
+const isTableEditable = ref(false)
 const groups = ref<number[]>()
 const localColumns = computed(() => {
-  if (editable.value === false) {
+  if (isTableEditable.value === false) {
     return columns.filter((c) => c.key !== "delete")
   }
   return columns
@@ -84,17 +84,18 @@ function isCopyValid(row: ExerciseTableData, column: ExerciseTableColumn): boole
   return false
 }
 
-function getExerciseType(id: number): string {
-  return exerciseTypes.find((e) => e.id === id)?.name ?? ""
+function getExerciseType(id: number | undefined): string {
+  if (id) return exerciseTypes.find((e) => e.id === id)?.name ?? ""
+  return ""
 }
 
-function displayExerciseType(exerciseTypeId: number) {
-  emit("display:exerciseType", exerciseTypeId)
+function displayExerciseType(exerciseTypeId: number | undefined) {
+  if (exerciseTypeId) emit("display:exerciseType", exerciseTypeId)
 }
 </script>
 
 <template>
-  <v-checkbox v-model="editable" hide-details label="Edit table"></v-checkbox>
+  <v-checkbox v-model="isTableEditable" hide-details label="Edit table"></v-checkbox>
   <div class="table-container">
     <table class="custom-table">
       <thead>
@@ -109,7 +110,6 @@ function displayExerciseType(exerciseTypeId: number) {
         </tr>
       </thead>
       <tbody>
-        <!-- Simplify this to only draw line on new exercise even only multigroup maybe?-->
         <tr
           v-for="row in exercises"
           :key="row.work_set_id"
@@ -124,16 +124,11 @@ function displayExerciseType(exerciseTypeId: number) {
             :rowspan="getRowspan(row, column)"
             :class="`col-${column.key.replace(/\_/g, '-')}`"
           >
-            <div
-              v-if="column.type === 'number' || column.type === 'text'"
-              class="d-flex align-center"
-            >
+            <!-- Column: inputs -->
+            <!-- Column: work set inputs -->
+            <div v-if="['text', 'number'].includes(column.type)" class="d-flex align-center">
               <input v-model="row[column.key]" :type="column.type" @change="updateTable(row)" />
-              <v-tooltip
-                location="top"
-                text="Copy"
-                v-if="isCopyValid(row, column)"
-              >
+              <v-tooltip v-if="isCopyValid(row, column)" location="top" text="Copy">
                 <template #activator="{ props }">
                   <v-btn
                     v-bind="props"
@@ -158,9 +153,10 @@ function displayExerciseType(exerciseTypeId: number) {
               />
             </div>
 
-            <div v-else-if="column.type === 'groups'">
+            <!-- Column: group id -->
+            <div v-else-if="column.key === 'group_id'">
               <v-autocomplete
-                v-if="editable"
+                v-if="isTableEditable"
                 v-model="row[column.key]"
                 class="autocomplete-input"
                 variant="plain"
@@ -172,9 +168,9 @@ function displayExerciseType(exerciseTypeId: number) {
               <span v-else> {{ row[column.key] }}</span>
             </div>
 
-            <!-- Exercise Type -->
-            <div v-else-if="column.type === 'exercise_types'">
-              <div v-if="editable" class="d-flex align-center">
+            <!-- Column: exercise type -->
+            <div v-else-if="column.key === 'exercise_type_id'">
+              <div v-if="isTableEditable" class="d-flex align-center">
                 <v-tooltip location="top" text="Show exercise details">
                   <template #activator="{ props }">
                     <v-btn
@@ -202,24 +198,24 @@ function displayExerciseType(exerciseTypeId: number) {
                   @update:model-value="updateTable(row)"
                 />
               </div>
-              <div v-else>
-                <v-tooltip location="top" text="Show exercise details">
-                  <template #activator="{ props }">
-                    <v-chip
-                      v-bind="props"
-                      label
-                      variant="text"
-                      @click="displayExerciseType(row[column.key])"
-                      class="chip"
-                    >
-                      {{ getExerciseType(row[column.key]) }}
-                    </v-chip>
-                  </template>
-                </v-tooltip>
-              </div>
+
+              <v-tooltip v-else location="top" text="Show exercise details">
+                <template #activator="{ props }">
+                  <v-chip
+                    v-bind="props"
+                    label
+                    variant="text"
+                    @click="displayExerciseType(row[column.key])"
+                    class="chip"
+                  >
+                    {{ getExerciseType(row[column.key]) }}
+                  </v-chip>
+                </template>
+              </v-tooltip>
             </div>
 
-            <div v-else-if="column.type === 'button' && editable === true" class="text-center">
+            <!-- Column: delete button -->
+            <div v-else-if="column.key === 'delete' && isTableEditable" class="text-center">
               <v-tooltip location="top" text="Delete Exercise">
                 <template #activator="{ props }">
                   <v-btn
@@ -236,8 +232,9 @@ function displayExerciseType(exerciseTypeId: number) {
               </v-tooltip>
             </div>
 
+            <!-- Column: note  -->
             <v-textarea
-              v-else-if="column.type === 'textarea'"
+              v-else-if="column.key === 'note'"
               variant="plain"
               hide-details="auto"
               auto-grow

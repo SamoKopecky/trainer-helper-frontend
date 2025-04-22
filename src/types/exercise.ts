@@ -9,10 +9,10 @@ export interface Exercise {
 }
 
 export interface ExerciseTableColumn {
-  key: string
-  type: string | null
+  key: keyof ExerciseTableData | "delete"
+  type: "special" | "number" | "text"
   name: string
-  is_multirow: boolean
+  isMultirow: boolean
   align: "center" | "left"
 }
 
