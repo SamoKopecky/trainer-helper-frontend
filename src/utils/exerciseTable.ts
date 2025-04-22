@@ -21,7 +21,6 @@ export function range(x: number): number[] {
   const res = Array(x + 1)
     .fill(1)
     .map((x, y) => x + y)
-  res.splice(0, 0, 0)
   return res
 }
 

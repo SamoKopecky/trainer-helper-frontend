@@ -163,7 +163,7 @@ export function useExercises(
 
   function addExercise() {
     const groupId =
-      exercises.value.length !== 0 ? exercises.value[exercises.value.length - 1].group_id + 1 : 0
+      exercises.value.length !== 0 ? exercises.value[exercises.value.length - 1].group_id + 1 : 1
     handlePromise(
       exerciseService
         .post({ group_id: groupId, timeslot_id: timeslotId })
