@@ -1,4 +1,4 @@
-import { type ExerciseTableColumn, type ExerciseTableData } from "@/types/exercise"
+import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercise"
 
 export function getColumns(
   columns: ExerciseTableColumn[],
@@ -30,6 +30,33 @@ export function getAllGroupIds(exercises: ExerciseTableData[]): number[] {
   }
   const maxGroupId = Math.max(...exercises.map((e) => e.group_id))
   return Array.from(new Set(range(maxGroupId)).values())
+}
+
+export function getGroupAlphabetMap(exercises: ExerciseTableData[]): Map<number, string> {
+  const result = new Map()
+  // TODO: Whole alphabet
+  const alphabet = ["A", "B", "C", "D", "E", "F"]
+  if (exercises.length === 0) {
+    return result
+  }
+
+  let alphabetIndex = -1
+  let oldGroupId = 0
+  let groupIdCount = 0
+  exercises
+    .filter((e) => e.is_main)
+    .forEach((e) => {
+      if (oldGroupId !== e.group_id) {
+        alphabetIndex++
+        groupIdCount = 1
+      } else {
+        groupIdCount++
+      }
+
+      oldGroupId = e.group_id
+      result.set(e.exercise_id, `${alphabet[alphabetIndex]}${groupIdCount}`)
+    })
+  return result
 }
 
 export function sortRows(a: ExerciseTableData, b: ExerciseTableData): number {

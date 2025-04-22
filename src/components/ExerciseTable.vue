@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref, watch, type ComputedRef } from "vue"
-import { getAllGroupIds, getColumns, getRowspan, groupBy } from "@/utils/exerciseTable"
+import {
+  getAllGroupIds,
+  getColumns,
+  getGroupAlphabetMap,
+  getRowspan,
+  groupBy,
+} from "@/utils/exerciseTable"
 import { computed } from "vue"
 import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercise"
 import type { ExerciseType } from "@/types/exerciseType"
@@ -36,6 +42,7 @@ const emit = defineEmits([
 ])
 const isTableEditable = ref(false)
 const groups = ref<number[]>()
+const groupIdAlphabetMap = ref<Map<number, string>>()
 const localColumns = computed(() => {
   if (isTableEditable.value === false) {
     return columns.filter((c) => c.key !== "delete")
@@ -47,6 +54,7 @@ watch(
   () => exercises,
   (newExercises) => {
     groups.value = getAllGroupIds(newExercises)
+    groupIdAlphabetMap.value = getGroupAlphabetMap(newExercises)
   },
   { deep: true },
 )
@@ -153,19 +161,18 @@ function displayExerciseType(exerciseTypeId: number | undefined) {
               />
             </div>
 
-            <!-- Column: group id -->
+            <!-- Column: group -->
             <div v-else-if="column.key === 'group_id'">
               <v-autocomplete
                 v-if="isTableEditable"
                 v-model="row[column.key]"
-                class="autocomplete-input"
                 variant="plain"
                 density="compact"
                 hide-details="auto"
                 :items="groups"
                 @update:model-value="updateTable(row)"
               />
-              <span v-else> {{ row[column.key] }}</span>
+              <span v-else> {{ groupIdAlphabetMap?.get(row.exercise_id) }}</span>
             </div>
 
             <!-- Column: exercise type -->
@@ -188,7 +195,6 @@ function displayExerciseType(exerciseTypeId: number | undefined) {
                 </v-tooltip>
                 <v-autocomplete
                   v-model="row[column.key]"
-                  class="autocomplete-input"
                   variant="plain"
                   item-title="name"
                   item-value="id"
