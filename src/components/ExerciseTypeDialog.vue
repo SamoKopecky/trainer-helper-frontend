@@ -33,8 +33,8 @@ const youtubeLinkRef = ref<string>()
 const newNameRef = ref<string>()
 const newNameInput = useTemplateRef("input")
 const youtubeVideoIdRef = computed(() => {
-  if (exerciseType && exerciseType.media_address) {
-    return extractYouTubeId(exerciseType?.media_address)
+  if (exerciseType && exerciseType.youtube_link) {
+    return extractYouTubeId(exerciseType?.youtube_link)
   }
   return null
 })
@@ -61,7 +61,7 @@ watch(
     if (exerciseType) {
       noteRef.value = exerciseType.note ?? ""
       mediaTypeRef.value = exerciseType.media_type
-      youtubeLinkRef.value = exerciseType.media_address
+      youtubeLinkRef.value = exerciseType.youtube_link
     }
   },
 )
@@ -83,7 +83,7 @@ watchEffect(() => {
 })
 
 watchEffect(() => {
-  if (youtubeLinkRef.value && youtubeLinkRef.value != exerciseType?.media_address) {
+  if (youtubeLinkRef.value && youtubeLinkRef.value != exerciseType?.youtube_link) {
     emitUpdate()
   }
 })
@@ -98,7 +98,7 @@ function saveButton() {
     emit("create:exerciseType", {
       note: noteRef.value,
       name: newNameRef.value,
-      media_address: youtubeLinkRef.value,
+      youtube_link: youtubeLinkRef.value,
       media_type: mediaTypeRef.value,
     } as ExerciseTypePostRequest)
     newNameRef.value = ""
@@ -109,7 +109,7 @@ function saveButton() {
 function emitUpdate() {
   if (!isNew) {
     const data: ExerciseTypeUpdate = {
-      media_address: youtubeLinkRef.value,
+      youtube_link: youtubeLinkRef.value,
       media_type: mediaTypeRef.value,
       note: noteRef.value,
     }

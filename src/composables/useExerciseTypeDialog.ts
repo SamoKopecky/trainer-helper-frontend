@@ -33,7 +33,7 @@ export function useExerciseTypeDialog(exerciseTypes: Ref<ExerciseType[]>) {
             .forEach((et) => {
               et.note = updateData.note
               et.media_type = updateData.media_type
-              et.media_address = updateData.media_address
+              et.youtube_link = updateData.youtube_link
             })
         }
       })

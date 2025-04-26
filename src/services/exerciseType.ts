@@ -9,7 +9,8 @@ export interface ExerciseTypePostRequest {
   name: string
   note?: string
   media_type?: MediaType
-  media_address?: string
+  youtube_link?: string
+  file_path?: string
 }
 
 export interface ExerciseTypePutRequest extends ExerciseTypeUpdate {

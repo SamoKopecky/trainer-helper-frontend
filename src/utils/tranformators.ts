@@ -71,7 +71,7 @@ export function timeslotToAppTimeslot(timeslot: Timeslot): AppTimeslot {
 }
 
 export function exerciseTypeToRow(exerciseType: ExerciseType): ExerciseTypeTableRow {
-  const hasMedia = Boolean(exerciseType.media_address)
+  const hasMedia = Boolean(exerciseType.youtube_link)
   return {
     name: exerciseType.name,
     mediaType: exerciseType.media_type,

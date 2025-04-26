@@ -7,7 +7,8 @@ export interface ExerciseType extends ExerciseTypeUpdate {
 export interface ExerciseTypeUpdate {
   note?: string
   media_type?: MediaType
-  media_address?: string
+  youtube_link?: string
+  file_path?: string
 }
 
 export interface ExerciseTypeTableRow {
