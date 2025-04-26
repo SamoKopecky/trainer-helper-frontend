@@ -34,7 +34,7 @@ export function useChangeEvents(addNotification: (text: string, type: Notificati
   function addChangeEvent(event: ChangeEvent) {
     currentEventIndex.value.up()
     changeEvents.value.splice(currentEventIndex.value.get(), 0, event)
-    event.up().catch((error: Error) => {
+    event.up(true).catch((error: Error) => {
       addNotification(error.message, "error")
     })
   }
@@ -42,6 +42,7 @@ export function useChangeEvents(addNotification: (text: string, type: Notificati
   function undo() {
     if (changeEvents.value.length === 0 || currentEventIndex.value.get() < 0) return
     changeEvents.value[currentEventIndex.value.get()]?.down().catch((error: Error) => {
+      console.log(error)
       addNotification(error.message, "error")
     })
     currentEventIndex.value.down()
@@ -54,7 +55,7 @@ export function useChangeEvents(addNotification: (text: string, type: Notificati
     )
       return
     currentEventIndex.value.up()
-    changeEvents.value[currentEventIndex.value.get()]?.up().catch((error: Error) => {
+    changeEvents.value[currentEventIndex.value.get()]?.up(false).catch((error: Error) => {
       addNotification(error.message, "error")
     })
   }

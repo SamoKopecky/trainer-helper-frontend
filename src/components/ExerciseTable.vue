@@ -10,9 +10,8 @@ import {
 import { computed } from "vue"
 import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercise"
 import type { ExerciseType } from "@/types/exerciseType"
-import ChangeEventBar from "@/components/ChangeEventBar.vue"
 
-const { exerciseTypes, columns, exercises } = defineProps({
+const { exerciseTypes, columns, exercises, isTableEditable } = defineProps({
   columns: {
     type: Array<ExerciseTableColumn>,
     required: true,
@@ -24,6 +23,10 @@ const { exerciseTypes, columns, exercises } = defineProps({
   exerciseTypes: {
     type: Array<ExerciseType>,
     required: true,
+  },
+  isTableEditable: {
+    type: Boolean,
+    reqyured: true,
   },
 })
 
@@ -41,11 +44,10 @@ const emit = defineEmits([
   "display:exerciseType",
   "update:copyWorkSet",
 ])
-const isTableEditable = ref(false)
 const groups = ref<number[]>()
 const groupIdAlphabetMap = ref<Map<number, string>>()
 const localColumns = computed(() => {
-  if (isTableEditable.value === false) {
+  if (isTableEditable === false) {
     return columns.filter((c) => c.key !== "delete")
   }
   return columns
@@ -104,24 +106,6 @@ function displayExerciseType(exerciseTypeId: number | undefined) {
 </script>
 
 <template>
-  <ChangeEventBar :is-undo-active="false" :is-redo-active="false">
-    <template #extra>
-      <v-btn
-        v-if="!isTableEditable"
-        v-tooltip:bottom="'Edit table'"
-        @click="isTableEditable = true"
-        icon="mdi-table-edit"
-      />
-      <v-btn
-        v-if="isTableEditable"
-        color="green"
-        v-tooltip:bottom="'Save table'"
-        @click="isTableEditable = false"
-        icon="mdi-check"
-      />
-    </template>
-  </ChangeEventBar>
-
   <div class="table-container">
     <table class="custom-table">
       <thead>

@@ -45,10 +45,17 @@ export function isWorkSetCountDiff(data: Diff): data is WorkSetCountDiff {
   return "work_set_count" in data
 }
 
-export function tableDataDiff<T extends Diff>(
+export function tableDataDiff<T extends Diff, G extends string | number | boolean | undefined>(
   newObj: ExerciseTableData,
   oldObj: ExerciseTableData,
-): [T | null, ExerciseUpdateType | null] {
+): [
+  T | null,
+  ExerciseUpdateType | null,
+  keyof ExerciseTableData | null,
+  newValue: G | null,
+  oldValue: G | null,
+  id: number | null,
+] {
   const res: Partial<T> = {}
   let changedKey: keyof ExerciseTableData | null = null
 
@@ -61,15 +68,22 @@ export function tableDataDiff<T extends Diff>(
   }
 
   if (!changedKey) {
-    return [null, null]
+    return [null, null, null, null, null, null]
   }
   const updateType = DATA_DIFF_MAP[changedKey]
 
   if (!updateType) {
-    return [null, null]
+    return [null, null, null, null, null, null]
   }
   const updateIdKey = UPDATE_TYPE_ID_MAP[updateType]
 
   res.id = newObj[updateIdKey] as number
-  return [res as T, updateType]
+  return [
+    res as T,
+    updateType,
+    changedKey,
+    newObj[changedKey] as G,
+    oldObj[changedKey] as G,
+    newObj[updateIdKey],
+  ]
 }

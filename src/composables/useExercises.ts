@@ -10,7 +10,7 @@ import {
   type ExerciseResponse,
   type FullExerciseResponse,
 } from "@/services/exercise"
-import { WorkSetService, WorkSetsService } from "@/services/worksets"
+import { WorkSetsService } from "@/services/worksets"
 import { ExerciseCountService } from "@/services/exerciseCount"
 import {
   isExerciseDiff,
@@ -30,13 +30,15 @@ import {
 import type { NotificationType } from "@/types/other"
 import type { Ref } from "vue"
 import { TimeslotService } from "@/services/timeslots"
+import { WorkSetChangeEvent } from "@/changeEvents/workSetChange"
+import type { ChangeEvent } from "@/changeEvents/base"
 
 export function useExercises(
   timeslotId: number,
   exerciseRes: Ref<FullExerciseResponse | undefined>,
   addNotification: (text: string, type: NotificationType) => void,
+  addChangeEvent: (event: ChangeEvent) => void,
 ) {
-  const workSetService = new WorkSetService()
   const workSetsService = new WorkSetsService()
   const exerciseService = new ExerciseService()
   const timeslotService = new TimeslotService()
@@ -48,9 +50,15 @@ export function useExercises(
   async function doUpdate<T extends Diff>(
     data: T,
     updateType: ExerciseUpdateType,
+    id: number,
+    newValue: any,
+    oldValue: any,
+    changeKey: keyof ExerciseTableData,
   ): Promise<unknown> {
     if (updateType === ExerciseUpdateType.WorkSet && isWorkSetDiff(data)) {
-      return workSetService.put(data)
+      addChangeEvent(
+        new WorkSetChangeEvent(id, changeKey, newValue, oldValue, exercises.value, exercisesOld),
+      )
     } else if (updateType === ExerciseUpdateType.Exercise && isExerciseDiff(data)) {
       return exerciseService.put(data)
     } else if (updateType === ExerciseUpdateType.WorkSetCount && isWorkSetCountDiff(data)) {
@@ -209,15 +217,16 @@ export function useExercises(
       throw new Error("Internal error old row not found")
     }
 
-    const [diff, updateType] = tableDataDiff(newRow, oldRow)
+    const [diff, updateType, changeKey, newValue, oldValue, id] = tableDataDiff(newRow, oldRow)
+    console.log("diff", diff)
 
     if (!diff || !updateType) {
       return
     }
-
-    handlePromise(doUpdate(diff, updateType)).finally(() =>
-      exercisesOld.set(newRow.work_set_id, deepClone(newRow)),
-    )
+    handlePromise(doUpdate(diff, updateType, id, newValue, oldValue, changeKey)).finally(() => {
+      console.log("here")
+    })
+    exercisesOld.set(newRow.work_set_id, deepClone(newRow))
   }
 
   async function handlePromise(promise: Promise<unknown>): Promise<unknown> {

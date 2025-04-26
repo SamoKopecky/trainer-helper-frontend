@@ -15,6 +15,8 @@ import { useUser } from "@/composables/useUser"
 import { useExerciseTypes } from "@/composables/useExerciseTypes"
 import { useExerciseTypeDialog } from "@/composables/useExerciseTypeDialog"
 import ExerciseTypeDialog from "@/components/ExerciseTypeDialog.vue"
+import { useChangeEvents } from "@/composables/useChangeEvents"
+import ChangeEventBar from "@/components/ChangeEventBar.vue"
 
 const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "group_id", type: "special", name: "Group", isMultirow: true, align: "left" },
@@ -43,6 +45,7 @@ const exerciseService = new ExerciseService()
 const exerciseDuplicateService = new ExerciseDuplicateService()
 const exerciseRes = ref<FullExerciseResponse | undefined>()
 const { isTrainer } = useUser()
+const isTableEditable = ref(false)
 
 onMounted(() => {
   exerciseService.get(timeslotId).then((res) => {
@@ -51,8 +54,9 @@ onMounted(() => {
 })
 
 const { notifications, addNotification } = useNotifications()
+const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
 const { exercises, addExercise, deleteExercise, updateTable, updateTitle, copyWorkSet } =
-  useExercises(timeslotId, exerciseRes, addNotification)
+  useExercises(timeslotId, exerciseRes, addNotification, addChangeEvent)
 const { exerciseTypes } = useExerciseTypes()
 const { showDialog, selectedType, handleCreate, handleUpdate, isNew, addNew } =
   useExerciseTypeDialog(exerciseTypes)
@@ -75,6 +79,28 @@ function displayExerciseType(exerciseTypeId: number) {
 
 <template>
   <NotificationFloat :notifications="notifications" />
+  <ChangeEventBar
+    :is-undo-active="undoActive"
+    :is-redo-active="redoActive"
+    @undo="undo"
+    @redo="redo"
+  >
+    <template #extra>
+      <v-btn
+        v-if="!isTableEditable"
+        v-tooltip:bottom="'Edit table'"
+        @click="isTableEditable = true"
+        icon="mdi-table-edit"
+      />
+      <v-btn
+        v-else-if="isTableEditable"
+        color="green"
+        v-tooltip:bottom="'Save table'"
+        @click="isTableEditable = false"
+        icon="mdi-check"
+      />
+    </template>
+  </ChangeEventBar>
   <TimeslotControlPanel
     :app-timeslot="exerciseRes ? timeslotToAppTimeslot(exerciseRes.timeslot) : undefined"
     :is-trainer="isTrainer"
@@ -87,6 +113,7 @@ function displayExerciseType(exerciseTypeId: number) {
       :columns="EXERCISE_COLUMNS"
       :exercises="exercises"
       :exercise-types="exerciseTypes"
+      :is-table-editable="isTableEditable"
       @update-table="updateTable"
       @delete-exercise="deleteExercise"
       @display:exercise-type="displayExerciseType"
