@@ -10,6 +10,7 @@ import {
 import { computed } from "vue"
 import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercise"
 import type { ExerciseType } from "@/types/exerciseType"
+import ChangeEventBar from "@/components/ChangeEventBar.vue"
 
 const { exerciseTypes, columns, exercises } = defineProps({
   columns: {
@@ -103,7 +104,24 @@ function displayExerciseType(exerciseTypeId: number | undefined) {
 </script>
 
 <template>
-  <v-checkbox v-model="isTableEditable" hide-details label="Edit table"></v-checkbox>
+  <ChangeEventBar :is-undo-active="false" :is-redo-active="false">
+    <template #extra>
+      <v-btn
+        v-if="!isTableEditable"
+        v-tooltip:bottom="'Edit table'"
+        @click="isTableEditable = true"
+        icon="mdi-table-edit"
+      />
+      <v-btn
+        v-if="isTableEditable"
+        color="green"
+        v-tooltip:bottom="'Save table'"
+        @click="isTableEditable = false"
+        icon="mdi-check"
+      />
+    </template>
+  </ChangeEventBar>
+
   <div class="table-container">
     <table class="custom-table">
       <thead>
@@ -136,20 +154,17 @@ function displayExerciseType(exerciseTypeId: number | undefined) {
             <!-- Column: work set inputs -->
             <div v-if="['text', 'number'].includes(column.type)" class="d-flex align-center">
               <input v-model="row[column.key]" :type="column.type" @change="updateTable(row)" />
-              <v-tooltip v-if="isCopyValid(row, column)" location="top" text="Copy">
-                <template #activator="{ props }">
-                  <v-btn
-                    v-bind="props"
-                    icon
-                    size="small"
-                    variant="text"
-                    density="compact"
-                    @click="emit('update:copyWorkSet', row, column.key)"
-                  >
-                    <v-icon>mdi-menu-down</v-icon>
-                  </v-btn>
-                </template>
-              </v-tooltip>
+              <v-btn
+                v-if="isCopyValid(row, column)"
+                v-tooltip:top="'Copy'"
+                icon
+                size="small"
+                variant="text"
+                density="compact"
+                @click="emit('update:copyWorkSet', row, column.key)"
+              >
+                <v-icon>mdi-menu-down</v-icon>
+              </v-btn>
               <!-- Spacer -->
               <v-btn
                 v-else
@@ -178,21 +193,16 @@ function displayExerciseType(exerciseTypeId: number | undefined) {
             <!-- Column: exercise type -->
             <div v-else-if="column.key === 'exercise_type_id'">
               <div v-if="isTableEditable" class="d-flex align-center">
-                <v-tooltip location="top" text="Show exercise details">
-                  <template #activator="{ props }">
-                    <v-btn
-                      v-bind="props"
-                      icon
-                      class="mr-1"
-                      variant="text"
-                      density="compact"
-                      color="info"
-                      @click="displayExerciseType(row[column.key])"
-                    >
-                      <v-icon>mdi-information-outline</v-icon>
-                    </v-btn>
-                  </template>
-                </v-tooltip>
+                <v-btn
+                  v-if="row[column.key]"
+                  v-tooltip:top="'Show exercise details'"
+                  icon="mdi-information-outline"
+                  class="mr-1"
+                  variant="text"
+                  density="compact"
+                  color="info"
+                  @click="displayExerciseType(row[column.key])"
+                />
                 <v-autocomplete
                   v-model="row[column.key]"
                   variant="plain"
@@ -204,38 +214,30 @@ function displayExerciseType(exerciseTypeId: number | undefined) {
                   @update:model-value="updateTable(row)"
                 />
               </div>
-
-              <v-tooltip v-else location="top" text="Show exercise details">
-                <template #activator="{ props }">
-                  <v-chip
-                    v-bind="props"
-                    label
-                    variant="text"
-                    @click="displayExerciseType(row[column.key])"
-                    class="chip"
-                  >
-                    {{ getExerciseType(row[column.key]) }}
-                  </v-chip>
-                </template>
-              </v-tooltip>
+              <v-chip
+                v-else
+                v-tooltip:top="'Show exercise details'"
+                label
+                variant="text"
+                @click="displayExerciseType(row[column.key])"
+                class="chip"
+              >
+                {{ getExerciseType(row[column.key]) }}
+              </v-chip>
             </div>
 
             <!-- Column: delete button -->
             <div v-else-if="column.key === 'delete' && isTableEditable" class="text-center">
-              <v-tooltip location="top" text="Delete Exercise">
-                <template #activator="{ props }">
-                  <v-btn
-                    v-bind="props"
-                    icon
-                    variant="text"
-                    density="compact"
-                    color="error"
-                    @click="deleteExercise(row.exercise_id)"
-                  >
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
-                </template>
-              </v-tooltip>
+              <v-btn
+                v-tooltip:top="'Delete exercise'"
+                icon
+                variant="text"
+                density="compact"
+                color="error"
+                @click="deleteExercise(row.exercise_id)"
+              >
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
             </div>
 
             <!-- Column: note  -->

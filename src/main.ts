@@ -37,6 +37,8 @@ import {
   VCheckbox,
   VTooltip,
   VChip,
+  VFab,
+  VSheet,
 } from "vuetify/components"
 import router from "./router"
 import VueKeyCloak from "@dsb-norge/vue-keycloak-js"
@@ -44,6 +46,8 @@ import { tokenInterceptor } from "./services/base"
 
 const vuetify = createVuetify({
   components: {
+    VFab,
+    VSheet,
     VCardText,
     VListItem,
     VNavigationDrawer,

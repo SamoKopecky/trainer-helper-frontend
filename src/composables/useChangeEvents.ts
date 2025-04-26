@@ -3,34 +3,69 @@ import type { NotificationType } from "@/types/other"
 import { watch } from "vue"
 import { ref } from "vue"
 
+class IndexPointer {
+  private index: number
+
+  constructor() {
+    this.index = -1
+  }
+
+  public up() {
+    this.index++
+  }
+
+  public down() {
+    if (this.index >= 0) {
+      this.index--
+    }
+  }
+
+  public get() {
+    return this.index
+  }
+}
+
 export function useChangeEvents(addNotification: (text: string, type: NotificationType) => void) {
   const changeEvents = ref<ChangeEvent[]>([])
+  const currentEventIndex = ref<IndexPointer>(new IndexPointer())
   const undoActive = ref(false)
+  const redoActive = ref(false)
 
   function addChangeEvent(event: ChangeEvent) {
-    changeEvents.value.push(event)
+    currentEventIndex.value.up()
+    changeEvents.value.splice(currentEventIndex.value.get(), 0, event)
     event.up().catch((error: Error) => {
       addNotification(error.message, "error")
     })
   }
 
-  function popChangeEvent() {
-    if (changeEvents.value.length !== 0) {
-      changeEvents.value
-        .pop()
-        ?.down()
-        .catch((error: Error) => {
-          addNotification(error.message, "error")
-        })
-    }
+  function undo() {
+    if (changeEvents.value.length === 0 || currentEventIndex.value.get() < 0) return
+    changeEvents.value[currentEventIndex.value.get()]?.down().catch((error: Error) => {
+      addNotification(error.message, "error")
+    })
+    currentEventIndex.value.down()
+  }
+
+  function redo() {
+    if (
+      changeEvents.value.length === 0 ||
+      currentEventIndex.value.get() === changeEvents.value.length - 1
+    )
+      return
+    currentEventIndex.value.up()
+    changeEvents.value[currentEventIndex.value.get()]?.up().catch((error: Error) => {
+      addNotification(error.message, "error")
+    })
   }
 
   watch(
-    () => changeEvents.value.length,
-    (newLength) => {
-      undoActive.value = newLength !== 0
+    () => currentEventIndex.value.get(),
+    (index) => {
+      undoActive.value = index !== -1
+      redoActive.value = index !== changeEvents.value.length - 1
     },
   )
 
-  return { addChangeEvent, popChangeEvent, undoActive }
+  return { addChangeEvent, undo, redo, undoActive, redoActive }
 }
