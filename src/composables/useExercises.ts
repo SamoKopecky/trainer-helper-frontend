@@ -15,10 +15,10 @@ import { ExerciseCountService } from "@/services/exerciseCount"
 import { tableDataDiff } from "@/utils/diff"
 import { sortRows } from "@/utils/exerciseTable"
 import { type ExerciseTableData, type Diff, ExerciseUpdateType } from "@/types/exercise"
-import type { NotificationType, WorkSet } from "@/types/other"
+import type { NotificationType } from "@/types/other"
 import type { Ref } from "vue"
 import { TimeslotService } from "@/services/timeslots"
-import { WorkSetChangeEvent } from "@/changeEvents/workSetChange"
+import { SingleExerciseTableUpdate } from "@/changeEvents/workSetChange"
 import type { ChangeEvent } from "@/changeEvents/base"
 
 export function useExercises(
@@ -36,27 +36,17 @@ export function useExercises(
   const exercisesOld: Map<number, ExerciseTableData> = new Map()
 
   async function doUpdate(diff: Diff): Promise<unknown> {
-    if (diff.updateType === ExerciseUpdateType.WorkSet) {
-      addChangeEvent(
-        new WorkSetChangeEvent(
-          diff.id,
-          diff.changedKey as keyof WorkSet,
-          diff.newValue,
-          diff.oldValue,
-          exercises.value,
-          exercisesOld,
-        ),
-      )
-    } else if (diff.updateType === ExerciseUpdateType.Exercise) {
-      // return exerciseService.put({
-      //   id: diff.id,
-      // })
-    } else if (diff.updateType === ExerciseUpdateType.WorkSetCount) {
-      return countUpdate(diff)
-    } else if (diff.updateType === ExerciseUpdateType.GroupId) {
-      return groupIdUpdate(diff)
-    } else {
-      return Promise.reject(new Error("Invalid data or update type"))
+    switch (diff.updateType) {
+      case ExerciseUpdateType.WorkSet:
+      case ExerciseUpdateType.Exercise:
+        addChangeEvent(new SingleExerciseTableUpdate(diff, exercises.value, exercisesOld))
+        break
+      case ExerciseUpdateType.GroupId:
+        return countUpdate(diff)
+      case ExerciseUpdateType.WorkSetCount:
+        return groupIdUpdate(diff)
+      default:
+        return Promise.reject(new Error("Invalid data or update type"))
     }
   }
 
@@ -213,9 +203,11 @@ export function useExercises(
     if (!diff) {
       return
     }
-    handlePromise(doUpdate(diff)).finally(() =>
-      // TODO: remove later
-      exercisesOld.set(newRow.work_set_id, deepClone(newRow)),
+    handlePromise(doUpdate(diff)).finally(
+      () =>
+        // TODO: remove later
+        console.log("here"),
+      // exercisesOld.set(newRow.work_set_id, deepClone(newRow)),
     )
   }
 

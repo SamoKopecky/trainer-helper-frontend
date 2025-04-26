@@ -51,5 +51,6 @@ export function tableDataDiff(newObj: ExerciseTableData, oldObj: ExerciseTableDa
     newValue: newValue,
     changedKey: changedKey,
     id: newObj[updateIdKey] as number,
+    idKey: updateIdKey,
   }
 }

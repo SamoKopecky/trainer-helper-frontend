@@ -29,6 +29,7 @@ export interface Diff {
   newValue: any
   oldValue: any
   changedKey: keyof ExerciseTableData
+  idKey: keyof ExerciseTableData
 }
 
 export interface ExerciseTableData extends Omit<WorkSet, "id">, Omit<Exercise, "id"> {
