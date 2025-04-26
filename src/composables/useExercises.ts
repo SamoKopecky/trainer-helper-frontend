@@ -113,15 +113,6 @@ export function useExercises(
     })
   }
 
-  async function groupIdUpdate(diff: DiffNumber): Promise<void> {
-    return exerciseService.put({ id: diff.id, group_id: diff.newValue }).then(() => {
-      exercises.value
-        .filter((e) => e.exercise_id === diff.id)
-        .forEach((e) => (e.group_id = diff.newValue))
-      exercises.value.sort((a, b) => sortRows(a, b))
-    })
-  }
-
   async function countUpdate(diff: DiffNumber): Promise<void> {
     const exercise_work_sets = exercises.value.filter((e) => e.exercise_id === diff.id)
 

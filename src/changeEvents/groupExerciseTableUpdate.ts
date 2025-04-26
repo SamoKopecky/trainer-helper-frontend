@@ -25,7 +25,7 @@ export class GroupExerciseTableUpdate implements ChangeEvent {
     this.exercisesOld = exercisesOld
   }
 
-  private makeRequest(changedValue: number) {
+  private adjustValue(changedValue: number) {
     this.service.put({ id: this.id, group_id: changedValue }).then(() => {
       this.exercises
         .filter((e) => e.exercise_id === this.id)
@@ -38,9 +38,9 @@ export class GroupExerciseTableUpdate implements ChangeEvent {
   }
 
   async up(_initial: boolean): Promise<void> {
-    this.makeRequest(this.newValue)
+    this.adjustValue(this.newValue)
   }
   async down(): Promise<void> {
-    this.makeRequest(this.oldValue)
+    this.adjustValue(this.oldValue)
   }
 }
