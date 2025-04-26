@@ -22,8 +22,8 @@ const UPDATE_TYPE_ID_MAP: Record<ExerciseUpdateType, keyof ExerciseTableData> = 
 }
 
 export function tableDataDiff(newObj: ExerciseTableData, oldObj: ExerciseTableData): Diff | null {
-  let newValue: any | null = null
-  let oldValue: any | null = null
+  let newValue: number | string | null = null
+  let oldValue: number | string | null = null
   let changedKey: keyof ExerciseTableData | null = null
 
   for (const key in newObj) {
@@ -35,22 +35,34 @@ export function tableDataDiff(newObj: ExerciseTableData, oldObj: ExerciseTableDa
     }
   }
 
-  if (!changedKey) {
-    return null
-  }
+  if (!changedKey || !newValue || !oldValue) return null
   const updateType = DATA_DIFF_MAP[changedKey]
 
-  if (!updateType) {
-    return null
-  }
+  if (!updateType) return null
   const updateIdKey = UPDATE_TYPE_ID_MAP[updateType]
 
-  return {
-    updateType: updateType,
-    oldValue: oldValue,
-    newValue: newValue,
-    changedKey: changedKey,
-    id: newObj[updateIdKey] as number,
-    idKey: updateIdKey,
+  const idValue = newObj[updateIdKey]
+  if (typeof idValue !== "number") return null
+  const id: number = idValue
+
+  if (typeof newValue === "number" && typeof oldValue === "number") {
+    return {
+      updateType: updateType,
+      oldValue: oldValue,
+      newValue: newValue,
+      changedKey: changedKey,
+      id: id,
+      idKey: updateIdKey,
+    }
+  } else if (typeof newValue === "string" && typeof oldValue === "string") {
+    return {
+      updateType: updateType,
+      oldValue: oldValue,
+      newValue: newValue,
+      changedKey: changedKey,
+      id: id,
+      idKey: updateIdKey,
+    }
   }
+  return null
 }

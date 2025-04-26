@@ -14,11 +14,16 @@ import { WorkSetsService } from "@/services/worksets"
 import { ExerciseCountService } from "@/services/exerciseCount"
 import { tableDataDiff } from "@/utils/diff"
 import { sortRows } from "@/utils/exerciseTable"
-import { type ExerciseTableData, type Diff, ExerciseUpdateType } from "@/types/exercise"
+import {
+  type ExerciseTableData,
+  ExerciseUpdateType,
+  type Diff,
+  type DiffNumber,
+} from "@/types/exercise"
 import type { NotificationType } from "@/types/other"
 import type { Ref } from "vue"
 import { TimeslotService } from "@/services/timeslots"
-import { SingleExerciseTableUpdate } from "@/changeEvents/workSetChange"
+import { SingleExerciseTableUpdate } from "@/changeEvents/singleExerciseTableUpdate"
 import type { ChangeEvent } from "@/changeEvents/base"
 
 export function useExercises(
@@ -42,16 +47,16 @@ export function useExercises(
         addChangeEvent(new SingleExerciseTableUpdate(diff, exercises.value, exercisesOld))
         break
       case ExerciseUpdateType.GroupId:
-        return countUpdate(diff)
+        return groupIdUpdate(diff as DiffNumber)
       case ExerciseUpdateType.WorkSetCount:
-        return groupIdUpdate(diff)
+        return countUpdate(diff as DiffNumber)
       default:
         return Promise.reject(new Error("Invalid data or update type"))
     }
   }
 
   async function increaseWorkSets(
-    diff: Diff,
+    diff: DiffNumber,
     oldCount: number,
     exercise: ExerciseTableData,
   ): Promise<void> {
@@ -81,7 +86,7 @@ export function useExercises(
   }
 
   async function decreaseWorkSets(
-    diff: Diff,
+    diff: DiffNumber,
     oldCount: number,
     exercise_work_sets: ExerciseTableData[],
   ): Promise<void> {
@@ -104,7 +109,7 @@ export function useExercises(
     })
   }
 
-  async function groupIdUpdate(diff: Diff): Promise<void> {
+  async function groupIdUpdate(diff: DiffNumber): Promise<void> {
     return exerciseService.put({ id: diff.id, group_id: diff.newValue }).then(() => {
       exercises.value
         .filter((e) => e.exercise_id === diff.id)
@@ -113,7 +118,7 @@ export function useExercises(
     })
   }
 
-  async function countUpdate(diff: Diff): Promise<void> {
+  async function countUpdate(diff: DiffNumber): Promise<void> {
     const exercise_work_sets = exercises.value.filter((e) => e.exercise_id === diff.id)
 
     if (exercise_work_sets.length === 0) {
@@ -152,7 +157,7 @@ export function useExercises(
   function addExercise() {
     const groupId =
       exercises.value.length !== 0 ? exercises.value[exercises.value.length - 1].group_id + 1 : 1
-    handlePromise(
+    handleError(
       exerciseService
         .post({ group_id: groupId, timeslot_id: timeslotId })
         .then((response) => addNewTableData(response)),
@@ -160,7 +165,7 @@ export function useExercises(
   }
 
   function deleteExercise(exerciseId: number) {
-    handlePromise(
+    handleError(
       exerciseService.delete({ exercise_id: exerciseId, timeslot_id: timeslotId }).then(() => {
         exercises.value = exercises.value.filter((e) => e.exercise_id !== exerciseId)
       }),
@@ -176,7 +181,7 @@ export function useExercises(
       exercisesOld.set(e.work_set_id, deepClone(e))
     })
 
-    handlePromise(
+    handleError(
       workSetsService.put(
         changedWorkSets.map((ws) => {
           const wsType = tableDataToWorkSet(ws)
@@ -203,15 +208,10 @@ export function useExercises(
     if (!diff) {
       return
     }
-    handlePromise(doUpdate(diff)).finally(
-      () =>
-        // TODO: remove later
-        console.log("here"),
-      // exercisesOld.set(newRow.work_set_id, deepClone(newRow)),
-    )
+    handleError(doUpdate(diff))
   }
 
-  async function handlePromise(promise: Promise<unknown>): Promise<unknown> {
+  async function handleError(promise: Promise<unknown>): Promise<unknown> {
     return promise.catch((error: Error) => addNotification(error.message, "error"))
   }
 

@@ -36,7 +36,10 @@ const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
 ]
 
 defineProps({
-  id: String,
+  id: {
+    type: String,
+    required: true,
+  },
 })
 
 const route = useRoute()

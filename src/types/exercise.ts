@@ -23,13 +23,24 @@ export enum ExerciseUpdateType {
   WorkSetCount = "WorkSetCount",
 }
 
-export interface Diff {
-  updateType: ExerciseUpdateType
+export interface DiffString extends DiffBase {
+  newValue: string
+  oldValue: string
+}
+
+export interface DiffNumber extends DiffBase {
+  newValue: number
+  oldValue: number
+}
+
+export type Diff = DiffString | DiffNumber
+export type DiffValue = string | number
+
+export interface DiffBase {
   id: number
-  newValue: any
-  oldValue: any
-  changedKey: keyof ExerciseTableData
   idKey: keyof ExerciseTableData
+  updateType: ExerciseUpdateType
+  changedKey: keyof ExerciseTableData
 }
 
 export interface ExerciseTableData extends Omit<WorkSet, "id">, Omit<Exercise, "id"> {
