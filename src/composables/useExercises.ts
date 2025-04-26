@@ -12,22 +12,10 @@ import {
 } from "@/services/exercise"
 import { WorkSetsService } from "@/services/worksets"
 import { ExerciseCountService } from "@/services/exerciseCount"
-import {
-  isExerciseDiff,
-  isGroupIdDiff,
-  isWorkSetCountDiff,
-  isWorkSetDiff,
-  tableDataDiff,
-} from "@/utils/diff"
+import { tableDataDiff } from "@/utils/diff"
 import { sortRows } from "@/utils/exerciseTable"
-import {
-  type ExerciseTableData,
-  type Diff,
-  type WorkSetCountDiff,
-  type GroupIdDiff,
-  ExerciseUpdateType,
-} from "@/types/exercise"
-import type { NotificationType } from "@/types/other"
+import { type ExerciseTableData, type Diff, ExerciseUpdateType } from "@/types/exercise"
+import type { NotificationType, WorkSet } from "@/types/other"
 import type { Ref } from "vue"
 import { TimeslotService } from "@/services/timeslots"
 import { WorkSetChangeEvent } from "@/changeEvents/workSetChange"
@@ -47,37 +35,39 @@ export function useExercises(
   const exercises = ref<ExerciseTableData[]>([])
   const exercisesOld: Map<number, ExerciseTableData> = new Map()
 
-  async function doUpdate<T extends Diff>(
-    data: T,
-    updateType: ExerciseUpdateType,
-    id: number,
-    newValue: any,
-    oldValue: any,
-    changeKey: keyof ExerciseTableData,
-  ): Promise<unknown> {
-    if (updateType === ExerciseUpdateType.WorkSet && isWorkSetDiff(data)) {
+  async function doUpdate(diff: Diff): Promise<unknown> {
+    if (diff.updateType === ExerciseUpdateType.WorkSet) {
       addChangeEvent(
-        new WorkSetChangeEvent(id, changeKey, newValue, oldValue, exercises.value, exercisesOld),
+        new WorkSetChangeEvent(
+          diff.id,
+          diff.changedKey as keyof WorkSet,
+          diff.newValue,
+          diff.oldValue,
+          exercises.value,
+          exercisesOld,
+        ),
       )
-    } else if (updateType === ExerciseUpdateType.Exercise && isExerciseDiff(data)) {
-      return exerciseService.put(data)
-    } else if (updateType === ExerciseUpdateType.WorkSetCount && isWorkSetCountDiff(data)) {
-      return countUpdate(data)
-    } else if (updateType === ExerciseUpdateType.GroupId && isGroupIdDiff(data)) {
-      return groupIdUpdate(data)
+    } else if (diff.updateType === ExerciseUpdateType.Exercise) {
+      // return exerciseService.put({
+      //   id: diff.id,
+      // })
+    } else if (diff.updateType === ExerciseUpdateType.WorkSetCount) {
+      return countUpdate(diff)
+    } else if (diff.updateType === ExerciseUpdateType.GroupId) {
+      return groupIdUpdate(diff)
     } else {
       return Promise.reject(new Error("Invalid data or update type"))
     }
   }
 
   async function increaseWorkSets(
-    diff: WorkSetCountDiff,
+    diff: Diff,
     oldCount: number,
     exercise: ExerciseTableData,
   ): Promise<void> {
     const indexStart = exercises.value.indexOf(exercise) + 1
     const request = {
-      count: diff.work_set_count - oldCount,
+      count: diff.newValue - oldCount,
       work_set_template: tableDataToWorkSet(exercise),
     }
 
@@ -87,26 +77,26 @@ export function useExercises(
         exercises.value.splice(
           indexStart + i,
           0,
-          mergeTableDataAndWorkSetModel(exercise, row, false, diff.work_set_count),
+          mergeTableDataAndWorkSetModel(exercise, row, false, diff.newValue),
         ),
       )
       exercises.value
         .filter((row) => row.exercise_id === diff.id)
         .forEach((row) => {
-          row.work_set_count_display = diff.work_set_count
-          row.work_set_count = diff.work_set_count
+          row.work_set_count_display = diff.newValue
+          row.work_set_count = diff.newValue
           exercisesOld.set(row.work_set_id, deepClone(row))
         })
     })
   }
 
   async function decreaseWorkSets(
-    diff: WorkSetCountDiff,
+    diff: Diff,
     oldCount: number,
     exercise_work_sets: ExerciseTableData[],
   ): Promise<void> {
     const sorted = exercise_work_sets.sort((w) => w.work_set_id)
-    const toRemoveIds = sorted.slice(0, oldCount - diff.work_set_count).map((w) => w.work_set_id)
+    const toRemoveIds = sorted.slice(0, oldCount - diff.newValue).map((w) => w.work_set_id)
     return exerciseCountService.delete({ work_set_ids: toRemoveIds }).then((removed) => {
       if (toRemoveIds.length !== removed) {
         throw new Error(`Deleted ${removed} != ${toRemoveIds.length}`)
@@ -117,23 +107,23 @@ export function useExercises(
       exercises.value
         .filter((row) => row.exercise_id === diff.id)
         .forEach((row) => {
-          row.work_set_count_display = diff.work_set_count
-          row.work_set_count = diff.work_set_count
+          row.work_set_count_display = diff.newValue
+          row.work_set_count = diff.newValue
           exercisesOld.set(row.work_set_id, deepClone(row))
         })
     })
   }
 
-  async function groupIdUpdate(diff: GroupIdDiff): Promise<void> {
-    return exerciseService.put(diff).then(() => {
+  async function groupIdUpdate(diff: Diff): Promise<void> {
+    return exerciseService.put({ id: diff.id, group_id: diff.newValue }).then(() => {
       exercises.value
         .filter((e) => e.exercise_id === diff.id)
-        .forEach((e) => (e.group_id = diff.group_id as number))
+        .forEach((e) => (e.group_id = diff.newValue as number))
       exercises.value.sort((a, b) => sortRows(a, b))
     })
   }
 
-  async function countUpdate(diff: WorkSetCountDiff): Promise<void> {
+  async function countUpdate(diff: Diff): Promise<void> {
     const exercise_work_sets = exercises.value.filter((e) => e.exercise_id === diff.id)
 
     if (exercise_work_sets.length === 0) {
@@ -142,7 +132,7 @@ export function useExercises(
     const last_work_set = exercise_work_sets[exercise_work_sets.length - 1]
     const oldCount = exercisesOld.get(last_work_set.work_set_id)?.work_set_count as number
 
-    if (diff.work_set_count >= oldCount) {
+    if (diff.newValue >= oldCount) {
       return increaseWorkSets(diff, oldCount, last_work_set)
     } else {
       return decreaseWorkSets(diff, oldCount, exercise_work_sets)
@@ -217,16 +207,16 @@ export function useExercises(
       throw new Error("Internal error old row not found")
     }
 
-    const [diff, updateType, changeKey, newValue, oldValue, id] = tableDataDiff(newRow, oldRow)
+    const diff = tableDataDiff(newRow, oldRow)
     console.log("diff", diff)
 
-    if (!diff || !updateType) {
+    if (!diff) {
       return
     }
-    handlePromise(doUpdate(diff, updateType, id, newValue, oldValue, changeKey)).finally(() => {
-      console.log("here")
-    })
-    exercisesOld.set(newRow.work_set_id, deepClone(newRow))
+    handlePromise(doUpdate(diff)).finally(() =>
+      // TODO: remove later
+      exercisesOld.set(newRow.work_set_id, deepClone(newRow)),
+    )
   }
 
   async function handlePromise(promise: Promise<unknown>): Promise<unknown> {

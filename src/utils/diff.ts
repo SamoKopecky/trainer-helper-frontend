@@ -1,12 +1,4 @@
-import {
-  ExerciseUpdateType,
-  type Diff,
-  type ExerciseDiff,
-  type ExerciseTableData,
-  type GroupIdDiff,
-  type WorkSetCountDiff,
-  type WorkSetDiff,
-} from "@/types/exercise"
+import { ExerciseUpdateType, type Diff, type ExerciseTableData } from "@/types/exercise"
 
 const DATA_DIFF_MAP: Record<keyof ExerciseTableData, ExerciseUpdateType | null> = {
   note: ExerciseUpdateType.Exercise,
@@ -29,61 +21,35 @@ const UPDATE_TYPE_ID_MAP: Record<ExerciseUpdateType, keyof ExerciseTableData> = 
   GroupId: "exercise_id",
 }
 
-export function isWorkSetDiff(data: Diff): data is WorkSetDiff {
-  return "rpe" in data || "intensity" in data || "reps" in data
-}
-
-export function isExerciseDiff(data: Diff): data is ExerciseDiff {
-  return "note" in data || "exercise_type_id" in data
-}
-
-export function isGroupIdDiff(data: Diff): data is GroupIdDiff {
-  return "group_id" in data
-}
-
-export function isWorkSetCountDiff(data: Diff): data is WorkSetCountDiff {
-  return "work_set_count" in data
-}
-
-export function tableDataDiff<T extends Diff, G extends string | number | boolean | undefined>(
-  newObj: ExerciseTableData,
-  oldObj: ExerciseTableData,
-): [
-  T | null,
-  ExerciseUpdateType | null,
-  keyof ExerciseTableData | null,
-  newValue: G | null,
-  oldValue: G | null,
-  id: number | null,
-] {
-  const res: Partial<T> = {}
+export function tableDataDiff(newObj: ExerciseTableData, oldObj: ExerciseTableData): Diff | null {
+  let newValue: any | null = null
+  let oldValue: any | null = null
   let changedKey: keyof ExerciseTableData | null = null
 
   for (const key in newObj) {
     if (oldObj[key] !== newObj[key]) {
-      res[key as keyof T] = newObj[key]
+      newValue = newObj[key]
+      oldValue = oldObj[key]
       changedKey = key as keyof ExerciseTableData
       break
     }
   }
 
   if (!changedKey) {
-    return [null, null, null, null, null, null]
+    return null
   }
   const updateType = DATA_DIFF_MAP[changedKey]
 
   if (!updateType) {
-    return [null, null, null, null, null, null]
+    return null
   }
   const updateIdKey = UPDATE_TYPE_ID_MAP[updateType]
 
-  res.id = newObj[updateIdKey] as number
-  return [
-    res as T,
-    updateType,
-    changedKey,
-    newObj[changedKey] as G,
-    oldObj[changedKey] as G,
-    newObj[updateIdKey],
-  ]
+  return {
+    updateType: updateType,
+    oldValue: oldValue,
+    newValue: newValue,
+    changedKey: changedKey,
+    id: newObj[updateIdKey] as number,
+  }
 }

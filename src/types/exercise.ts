@@ -24,26 +24,11 @@ export enum ExerciseUpdateType {
 }
 
 export interface Diff {
+  updateType: ExerciseUpdateType
   id: number
-}
-
-export interface ExerciseDiff extends Diff {
-  note?: string
-  exercise_type: number | null
-}
-
-export interface WorkSetDiff extends Diff {
-  rpe?: number
-  intensity?: string
-  reps?: number
-}
-
-export interface GroupIdDiff extends Diff {
-  group_id?: number
-}
-
-export interface WorkSetCountDiff extends Diff {
-  work_set_count: number
+  newValue: any
+  oldValue: any
+  changedKey: keyof ExerciseTableData
 }
 
 export interface ExerciseTableData extends Omit<WorkSet, "id">, Omit<Exercise, "id"> {
