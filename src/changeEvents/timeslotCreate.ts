@@ -29,10 +29,9 @@ export class TimeslotCreateEvent implements ChangeEvent {
     this.subjectId = subjectId
   }
 
-  public async up() {
+  public async up(_initial: boolean) {
     return this.service
       .post({
-        // TODO: Adjust trainer ids and user ids, make colors based on user ids
         trainer_id: this.subjectId,
         start: getISODateString(this.timeslot.start),
         end: getISODateString(this.timeslot.end),

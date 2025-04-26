@@ -15,9 +15,9 @@ export class SingleExerciseTableUpdate implements ChangeEvent {
   private changedKey: keyof WorkSet
   private id: number
   private idKey: keyof ExerciseTableData
-  private oldValue: number | string
-  private newValue: number | string
-  private service: WorkSetService
+  private oldValue: DiffValue
+  private newValue: DiffValue
+  private service: WorkSetService | ExerciseService
   private exercises: ExerciseTableData[]
   private exercisesOld: Map<number, ExerciseTableData>
 
@@ -46,13 +46,11 @@ export class SingleExerciseTableUpdate implements ChangeEvent {
   }
 
   private adjustExercises(initial: boolean, changedValue: DiffValue) {
-    console.log(this.idKey)
     const newRow = this.exercises.find((etd) => etd[this.idKey] === this.id)
     if (!newRow) return Promise.reject(new Error("No row found for diff id"))
 
-    console.log("new", this.newValue, "old", this.oldValue, "change", changedValue)
     if (!initial) newRow[this.changedKey] = changedValue
-    this.exercisesOld.set(this.id, deepClone(newRow))
+    this.exercisesOld.set(newRow.work_set_id, deepClone(newRow))
   }
 
   private async adjustValue(initial: boolean, changedValue: DiffValue): Promise<void> {

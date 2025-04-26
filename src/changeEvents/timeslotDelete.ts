@@ -23,7 +23,7 @@ export class TimelostDeleteEvent implements ChangeEvent {
     this.eventsCopy = eventsCopy
   }
 
-  public async up() {
+  public async up(_initial: boolean) {
     return this.timeslotService.delete({ id: this.timeslot.id }).then(() => {
       this.eventsCopy.delete(this.timeslot.id)
       this.timeslot.delete(3)

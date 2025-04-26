@@ -25,6 +25,7 @@ import type { Ref } from "vue"
 import { TimeslotService } from "@/services/timeslots"
 import { SingleExerciseTableUpdate } from "@/changeEvents/singleExerciseTableUpdate"
 import type { ChangeEvent } from "@/changeEvents/base"
+import { GroupExerciseTableUpdate } from "@/changeEvents/groupExerciseTableUpdate"
 
 export function useExercises(
   timeslotId: number,
@@ -47,7 +48,10 @@ export function useExercises(
         addChangeEvent(new SingleExerciseTableUpdate(diff, exercises.value, exercisesOld))
         break
       case ExerciseUpdateType.GroupId:
-        return groupIdUpdate(diff as DiffNumber)
+        addChangeEvent(
+          new GroupExerciseTableUpdate(diff as DiffNumber, exercises.value, exercisesOld),
+        )
+        break
       case ExerciseUpdateType.WorkSetCount:
         return countUpdate(diff as DiffNumber)
       default:
@@ -113,7 +117,7 @@ export function useExercises(
     return exerciseService.put({ id: diff.id, group_id: diff.newValue }).then(() => {
       exercises.value
         .filter((e) => e.exercise_id === diff.id)
-        .forEach((e) => (e.group_id = diff.newValue as number))
+        .forEach((e) => (e.group_id = diff.newValue))
       exercises.value.sort((a, b) => sortRows(a, b))
     })
   }
@@ -203,7 +207,6 @@ export function useExercises(
     }
 
     const diff = tableDataDiff(newRow, oldRow)
-    console.log("diff", diff)
 
     if (!diff) {
       return
