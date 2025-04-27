@@ -10,7 +10,6 @@ import { ExerciseService, type FullExerciseResponse } from "@/services/exercise"
 import { ref } from "vue"
 import { onMounted } from "vue"
 import { timeslotToAppTimeslot } from "@/utils/tranformators"
-import { ExerciseDuplicateService } from "@/services/exerciseDuplicate"
 import { useUser } from "@/composables/useUser"
 import { useExerciseTypes } from "@/composables/useExerciseTypes"
 import { useExerciseTypeDialog } from "@/composables/useExerciseTypeDialog"
@@ -45,7 +44,6 @@ defineProps({
 const route = useRoute()
 const timeslotId = Number(route.params.id)
 const exerciseService = new ExerciseService()
-const exerciseDuplicateService = new ExerciseDuplicateService()
 const exerciseRes = ref<FullExerciseResponse | undefined>()
 const { isTrainer } = useUser()
 const isTableEditable = ref(false)
@@ -66,8 +64,8 @@ const { showDialog, selectedType, handleCreate, handleUpdate, isNew, addNew } =
 
 function duplicateTimeslot(duplicateFrom: number | undefined) {
   if (duplicateFrom) {
-    exerciseDuplicateService
-      .post({ copy_timeslot_id: duplicateFrom, timeslot_id: timeslotId })
+    exerciseService
+      .postDuplicate({ copy_timeslot_id: duplicateFrom, timeslot_id: timeslotId })
       .then((res) => {
         exerciseRes.value = res
       })

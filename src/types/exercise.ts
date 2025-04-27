@@ -29,12 +29,12 @@ export interface DiffString extends DiffBase {
 }
 
 export interface DiffNumber extends DiffBase {
-  newValue: number
-  oldValue: number
+  newValue: number | null
+  oldValue: number | null
 }
 
 export type Diff = DiffString | DiffNumber
-export type DiffValue = string | number
+export type DiffValue = string | number | null
 
 export interface DiffBase {
   id: number

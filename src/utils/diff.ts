@@ -45,7 +45,10 @@ export function tableDataDiff(newObj: ExerciseTableData, oldObj: ExerciseTableDa
   if (typeof idValue !== "number") return null
   const id: number = idValue
 
-  if (typeof newValue === "number" && typeof oldValue === "number") {
+  if (
+    (typeof newValue === "number" || newValue === null) &&
+    (typeof oldValue === "number" || oldValue === null)
+  ) {
     return {
       updateType: updateType,
       oldValue: oldValue,

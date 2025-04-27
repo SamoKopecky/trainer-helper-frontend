@@ -8,6 +8,10 @@ export interface TimeslotGetRequest {
   end_date: string
 }
 
+export interface TimeslotRevertPutRequest {
+  id: number
+}
+
 export interface TimeslotPostRequest {
   trainer_id: string
   start: string
@@ -42,10 +46,11 @@ export class TimeslotService extends ServiceI {
   }
 
   async get(body: TimeslotGetRequest): Promise<Timeslot[]> {
-    const requestUrl = new URL(this.get_api_url())
+    const requestUrl = new URL(this.get_api_url(Route.Timeslot))
     requestUrl.searchParams.append("start_date", body.start_date)
     requestUrl.searchParams.append("end_date", body.end_date)
     return this.handleRequest({
+      route: Route.Timeslot,
       method: Method.GET,
       toRes: this.parseTimeslots,
       url: requestUrl.toString(),
@@ -53,14 +58,26 @@ export class TimeslotService extends ServiceI {
   }
 
   async post(body: TimeslotPostRequest): Promise<Timeslot> {
-    return this.handleRequest({ method: Method.POST, body }) as Promise<Timeslot>
+    return this.handleRequest({
+      route: Route.Timeslot,
+      method: Method.POST,
+      body,
+    }) as Promise<Timeslot>
   }
 
   async put(body: TimeslotPutRequest): Promise<void> {
-    return this.handleRequest({ method: Method.PUT, body })
+    return this.handleRequest({ route: Route.Timeslot, method: Method.PUT, body })
   }
 
   async delete(body: TimeslotDeleteRequest): Promise<Timeslot> {
-    return this.handleRequest({ method: Method.DELETE, body }) as Promise<Timeslot>
+    return this.handleRequest({
+      route: Route.Timeslot,
+      method: Method.DELETE,
+      body,
+    }) as Promise<Timeslot>
+  }
+
+  async putRevert(body: TimeslotRevertPutRequest): Promise<void> {
+    return this.handleRequest({ body, method: Method.PUT, route: Route.TimeslotRevert })
   }
 }

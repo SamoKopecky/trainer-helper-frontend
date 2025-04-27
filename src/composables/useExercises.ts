@@ -10,7 +10,6 @@ import {
   type ExerciseResponse,
   type FullExerciseResponse,
 } from "@/services/exercise"
-import { ExerciseCountService } from "@/services/exerciseCount"
 import { tableDataDiff } from "@/utils/diff"
 import { sortRows } from "@/utils/exerciseTable"
 import {
@@ -36,7 +35,6 @@ export function useExercises(
   const workSetService = new WorkSetService()
   const exerciseService = new ExerciseService()
   const timeslotService = new TimeslotService()
-  const exerciseCountService = new ExerciseCountService()
 
   const exercises = ref<ExerciseTableData[]>([])
   const exercisesOld: Map<number, ExerciseTableData> = new Map()
@@ -64,6 +62,7 @@ export function useExercises(
     oldCount: number,
     exercise: ExerciseTableData,
   ): Promise<void> {
+    if (!diff.newValue) return
     const indexStart = exercises.value.indexOf(exercise) + 1
     const request = {
       count: diff.newValue - oldCount,
@@ -71,19 +70,19 @@ export function useExercises(
     }
 
     // This is kind of inneficient, can be reworked to be faster
-    return exerciseCountService.put(request).then((response) => {
+    return exerciseService.putCount(request).then((response) => {
       response.forEach((row, i) =>
         exercises.value.splice(
           indexStart + i,
           0,
-          mergeTableDataAndWorkSetModel(exercise, row, false, diff.newValue),
+          mergeTableDataAndWorkSetModel(exercise, row, false, diff.newValue!),
         ),
       )
       exercises.value
         .filter((row) => row.exercise_id === diff.id)
         .forEach((row) => {
-          row.work_set_count_display = diff.newValue
-          row.work_set_count = diff.newValue
+          row.work_set_count_display = diff.newValue!
+          row.work_set_count = diff.newValue!
           exercisesOld.set(row.work_set_id, deepClone(row))
         })
     })
@@ -94,9 +93,10 @@ export function useExercises(
     oldCount: number,
     exercise_work_sets: ExerciseTableData[],
   ): Promise<void> {
+    if (!diff.newValue) return
     const sorted = exercise_work_sets.sort((w) => w.work_set_id)
     const toRemoveIds = sorted.slice(0, oldCount - diff.newValue).map((w) => w.work_set_id)
-    return exerciseCountService.delete({ work_set_ids: toRemoveIds }).then((removed) => {
+    return exerciseService.deleteCount({ work_set_ids: toRemoveIds }).then((removed) => {
       if (toRemoveIds.length !== removed) {
         throw new Error(`Deleted ${removed} != ${toRemoveIds.length}`)
       }
@@ -106,14 +106,15 @@ export function useExercises(
       exercises.value
         .filter((row) => row.exercise_id === diff.id)
         .forEach((row) => {
-          row.work_set_count_display = diff.newValue
-          row.work_set_count = diff.newValue
+          row.work_set_count_display = diff.newValue!
+          row.work_set_count = diff.newValue!
           exercisesOld.set(row.work_set_id, deepClone(row))
         })
     })
   }
 
   async function countUpdate(diff: DiffNumber): Promise<void> {
+    if (!diff.newValue) return
     const exercise_work_sets = exercises.value.filter((e) => e.exercise_id === diff.id)
 
     if (exercise_work_sets.length === 0) {
@@ -197,8 +198,8 @@ export function useExercises(
       throw new Error("Internal error old row not found")
     }
 
-    console.log(newRow)
-    console.log(oldRow)
+    console.log(newRow.rpe)
+    console.log(oldRow.rpe)
     const diff = tableDataDiff(newRow, oldRow)
     console.log(diff)
 

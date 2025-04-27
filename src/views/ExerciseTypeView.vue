@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import DataTable from "@/components/DataTable.vue"
-import { ExerciseTypeDuplicateService } from "@/services/exerciseTypeDuplicate"
 import { type ExerciseType, type ExerciseTypeTableRow, MediaType } from "@/types/exerciseType"
 import type { ComputedRef } from "vue"
 import { computed } from "vue"
@@ -9,6 +8,7 @@ import ExerciseTypeDialog from "@/components/ExerciseTypeDialog.vue"
 import { useExerciseTypeDialog } from "@/composables/useExerciseTypeDialog"
 import { exerciseTypeToRow } from "@/utils/tranformators"
 import { useExerciseTypes } from "@/composables/useExerciseTypes"
+import { ExerciseTypeService } from "@/services/exerciseType"
 
 // Refs
 const headers = ref([
@@ -22,7 +22,7 @@ const headers = ref([
   { key: "mediaType", title: "Media Type" },
   { key: "id", align: " d-none" },
 ])
-const exerciseTypeDuplicateServise = new ExerciseTypeDuplicateService()
+const exerciseTypeService = new ExerciseTypeService()
 const loading = ref(false)
 const { exerciseTypes } = useExerciseTypes(loading)
 const tableExerciseTypes: ComputedRef<ExerciseTypeTableRow[]> = computed(() =>
@@ -39,8 +39,8 @@ function rowClick(row: { item: ExerciseType }) {
 }
 
 function initExerciseTypes() {
-  exerciseTypeDuplicateServise
-    .post()
+  exerciseTypeService
+    .postDuplicate()
     .then((res) => (exerciseTypes.value = exerciseTypes.value.concat(res)))
 }
 </script>

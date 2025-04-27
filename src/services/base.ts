@@ -22,10 +22,8 @@ export enum Method {
 }
 
 export abstract class ServiceI {
-  abstract route: Route
-
-  protected get_api_url() {
-    return `${API_BASE_URL}${this.route}`
+  protected get_api_url(route: Route) {
+    return `${API_BASE_URL}${route}`
   }
   protected get_headers() {
     return { "Content-Type": "application/json" }
@@ -36,14 +34,16 @@ export abstract class ServiceI {
     method,
     toRes = (obj) => obj as ResponseT,
     url,
+    route,
   }: {
     method: Method
     body?: RequestT
     toRes?: (obj: unknown) => ResponseT
     url?: string
+    route: Route
   }): Promise<ResponseT | void> {
     if (!url) {
-      url = this.get_api_url()
+      url = this.get_api_url(route)
     }
 
     const request: AxiosRequestConfig = {
