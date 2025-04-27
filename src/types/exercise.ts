@@ -24,8 +24,8 @@ export enum ExerciseUpdateType {
 }
 
 export interface DiffString extends DiffBase {
-  newValue: string
-  oldValue: string
+  newValue: string | null
+  oldValue: string | null
 }
 
 export interface DiffNumber extends DiffBase {

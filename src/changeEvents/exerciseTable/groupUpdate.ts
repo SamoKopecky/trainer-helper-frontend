@@ -1,6 +1,6 @@
 import { ExerciseService } from "@/services/exercise"
 import type { ExerciseTableData, DiffNumber } from "@/types/exercise"
-import type { ChangeEvent } from "./base"
+import type { ChangeEvent } from "../base"
 import { deepClone } from "@/utils/tranformators"
 import { sortRows } from "@/utils/exerciseTable"
 

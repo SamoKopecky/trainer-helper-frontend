@@ -4,63 +4,57 @@ import { watch } from "vue"
 import { ref } from "vue"
 
 class IndexPointer {
-  private index: number
+  private _index: number = -1
 
-  constructor() {
-    this.index = -1
+  public up(): void {
+    this._index++
   }
 
-  public up() {
-    this.index++
+  public down(): void {
+    if (this._index >= 0) this._index--
   }
 
-  public down() {
-    if (this.index >= 0) {
-      this.index--
-    }
-  }
-
-  public get() {
-    return this.index
+  public get index(): number {
+    return this._index
   }
 }
 
 export function useChangeEvents(addNotification: (text: string, type: NotificationType) => void) {
   const changeEvents = ref<ChangeEvent[]>([])
-  const currentEventIndex = ref<IndexPointer>(new IndexPointer())
+  const currentEventPointer = ref<IndexPointer>(new IndexPointer())
   const undoActive = ref(false)
   const redoActive = ref(false)
 
   function addChangeEvent(event: ChangeEvent) {
-    currentEventIndex.value.up()
-    changeEvents.value.splice(currentEventIndex.value.get(), 0, event)
+    currentEventPointer.value.up()
+    changeEvents.value.splice(currentEventPointer.value.index, 0, event)
     event.up(true).catch((error: Error) => {
       addNotification(error.message, "error")
     })
   }
 
   function undo() {
-    if (changeEvents.value.length === 0 || currentEventIndex.value.get() < 0) return
-    changeEvents.value[currentEventIndex.value.get()]?.down().catch((error: Error) => {
+    if (changeEvents.value.length === 0 || currentEventPointer.value.index < 0) return
+    changeEvents.value[currentEventPointer.value.index]?.down().catch((error: Error) => {
       addNotification(error.message, "error")
     })
-    currentEventIndex.value.down()
+    currentEventPointer.value.down()
   }
 
   function redo() {
     if (
       changeEvents.value.length === 0 ||
-      currentEventIndex.value.get() === changeEvents.value.length - 1
+      currentEventPointer.value.index === changeEvents.value.length - 1
     )
       return
-    currentEventIndex.value.up()
-    changeEvents.value[currentEventIndex.value.get()]?.up(false).catch((error: Error) => {
+    currentEventPointer.value.up()
+    changeEvents.value[currentEventPointer.value.index]?.up(false).catch((error: Error) => {
       addNotification(error.message, "error")
     })
   }
 
   watch(
-    () => currentEventIndex.value.get(),
+    () => currentEventPointer.value.index,
     (index) => {
       undoActive.value = index !== -1
       redoActive.value = index !== changeEvents.value.length - 1

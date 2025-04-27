@@ -6,7 +6,6 @@ export enum Route {
   Timeslot = "/timeslot",
   TimeslotRevert = "/timeslot/revert",
   WorkSet = "/workset",
-  WorkSets = "/worksets",
   Exercise = "/exercise",
   ExerciseCount = "/exercise/count",
   ExerciseDuplicate = "/exercise/duplicate",

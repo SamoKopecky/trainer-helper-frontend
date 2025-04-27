@@ -10,7 +10,6 @@ import {
   type ExerciseResponse,
   type FullExerciseResponse,
 } from "@/services/exercise"
-import { WorkSetsService } from "@/services/worksets"
 import { ExerciseCountService } from "@/services/exerciseCount"
 import { tableDataDiff } from "@/utils/diff"
 import { sortRows } from "@/utils/exerciseTable"
@@ -23,9 +22,10 @@ import {
 import type { NotificationType } from "@/types/other"
 import type { Ref } from "vue"
 import { TimeslotService } from "@/services/timeslots"
-import { SingleExerciseTableUpdate } from "@/changeEvents/singleExerciseTableUpdate"
+import { GroupExerciseTableUpdate } from "@/changeEvents/exerciseTable/groupUpdate"
+import { SingleExerciseTableUpdate } from "@/changeEvents/exerciseTable/singleUpdate"
 import type { ChangeEvent } from "@/changeEvents/base"
-import { GroupExerciseTableUpdate } from "@/changeEvents/groupExerciseTableUpdate"
+import { WorkSetService } from "@/services/worksets"
 
 export function useExercises(
   timeslotId: number,
@@ -33,7 +33,7 @@ export function useExercises(
   addNotification: (text: string, type: NotificationType) => void,
   addChangeEvent: (event: ChangeEvent) => void,
 ) {
-  const workSetsService = new WorkSetsService()
+  const workSetService = new WorkSetService()
   const exerciseService = new ExerciseService()
   const timeslotService = new TimeslotService()
   const exerciseCountService = new ExerciseCountService()
@@ -177,7 +177,7 @@ export function useExercises(
     })
 
     handleError(
-      workSetsService.put(
+      workSetService.putMany(
         changedWorkSets.map((ws) => {
           const wsType = tableDataToWorkSet(ws)
           return {
@@ -197,7 +197,10 @@ export function useExercises(
       throw new Error("Internal error old row not found")
     }
 
+    console.log(newRow)
+    console.log(oldRow)
     const diff = tableDataDiff(newRow, oldRow)
+    console.log(diff)
 
     if (!diff) {
       return

@@ -35,7 +35,7 @@ export function tableDataDiff(newObj: ExerciseTableData, oldObj: ExerciseTableDa
     }
   }
 
-  if (!changedKey || !newValue || !oldValue) return null
+  if (!changedKey) return null
   const updateType = DATA_DIFF_MAP[changedKey]
 
   if (!updateType) return null
@@ -54,7 +54,10 @@ export function tableDataDiff(newObj: ExerciseTableData, oldObj: ExerciseTableDa
       id: id,
       idKey: updateIdKey,
     }
-  } else if (typeof newValue === "string" && typeof oldValue === "string") {
+  } else if (
+    (typeof newValue === "string" || newValue === null) &&
+    (typeof oldValue === "string" || oldValue === null)
+  ) {
     return {
       updateType: updateType,
       oldValue: oldValue,
