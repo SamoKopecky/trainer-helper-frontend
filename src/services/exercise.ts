@@ -33,12 +33,16 @@ export interface ExercisePostRequest {
 }
 
 export interface ExerciseDeleteRequest {
-  timeslot_id: number
   exercise_id: number
 }
+
 export interface ExerciseDuplicatePostRequest {
   copy_timeslot_id: number
   timeslot_id: number
+}
+
+export interface ExerciseUndeletePostRequest {
+  id: number
 }
 
 export class ExerciseService extends ServiceI {
@@ -88,5 +92,13 @@ export class ExerciseService extends ServiceI {
       method: Method.POST,
       route: Route.ExerciseDuplicate,
     }) as Promise<FullExerciseResponse>
+  }
+
+  async postUndelete(body: ExerciseUndeletePostRequest): Promise<void> {
+    return this.handleRequest({
+      body,
+      method: Method.POST,
+      route: Route.ExerciseUndelete,
+    }) as Promise<void>
   }
 }

@@ -36,6 +36,7 @@ export function useChangeEvents(addNotification: (text: string, type: Notificati
   function undo() {
     if (changeEvents.value.length === 0 || currentEventPointer.value.index < 0) return
     changeEvents.value[currentEventPointer.value.index]?.down().catch((error: Error) => {
+      console.log(error)
       addNotification(error.message, "error")
     })
     currentEventPointer.value.down()

@@ -4,9 +4,10 @@ import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from "
 
 export enum Route {
   Timeslot = "/timeslot",
-  TimeslotRevert = "/timeslot/revert",
+  TimeslotUndelete = "/timeslot/undelete",
   WorkSet = "/workset",
   Exercise = "/exercise",
+  ExerciseUndelete = "/exercise/undelete",
   ExerciseCount = "/exercise/count",
   ExerciseDuplicate = "/exercise/duplicate",
   User = "/user",

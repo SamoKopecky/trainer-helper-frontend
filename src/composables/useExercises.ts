@@ -25,6 +25,7 @@ import { GroupExerciseTableUpdate } from "@/changeEvents/exerciseTable/groupUpda
 import { SingleExerciseTableUpdate } from "@/changeEvents/exerciseTable/singleUpdate"
 import type { ChangeEvent } from "@/changeEvents/base"
 import { WorkSetService } from "@/services/worksets"
+import { ExerciseExerciseTableDelete } from "@/changeEvents/exerciseTable/exerciseDelete"
 
 export function useExercises(
   timeslotId: number,
@@ -161,11 +162,7 @@ export function useExercises(
   }
 
   function deleteExercise(exerciseId: number) {
-    handleError(
-      exerciseService.delete({ exercise_id: exerciseId, timeslot_id: timeslotId }).then(() => {
-        exercises.value = exercises.value.filter((e) => e.exercise_id !== exerciseId)
-      }),
-    )
+    addChangeEvent(new ExerciseExerciseTableDelete(exerciseId, exercises.value, exercisesOld))
   }
 
   // TODO: Use key as type
@@ -198,10 +195,7 @@ export function useExercises(
       throw new Error("Internal error old row not found")
     }
 
-    console.log(newRow.rpe)
-    console.log(oldRow.rpe)
     const diff = tableDataDiff(newRow, oldRow)
-    console.log(diff)
 
     if (!diff) {
       return

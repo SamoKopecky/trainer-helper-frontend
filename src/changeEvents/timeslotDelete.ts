@@ -29,7 +29,7 @@ export class TimelostDeleteEvent implements ChangeEvent {
 
   public async down() {
     return this.timeslotService
-      .putRevert({
+      .postUndelete({
         id: this.timeslot.id,
       })
       .then(() => {

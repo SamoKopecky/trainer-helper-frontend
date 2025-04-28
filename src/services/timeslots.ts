@@ -8,7 +8,7 @@ export interface TimeslotGetRequest {
   end_date: string
 }
 
-export interface TimeslotRevertPutRequest {
+export interface TimeslotUndeletePostRequest {
   id: number
 }
 
@@ -77,7 +77,7 @@ export class TimeslotService extends ServiceI {
     }) as Promise<Timeslot>
   }
 
-  async putRevert(body: TimeslotRevertPutRequest): Promise<void> {
-    return this.handleRequest({ body, method: Method.PUT, route: Route.TimeslotRevert })
+  async postUndelete(body: TimeslotUndeletePostRequest): Promise<void> {
+    return this.handleRequest({ body, method: Method.POST, route: Route.TimeslotUndelete })
   }
 }
