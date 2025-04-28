@@ -1,28 +1,26 @@
-import { ExerciseService } from "@/services/exercise"
-import type { ExerciseTableData, DiffNumber, DiffValue } from "@/types/exercise"
+import type { ExerciseTableData, DiffNumber } from "@/types/exercise"
 import type { ChangeEvent } from "../base"
 import { deepClone } from "@/utils/tranformators"
 import { sortRows } from "@/utils/exerciseTable"
+import { ExerciseBase } from "./exerciseBase"
+import { ExerciseService } from "@/services/exercise"
 
-export class GroupExerciseTableUpdate implements ChangeEvent {
+export class GroupExerciseTableUpdate extends ExerciseBase implements ChangeEvent {
   private id: number
   private oldValue: number | null
   private newValue: number | null
   private service: ExerciseService
-  private exercises: ExerciseTableData[]
-  private exercisesOld: Map<number, ExerciseTableData>
 
   constructor(
     diff: DiffNumber,
     exercises: ExerciseTableData[],
     exercisesOld: Map<number, ExerciseTableData>,
   ) {
-    this.service = new ExerciseService()
+    super(exercises, exercisesOld)
     this.id = diff.id
     this.newValue = diff.newValue
     this.oldValue = diff.oldValue
-    this.exercises = exercises
-    this.exercisesOld = exercisesOld
+    this.service = new ExerciseService()
   }
 
   private adjustValue(changedValue: number | null) {

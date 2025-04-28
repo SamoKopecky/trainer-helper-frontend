@@ -1,25 +1,23 @@
-import { ExerciseService } from "@/services/exercise"
 import type { ExerciseTableData } from "@/types/exercise"
 import type { ChangeEvent } from "../base"
 import { sortRows } from "@/utils/exerciseTable"
 import { deepClone } from "@/utils/tranformators"
+import { ExerciseBase } from "./exerciseBase"
+import { ExerciseService } from "@/services/exercise"
 
-export class ExerciseExerciseTableDelete implements ChangeEvent {
+export class ExerciseExerciseTableDelete extends ExerciseBase implements ChangeEvent {
   private exerciseId: number
   private deletedExercises: ExerciseTableData[] = []
   private service: ExerciseService
-  private exercises: ExerciseTableData[]
-  private exercisesOld: Map<number, ExerciseTableData>
 
   constructor(
     exericseId: number,
     exercises: ExerciseTableData[],
     exercisesOld: Map<number, ExerciseTableData>,
   ) {
-    this.service = new ExerciseService()
+    super(exercises, exercisesOld)
     this.exerciseId = exericseId
-    this.exercises = exercises
-    this.exercisesOld = exercisesOld
+    this.service = new ExerciseService()
   }
 
   async up(_initial: boolean): Promise<void> {

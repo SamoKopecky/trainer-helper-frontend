@@ -10,22 +10,22 @@ import {
 } from "@/types/exercise"
 import { deepClone } from "@/utils/tranformators"
 import { ExerciseService, type ExercisePutRequest } from "@/services/exercise"
+import { ExerciseBase } from "./exerciseBase"
 
-export class SingleExerciseTableUpdate implements ChangeEvent {
+export class SingleExerciseTableUpdate extends ExerciseBase implements ChangeEvent {
   private changedKey: keyof WorkSet
   private id: number
   private idKey: keyof ExerciseTableData
   private oldValue: DiffValue
   private newValue: DiffValue
   private service: WorkSetService | ExerciseService
-  private exercises: ExerciseTableData[]
-  private exercisesOld: Map<number, ExerciseTableData>
 
   constructor(
     diff: Diff,
     exercises: ExerciseTableData[],
     exercisesOld: Map<number, ExerciseTableData>,
   ) {
+    super(exercises, exercisesOld)
     switch (diff.updateType) {
       case ExerciseUpdateType.WorkSet:
         this.service = new WorkSetService()
@@ -41,8 +41,6 @@ export class SingleExerciseTableUpdate implements ChangeEvent {
     this.changedKey = diff.changedKey as keyof WorkSet
     this.newValue = diff.newValue
     this.oldValue = diff.oldValue
-    this.exercises = exercises
-    this.exercisesOld = exercisesOld
   }
 
   private adjustExercises(initial: boolean, changedValue: DiffValue) {
