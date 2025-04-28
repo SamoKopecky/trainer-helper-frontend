@@ -26,6 +26,7 @@ import { SingleExerciseTableUpdate } from "@/changeEvents/exerciseTable/singleUp
 import type { ChangeEvent } from "@/changeEvents/base"
 import { WorkSetService } from "@/services/worksets"
 import { ExerciseExerciseTableDelete } from "@/changeEvents/exerciseTable/exerciseDelete"
+import { CopyWorkSetExerciseTable } from "@/changeEvents/exerciseTable/copyWorkSet"
 
 export function useExercises(
   timeslotId: number,
@@ -165,28 +166,8 @@ export function useExercises(
     addChangeEvent(new ExerciseExerciseTableDelete(exerciseId, exercises.value, exercisesOld))
   }
 
-  // TODO: Use key as type
   function copyWorkSet(row: ExerciseTableData, key: string) {
-    const changedWorkSets = exercises.value.filter((e) => e.exercise_id === row.exercise_id)
-
-    changedWorkSets.forEach((e) => {
-      e[key] = row[key]
-      exercisesOld.set(e.work_set_id, deepClone(e))
-    })
-
-    handleError(
-      workSetService.putMany(
-        changedWorkSets.map((ws) => {
-          const wsType = tableDataToWorkSet(ws)
-          return {
-            id: wsType.id,
-            intensity: wsType.intensity,
-            reps: wsType.reps,
-            rpe: wsType.rpe,
-          }
-        }),
-      ),
-    )
+    addChangeEvent(new CopyWorkSetExerciseTable(row, key, exercises.value, exercisesOld))
   }
 
   function updateTable(newRow: ExerciseTableData) {

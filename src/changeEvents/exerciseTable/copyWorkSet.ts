@@ -7,6 +7,7 @@ import { deepClone, tableDataToWorkSet } from "@/utils/tranformators"
 export class CopyWorkSetExerciseTable extends ExerciseBase implements ChangeEvent {
   private row: ExerciseTableData
   private rowKey: string
+  private previousExercises: Map<number, ExerciseTableData> = new Map()
   private service: WorkSetService
 
   constructor(
@@ -20,26 +21,44 @@ export class CopyWorkSetExerciseTable extends ExerciseBase implements ChangeEven
     this.rowKey = rowKey
     this.service = new WorkSetService()
   }
-  async up(_initial: boolean): Promise<void> {
-    const changedWorkSets = this.exercises.filter((e) => e.exercise_id === this.row.exercise_id)
 
-    changedWorkSets.forEach((e) => {
-      e[key] = row[key]
-      exercisesOld.set(e.work_set_id, deepClone(e))
-    })
-
-    this.service.putMany(
-      changedWorkSets.map((ws) => {
-        const wsType = tableDataToWorkSet(ws)
+  private callApi(exercises: ExerciseTableData[]): Promise<void> {
+    return this.service.putMany(
+      exercises.map((e) => {
+        const ws = tableDataToWorkSet(e)
         return {
-          id: wsType.id,
-          intensity: wsType.intensity,
-          reps: wsType.reps,
-          rpe: wsType.rpe,
+          id: ws.id,
+          intensity: ws.intensity,
+          reps: ws.reps,
+          rpe: ws.rpe,
         }
       }),
     )
   }
 
-  async down(): Promise<void> {}
+  async up(_initial: boolean): Promise<void> {
+    const newExercises: ExerciseTableData[] = []
+    this.exercises.forEach((e) => {
+      if (e.exercise_id === this.row.exercise_id) {
+        this.previousExercises.set(e.work_set_id, deepClone(e))
+
+        e[this.rowKey] = this.row[this.rowKey]
+        this.exercisesOld.set(e.work_set_id, deepClone(e))
+        newExercises.push(e)
+      }
+    })
+
+    return this.callApi(newExercises)
+  }
+
+  async down(): Promise<void> {
+    this.exercises.forEach((e) => {
+      if (e.exercise_id === this.row.exercise_id) {
+        e[this.rowKey] = this.previousExercises.get(e.work_set_id)![this.rowKey]
+        this.exercisesOld.set(e.work_set_id, deepClone(e))
+      }
+    })
+
+    return this.callApi(Array.from(this.previousExercises.values()))
+  }
 }
