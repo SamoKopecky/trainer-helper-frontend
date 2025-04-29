@@ -2,10 +2,10 @@ import type { ExerciseTableData } from "@/types/exercise"
 import type { ChangeEvent } from "../base"
 import { sortRows } from "@/utils/exerciseTable"
 import { deepClone } from "@/utils/tranformators"
-import { ExerciseBase } from "./exerciseBase"
+import { ExerciseUpdate } from "./exerciseBase"
 import { ExerciseService } from "@/services/exercise"
 
-export class ExerciseExerciseTableDelete extends ExerciseBase implements ChangeEvent {
+export class ExerciseExerciseTableDelete extends ExerciseUpdate implements ChangeEvent {
   private exerciseId: number
   private deletedExercises: ExerciseTableData[] = []
   private service: ExerciseService

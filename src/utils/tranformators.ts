@@ -41,8 +41,6 @@ export function tableDataToWorkSet(data: ExerciseTableData): WorkSet {
 export function mergeTableDataAndWorkSetModel(
   tableRow: ExerciseTableData,
   work_set: WorkSet,
-  is_main: boolean,
-  count: number,
 ): ExerciseTableData {
   return {
     exercise_id: work_set.exercise_id,
@@ -53,9 +51,9 @@ export function mergeTableDataAndWorkSetModel(
     note: tableRow.note,
     group_id: tableRow.group_id,
     exercise_type_id: tableRow.exercise_type_id,
-    is_main: is_main,
-    work_set_count: count,
-    work_set_count_display: count,
+    is_main: false,
+    work_set_count: tableRow.work_set_count,
+    work_set_count_display: tableRow.work_set_count_display,
   }
 }
 

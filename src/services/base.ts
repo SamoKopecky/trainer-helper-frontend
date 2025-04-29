@@ -6,6 +6,7 @@ export enum Route {
   Timeslot = "/timeslot",
   TimeslotUndelete = "/timeslot/undelete",
   WorkSet = "/workset",
+  WorkSetUndelete = "/workset/undelete",
   Exercise = "/exercise",
   ExerciseUndelete = "/exercise/undelete",
   ExerciseCount = "/exercise/count",

@@ -2,10 +2,10 @@ import type { ExerciseTableData, DiffNumber } from "@/types/exercise"
 import type { ChangeEvent } from "../base"
 import { deepClone } from "@/utils/tranformators"
 import { sortRows } from "@/utils/exerciseTable"
-import { ExerciseBase } from "./exerciseBase"
+import { ExerciseUpdate } from "./exerciseBase"
 import { ExerciseService } from "@/services/exercise"
 
-export class GroupExerciseTableUpdate extends ExerciseBase implements ChangeEvent {
+export class GroupExerciseTableUpdate extends ExerciseUpdate implements ChangeEvent {
   private id: number
   private oldValue: number | null
   private newValue: number | null

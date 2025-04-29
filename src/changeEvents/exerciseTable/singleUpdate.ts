@@ -10,9 +10,9 @@ import {
 } from "@/types/exercise"
 import { deepClone } from "@/utils/tranformators"
 import { ExerciseService, type ExercisePutRequest } from "@/services/exercise"
-import { ExerciseBase } from "./exerciseBase"
+import { ExerciseUpdate } from "./exerciseBase"
 
-export class SingleExerciseTableUpdate extends ExerciseBase implements ChangeEvent {
+export class SingleExerciseTableUpdate extends ExerciseUpdate implements ChangeEvent {
   private changedKey: keyof WorkSet
   private id: number
   private idKey: keyof ExerciseTableData

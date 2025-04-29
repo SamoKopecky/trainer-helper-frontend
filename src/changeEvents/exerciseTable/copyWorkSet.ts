@@ -1,10 +1,10 @@
 import type { ExerciseTableData } from "@/types/exercise"
 import type { ChangeEvent } from "../base"
-import { ExerciseBase } from "./exerciseBase"
+import { ExerciseUpdate } from "./exerciseBase"
 import { WorkSetService } from "@/services/worksets"
 import { deepClone, tableDataToWorkSet } from "@/utils/tranformators"
 
-export class CopyWorkSetExerciseTable extends ExerciseBase implements ChangeEvent {
+export class CopyWorkSetExerciseTableUpdate extends ExerciseUpdate implements ChangeEvent {
   private row: ExerciseTableData
   private rowKey: string
   private previousExercises: Map<number, ExerciseTableData> = new Map()

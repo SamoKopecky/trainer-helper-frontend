@@ -1,6 +1,6 @@
 import type { ExerciseTableData } from "@/types/exercise"
 
-export class ExerciseBase {
+export class ExerciseUpdate {
   protected exercises: ExerciseTableData[]
   protected exercisesOld: Map<number, ExerciseTableData>
 
