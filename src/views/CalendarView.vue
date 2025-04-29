@@ -9,9 +9,10 @@ import { useUser } from "@/composables/useUser"
 import { useTheme } from "vuetify"
 import { useNotifications } from "@/composables/useNotifications"
 import NotificationFloat from "@/components/NotificationFloat.vue"
+import ChangeEventBar from "@/components/ChangeEventBar.vue"
 
 const { notifications, addNotification } = useNotifications()
-const { addChangeEvent, popChangeEvent, undoActive } = useChangeEvents(addNotification)
+const { addChangeEvent, undo, redo, undoActive } = useChangeEvents(addNotification)
 const { showDialog, selectedEvent } = useEventDialog()
 const {
   events,
@@ -28,12 +29,8 @@ const theme = useTheme()
 
 <template>
   <NotificationFloat :notifications="notifications" />
-  <v-btn
-    text="Undo previous action"
-    @click="popChangeEvent"
-    style="margin: 10px"
-    :disabled="!undoActive"
-  />
+  <!-- TODO: Adjust change events for calendar -->
+  <ChangeEventBar :is-undo-active="undoActive" :is-redo-active="false" @undo="undo" @redo="redo" />
   <VueCal
     :dark="theme.global.current.value.dark"
     style="height: 100%"

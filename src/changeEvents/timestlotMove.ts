@@ -29,7 +29,7 @@ export class TimeslotMoveEvent implements ChangeEvent {
     }
   }
 
-  async up(): Promise<void> {
+  async up(_initial: boolean): Promise<void> {
     return this.service.put(this.generateUpdatePayload(this.newTimeslot)).then(() => {
       const oldTimeslot = this.eventsCopy.get(this.newTimeslot.id)
       if (!oldTimeslot) {

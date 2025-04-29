@@ -7,18 +7,22 @@ export interface WorkSetPutRequest {
   rpe?: number
 }
 
+export interface WorkSetPostUndeleteRequest {
+  ids: number[]
+}
+
 export class WorkSetService extends ServiceI {
   route = Route.WorkSet
 
   async put(body: WorkSetPutRequest): Promise<void> {
-    return this.handleRequest({ body, method: Method.PUT })
+    return this.handleRequest({ body: [body], method: Method.PUT, route: Route.WorkSet })
   }
-}
 
-export class WorkSetsService extends ServiceI {
-  route = Route.WorkSets
+  async putMany(body: WorkSetPutRequest[]): Promise<void> {
+    return this.handleRequest({ body, method: Method.PUT, route: Route.WorkSet })
+  }
 
-  async put(body: WorkSetPutRequest[]): Promise<void> {
-    return this.handleRequest({ body, method: Method.PUT })
+  async undeleteMany(body: WorkSetPostUndeleteRequest): Promise<void> {
+    return this.handleRequest({ body, method: Method.POST, route: Route.WorkSetUndelete })
   }
 }

@@ -1,4 +1,4 @@
 export interface ChangeEvent {
-  up(): Promise<void>
+  up(initial: boolean): Promise<void>
   down(): Promise<void>
 }
