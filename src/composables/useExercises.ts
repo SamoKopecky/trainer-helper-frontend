@@ -1,9 +1,4 @@
-import {
-  deepClone,
-  mergeTableDataAndWorkSetModel,
-  responseToTableData,
-  tableDataToWorkSet,
-} from "@/utils/tranformators"
+import { deepClone, responseToTableData } from "@/utils/tranformators"
 import { ref, watch } from "vue"
 import {
   ExerciseService,
