@@ -4,6 +4,7 @@ import type { ExerciseTableData } from "@/types/exercise"
 import type { ExerciseType, ExerciseTypeTableRow } from "@/types/exerciseType"
 import type { Timeslot, WorkSet } from "@/types/other"
 import { getTimeslotUserName } from "./user"
+import type { Block, BlockMap, BlockValue, Week } from "@/types/block"
 
 export function deepClone(obj: unknown) {
   return JSON.parse(JSON.stringify(obj))
@@ -77,4 +78,23 @@ export function exerciseTypeToRow(exerciseType: ExerciseType): ExerciseTypeTable
     hasMediaVal: hasMedia ? "Yes" : "No",
     id: exerciseType.id,
   }
+}
+
+export function blocksToMap(blocks: Block[]): BlockMap {
+  const blocksMap: BlockMap = new Map()
+  blocks.forEach((b) => {
+    const weeksMap: Map<number, Week> = new Map()
+    b.weeks.forEach((w) => {
+      weeksMap.set(w.label, w)
+    })
+
+    const blockValue: BlockValue = {
+      label: b.label,
+      weeks: weeksMap,
+      user_id: b.user_id,
+      id: b.id,
+    }
+    blocksMap.set(b.label, blockValue)
+  })
+  return blocksMap
 }

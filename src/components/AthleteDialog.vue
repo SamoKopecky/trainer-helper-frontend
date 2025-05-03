@@ -3,6 +3,7 @@ import type { User } from "@/types/user"
 import { watchDebounced } from "@vueuse/core"
 import { useTemplateRef, watchEffect } from "vue"
 import { ref, watch, type PropType } from "vue"
+import BlocksView from "@/components/BlocksView.vue"
 
 const props = defineProps({
   modelValue: {
@@ -72,6 +73,7 @@ function unregisterUser() {
           prepend-inner-icon="mdi-account"
         />
         <v-btn color="red-darken-1" @click="unregisterUser">Unregister user</v-btn>
+        <BlocksView :user-id="user!.id" class="mu-3" />
       </v-card-text>
       <v-card-actions>
         <v-btn color="grey-darken-1" variant="text" @click="exitButton">Exit</v-btn>

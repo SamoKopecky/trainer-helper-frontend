@@ -1,0 +1,74 @@
+<script setup lang="ts">
+import { BlockService } from "@/services/block"
+import type { BlockMap } from "@/types/block"
+import { blocksToMap } from "@/utils/tranformators"
+import { onUpdated } from "vue"
+import { onMounted } from "vue"
+import { ref } from "vue"
+
+const { userId } = defineProps({
+  userId: {
+    type: String,
+    required: true,
+  },
+})
+
+const service = new BlockService()
+const blocksMap = ref<BlockMap>()
+// TODO: Set default depedning on todays date after we get blocks data
+const blockRef = ref<number>(1)
+const weekRef = ref<number>(1)
+
+onMounted(() => {
+  console.log(userId)
+  service.get({ user_id: userId }).then((res) => (blocksMap.value = blocksToMap(res)))
+})
+
+onUpdated(() => {
+  console.log("block: ", blockRef.value)
+  console.log("week: ", weekRef.value)
+})
+</script>
+
+<template>
+  <div>
+    <!-- Blocks -->
+    <span class="text-subtitle-1 font-weight-medium"> Block </span>
+    <v-spacer />
+    <v-btn-toggle mandatory variant="outlined" divided v-model="blockRef">
+      <v-btn
+        size="large"
+        v-for="block in blocksMap?.values()"
+        :key="block.id"
+        :text="block.label.toString()"
+        :value="block.label"
+      />
+    </v-btn-toggle>
+    <v-btn icon="mdi-plus" class="ml-2" size="small"></v-btn>
+    <v-btn icon="mdi-minus" class="ml-2" size="small"></v-btn>
+
+    <v-spacer />
+
+    <!-- Weeks -->
+    <span class="text-subtitle-1 font-weight-medium"> Week </span>
+    <v-spacer />
+
+    <v-btn-toggle mandatory variant="outlined" divided v-model="weekRef">
+      <v-btn
+        size="large"
+        v-for="week in blocksMap?.get(blockRef!)?.weeks.values()"
+        :key="week.id"
+        :text="week.label.toString()"
+        :value="week.label"
+      />
+    </v-btn-toggle>
+    <v-btn icon="mdi-plus" class="ml-2" size="small"></v-btn>
+    <v-btn icon="mdi-minus" class="ml-2" size="small"></v-btn>
+
+    <v-spacer />
+
+    <!-- Week Days -->
+    <!-- Use v-menu here -->
+    <v-date-picker></v-date-picker>
+  </div>
+</template>
