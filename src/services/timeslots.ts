@@ -27,12 +27,12 @@ export interface TimeslotPutRequest {
   deleted_at?: string
 }
 
-export interface TimeslotDeleteRequest {
+export interface TimeslotDeletePathParams {
   id: number
 }
 
 export class TimeslotService extends ServiceI {
-  route = Route.Timeslot
+  route = Route.Timeslots
 
   private parseTimeslots(obj: unknown): Timeslot[] {
     if (!isArray(obj)) {
@@ -46,11 +46,11 @@ export class TimeslotService extends ServiceI {
   }
 
   async get(body: TimeslotGetRequest): Promise<Timeslot[]> {
-    const requestUrl = new URL(this.get_api_url(Route.Timeslot))
+    const requestUrl = new URL(this.get_api_url(Route.Timeslots))
     requestUrl.searchParams.append("start_date", body.start_date)
     requestUrl.searchParams.append("end_date", body.end_date)
     return this.handleRequest({
-      route: Route.Timeslot,
+      route: Route.Timeslots,
       method: Method.GET,
       toRes: this.parseTimeslots,
       url: requestUrl.toString(),
@@ -59,25 +59,33 @@ export class TimeslotService extends ServiceI {
 
   async post(body: TimeslotPostRequest): Promise<Timeslot> {
     return this.handleRequest({
-      route: Route.Timeslot,
+      route: Route.Timeslots,
       method: Method.POST,
-      body,
+      jsonParams: body,
     }) as Promise<Timeslot>
   }
 
   async put(body: TimeslotPutRequest): Promise<void> {
-    return this.handleRequest({ route: Route.Timeslot, method: Method.PUT, body })
+    return this.handleRequest({
+      route: Route.Timeslots,
+      method: Method.PUT,
+      jsonParams: body,
+    }) as Promise<void>
   }
 
-  async delete(body: TimeslotDeleteRequest): Promise<Timeslot> {
+  async delete(pathParams: TimeslotDeletePathParams): Promise<Timeslot> {
     return this.handleRequest({
-      route: Route.Timeslot,
+      route: Route.TimeslotsId,
       method: Method.DELETE,
-      body,
+      pathParams,
     }) as Promise<Timeslot>
   }
 
   async postUndelete(body: TimeslotUndeletePostRequest): Promise<void> {
-    return this.handleRequest({ body, method: Method.POST, route: Route.TimeslotUndelete })
+    return this.handleRequest({
+      jsonParams: body,
+      method: Method.POST,
+      route: Route.TimeslotsUndelete,
+    }) as Promise<void>
   }
 }

@@ -18,36 +18,36 @@ export interface ExerciseTypePutRequest extends ExerciseTypeUpdate {
 }
 
 export class ExerciseTypeService extends ServiceI {
-  route = Route.ExerciseType
+  route = Route.ExerciseTypes
 
   async get(body: ExerciseTypeGetRequest): Promise<ExerciseType[]> {
-    const requestUrl = new URL(this.get_api_url(Route.ExerciseType))
+    const requestUrl = new URL(this.get_api_url(Route.ExerciseTypes))
     requestUrl.searchParams.append("user_id", body.user_id)
     return this.handleRequest({
-      route: Route.ExerciseType,
+      route: Route.ExerciseTypes,
       method: Method.GET,
       url: requestUrl.toString(),
     }) as Promise<ExerciseType[]>
   }
   async post(body: ExerciseTypePostRequest): Promise<ExerciseType> {
     return this.handleRequest({
-      route: Route.ExerciseType,
-      body: body,
+      route: Route.ExerciseTypes,
+      jsonParams: body,
       method: Method.POST,
     }) as Promise<ExerciseType>
   }
 
   async put(body: ExerciseTypePutRequest): Promise<void> {
     return this.handleRequest({
-      route: Route.ExerciseType,
-      body: body,
+      route: Route.ExerciseTypes,
+      jsonParams: body,
       method: Method.PUT,
     }) as Promise<void>
   }
 
   async postDuplicate(): Promise<ExerciseType[]> {
     return this.handleRequest({
-      route: Route.ExerciseTypeDuplicate,
+      route: Route.ExerciseTypesDuplicate,
       method: Method.POST,
     }) as Promise<ExerciseType[]>
   }

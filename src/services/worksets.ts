@@ -12,17 +12,29 @@ export interface WorkSetPostUndeleteRequest {
 }
 
 export class WorkSetService extends ServiceI {
-  route = Route.WorkSet
+  route = Route.WorkSets
 
-  async put(body: WorkSetPutRequest): Promise<void> {
-    return this.handleRequest({ body: [body], method: Method.PUT, route: Route.WorkSet })
+  async put(jsonParams: WorkSetPutRequest): Promise<void> {
+    return this.handleRequest({
+      jsonParams: [jsonParams],
+      method: Method.PUT,
+      route: Route.WorkSets,
+    }) as Promise<void>
   }
 
-  async putMany(body: WorkSetPutRequest[]): Promise<void> {
-    return this.handleRequest({ body, method: Method.PUT, route: Route.WorkSet })
+  async putMany(jsonParams: WorkSetPutRequest[]): Promise<void> {
+    return this.handleRequest({
+      jsonParams: jsonParams,
+      method: Method.PUT,
+      route: Route.WorkSets,
+    }) as Promise<void>
   }
 
-  async undeleteMany(body: WorkSetPostUndeleteRequest): Promise<void> {
-    return this.handleRequest({ body, method: Method.POST, route: Route.WorkSetUndelete })
+  async undeleteMany(jsonParams: WorkSetPostUndeleteRequest): Promise<void> {
+    return this.handleRequest({
+      jsonParams: jsonParams,
+      method: Method.POST,
+      route: Route.WorkSetsUndelete,
+    }) as Promise<void>
   }
 }

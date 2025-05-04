@@ -1,20 +1,21 @@
-const API_BASE_URL = import.meta.env.VITE_APP_BACKEND ?? "http://localhost:2001"
 import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
 import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios"
 
+const API_BASE_URL = import.meta.env.VITE_APP_BACKEND ?? "http://localhost:2001"
 export enum Route {
-  Timeslot = "/timeslot",
-  TimeslotUndelete = "/timeslot/undelete",
-  WorkSet = "/workset",
-  WorkSetUndelete = "/workset/undelete",
-  Exercise = "/exercise",
-  ExerciseUndelete = "/exercise/undelete",
-  ExerciseCount = "/exercise/count",
-  ExerciseDuplicate = "/exercise/duplicate",
-  User = "/user",
-  ExerciseType = "/exerciseType",
-  ExerciseTypeDuplicate = "/exerciseType/duplicate",
-  Block = "/block",
+  Timeslots = "/timeslots",
+  TimeslotsId = `${Route.Timeslots}/:id`,
+  TimeslotsUndelete = `${Route.Timeslots}/undelete`,
+  WorkSets = "/work-sets",
+  WorkSetsUndelete = `${Route.WorkSets}/undelete`,
+  Exercises = "/exercises",
+  ExercisesUndelete = `${Route.Exercises}/undelete`,
+  ExercisesCount = `${Route.Exercises}/count`,
+  ExercisesDuplicate = `${Route.Exercises}/duplicate`,
+  Users = "/users",
+  ExerciseTypes = "/exercise-types",
+  ExerciseTypesDuplicate = `${Route.ExerciseTypes}/duplicate`,
+  Blocks = "/blocks",
 }
 
 export enum Method {
@@ -32,27 +33,28 @@ export abstract class ServiceI {
     return { "Content-Type": "application/json" }
   }
 
-  async handleRequest<RequestT, ResponseT>({
-    body,
+  async handleRequest<JsonParamsT extends object, PathParamsT extends object, ResponseT>({
     method,
-    toRes = (obj) => obj as ResponseT,
+    pathParams,
+    jsonParams,
     url,
+    toRes = (obj) => obj as ResponseT,
     route,
   }: {
     method: Method
-    body?: RequestT
+    jsonParams?: JsonParamsT
+    pathParams?: PathParamsT
     toRes?: (obj: unknown) => ResponseT
     url?: string
     route: Route
   }): Promise<ResponseT | void> {
-    if (!url) {
-      url = this.get_api_url(route)
-    }
+    if (!url) url = this.get_api_url(route)
+    if (pathParams) url = replacePathParams(url, pathParams)
 
     const request: AxiosRequestConfig = {
       method: method.toString().toLowerCase(),
       headers: this.get_headers(),
-      data: JSON.stringify(body),
+      data: JSON.stringify(jsonParams),
       url: url,
     }
 
@@ -82,4 +84,11 @@ export function tokenInterceptor() {
       return Promise.reject(error)
     },
   )
+}
+
+export function replacePathParams<T extends object>(path: string, params: T): string {
+  Object.keys(params).forEach((key) => {
+    path = path.replace(`:${key}`, params[key])
+  })
+  return path
 }

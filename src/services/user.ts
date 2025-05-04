@@ -16,14 +16,18 @@ export interface UserPutRequest {
 }
 
 export class UserService extends ServiceI {
-  route = Route.User
+  route = Route.Users
 
   async get(): Promise<User[]> {
-    return this.handleRequest({ method: Method.GET, route: Route.User }) as Promise<User[]>
+    return this.handleRequest({ method: Method.GET, route: Route.Users }) as Promise<User[]>
   }
 
   async post(body: UserPostRequest): Promise<{ user_id: string }> {
-    return this.handleRequest({ method: Method.POST, body: body, route: Route.User }) as Promise<{
+    return this.handleRequest({
+      method: Method.POST,
+      jsonParams: body,
+      route: Route.Users,
+    }) as Promise<{
       user_id: string
     }>
   }
@@ -31,16 +35,16 @@ export class UserService extends ServiceI {
   async delete(body: UserDeleteRequest): Promise<void> {
     return this.handleRequest({
       method: Method.DELETE,
-      body: body,
-      route: Route.User,
+      jsonParams: body,
+      route: Route.Users,
     }) as Promise<void>
   }
 
   async put(body: UserPutRequest): Promise<void> {
     return this.handleRequest({
       method: Method.PUT,
-      body: body,
-      route: Route.User,
+      jsonParams: body,
+      route: Route.Users,
     }) as Promise<void>
   }
 }

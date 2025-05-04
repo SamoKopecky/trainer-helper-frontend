@@ -6,14 +6,14 @@ export interface BlockGetRequest {
 }
 
 export class BlockService extends ServiceI {
-  route = Route.User
+  route = Route.Users
 
   async get(body: BlockGetRequest): Promise<Block[]> {
     // TODO: Make this get friednly
-    const requestUrl = new URL(this.get_api_url(Route.Block))
+    const requestUrl = new URL(this.get_api_url(Route.Blocks))
     requestUrl.searchParams.append("user_id", body.user_id)
     return this.handleRequest({
-      route: Route.ExerciseType,
+      route: Route.ExerciseTypes,
       method: Method.GET,
       url: requestUrl.toString(),
     }) as Promise<Block[]>
