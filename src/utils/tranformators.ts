@@ -85,7 +85,7 @@ export function blocksToMap(blocks: Block[]): BlockMap {
   blocks.forEach((b) => {
     const weeksMap: Map<number, Week> = new Map()
     b.weeks.forEach((w) => {
-      weeksMap.set(w.label, w)
+      weeksMap.set(w.id, w)
     })
 
     const blockValue: BlockValue = {
@@ -94,7 +94,7 @@ export function blocksToMap(blocks: Block[]): BlockMap {
       user_id: b.user_id,
       id: b.id,
     }
-    blocksMap.set(b.label, blockValue)
+    blocksMap.set(b.id, blockValue)
   })
   return blocksMap
 }

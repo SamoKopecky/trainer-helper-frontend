@@ -3,8 +3,7 @@ import { BlockService } from "@/services/block"
 import { WeekService } from "@/services/week"
 import type { BlockMap } from "@/types/block"
 import { blocksToMap } from "@/utils/tranformators"
-import { onMounted } from "vue"
-import { ref } from "vue"
+import { onMounted, ref } from "vue"
 
 const { userId } = defineProps({
   userId: {
@@ -34,7 +33,7 @@ onMounted(() => blockService.get(userId).then((res) => (blocksMap.value = blocks
         v-for="block in blocksMap?.values()"
         :key="block.id"
         :text="block.label.toString()"
-        :value="block.label"
+        :value="block.id"
       />
     </v-btn-toggle>
     <v-btn icon="mdi-plus" class="ml-2" size="small"></v-btn>
@@ -52,7 +51,7 @@ onMounted(() => blockService.get(userId).then((res) => (blocksMap.value = blocks
         v-for="week in blocksMap?.get(blockRef!)?.weeks.values()"
         :key="week.id"
         :text="week.label.toString()"
-        :value="week.label"
+        :value="week.id"
       />
     </v-btn-toggle>
     <v-btn icon="mdi-plus" class="ml-2" size="small"></v-btn>

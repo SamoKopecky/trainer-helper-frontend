@@ -6,7 +6,7 @@ export class BlockService extends ServiceI {
 
   async get(userId: string): Promise<Block[]> {
     return this.handleRequest({
-      route: Route.ExerciseTypes,
+      route: Route.Blocks,
       method: Method.GET,
       queryParams: { user_id: userId },
     }) as Promise<Block[]>
