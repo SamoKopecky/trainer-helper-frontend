@@ -1,21 +1,14 @@
 import type { Block } from "@/types/block"
 import { ServiceI, Route, Method } from "./base"
 
-export interface BlockGetRequest {
-  user_id: string
-}
-
 export class BlockService extends ServiceI {
   route = Route.Users
 
-  async get(body: BlockGetRequest): Promise<Block[]> {
-    // TODO: Make this get friednly
-    const requestUrl = new URL(this.get_api_url(Route.Blocks))
-    requestUrl.searchParams.append("user_id", body.user_id)
+  async get(userId: string): Promise<Block[]> {
     return this.handleRequest({
       route: Route.ExerciseTypes,
       method: Method.GET,
-      url: requestUrl.toString(),
+      queryParams: { user_id: userId },
     }) as Promise<Block[]>
   }
 }

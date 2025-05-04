@@ -49,8 +49,8 @@ export class ExerciseService extends ServiceI {
   async get(timeslot_id: number): Promise<FullExerciseResponse> {
     return this.handleRequest({
       method: Method.GET,
-      url: `${this.get_api_url(Route.Exercises)}/${timeslot_id}`,
       route: Route.Exercises,
+      pathParams: { id: timeslot_id },
     }) as Promise<FullExerciseResponse>
   }
 

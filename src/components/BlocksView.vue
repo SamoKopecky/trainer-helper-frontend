@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { BlockService } from "@/services/block"
+import { WeekService } from "@/services/week"
 import type { BlockMap } from "@/types/block"
 import { blocksToMap } from "@/utils/tranformators"
-import { onUpdated } from "vue"
 import { onMounted } from "vue"
 import { ref } from "vue"
 
@@ -13,21 +13,14 @@ const { userId } = defineProps({
   },
 })
 
-const service = new BlockService()
+const blockService = new BlockService()
+const weekService = new WeekService()
 const blocksMap = ref<BlockMap>()
 // TODO: Set default depedning on todays date after we get blocks data
 const blockRef = ref<number>(1)
 const weekRef = ref<number>(1)
 
-onMounted(() => {
-  console.log(userId)
-  service.get({ user_id: userId }).then((res) => (blocksMap.value = blocksToMap(res)))
-})
-
-onUpdated(() => {
-  console.log("block: ", blockRef.value)
-  console.log("week: ", weekRef.value)
-})
+onMounted(() => blockService.get(userId).then((res) => (blocksMap.value = blocksToMap(res))))
 </script>
 
 <template>

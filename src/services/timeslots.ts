@@ -32,8 +32,6 @@ export interface TimeslotDeletePathParams {
 }
 
 export class TimeslotService extends ServiceI {
-  route = Route.Timeslots
-
   private parseTimeslots(obj: unknown): Timeslot[] {
     if (!isArray(obj)) {
       throw new Error("Invalid response: expected an array")
@@ -45,15 +43,12 @@ export class TimeslotService extends ServiceI {
     })
   }
 
-  async get(body: TimeslotGetRequest): Promise<Timeslot[]> {
-    const requestUrl = new URL(this.get_api_url(Route.Timeslots))
-    requestUrl.searchParams.append("start_date", body.start_date)
-    requestUrl.searchParams.append("end_date", body.end_date)
+  async get(queryParams: TimeslotGetRequest): Promise<Timeslot[]> {
     return this.handleRequest({
       route: Route.Timeslots,
       method: Method.GET,
       toRes: this.parseTimeslots,
-      url: requestUrl.toString(),
+      queryParams,
     }) as Promise<Timeslot[]>
   }
 

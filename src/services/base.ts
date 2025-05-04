@@ -9,6 +9,8 @@ export enum Route {
   WorkSets = "/work-sets",
   WorkSetsUndelete = `${Route.WorkSets}/undelete`,
   Exercises = "/exercises",
+  // TODO: Make exercise a subpath of timeslot
+  ExercisesId = "/exercises/:id",
   ExercisesUndelete = `${Route.Exercises}/undelete`,
   ExercisesCount = `${Route.Exercises}/count`,
   ExercisesDuplicate = `${Route.Exercises}/duplicate`,
@@ -16,6 +18,8 @@ export enum Route {
   ExerciseTypes = "/exercise-types",
   ExerciseTypesDuplicate = `${Route.ExerciseTypes}/duplicate`,
   Blocks = "/blocks",
+  Weeks = "/weeks",
+  WeeksId = "/weeks/:id",
 }
 
 export enum Method {
@@ -33,23 +37,29 @@ export abstract class ServiceI {
     return { "Content-Type": "application/json" }
   }
 
-  async handleRequest<JsonParamsT extends object, PathParamsT extends object, ResponseT>({
+  async handleRequest<
+    JsonParamsT extends object,
+    PathParamsT extends object,
+    QueryParamsT extends object,
+    ResponseT,
+  >({
     method,
     pathParams,
+    queryParams,
     jsonParams,
-    url,
     toRes = (obj) => obj as ResponseT,
     route,
   }: {
     method: Method
     jsonParams?: JsonParamsT
+    queryParams?: QueryParamsT
     pathParams?: PathParamsT
     toRes?: (obj: unknown) => ResponseT
-    url?: string
     route: Route
   }): Promise<ResponseT | void> {
-    if (!url) url = this.get_api_url(route)
+    let url = this.get_api_url(route)
     if (pathParams) url = replacePathParams(url, pathParams)
+    if (queryParams) url = addQueryParams(url, queryParams)
 
     const request: AxiosRequestConfig = {
       method: method.toString().toLowerCase(),
@@ -86,9 +96,18 @@ export function tokenInterceptor() {
   )
 }
 
-export function replacePathParams<T extends object>(path: string, params: T): string {
+export function replacePathParams<T extends object>(url: string, params: T): string {
   Object.keys(params).forEach((key) => {
-    path = path.replace(`:${key}`, params[key])
+    url = url.replace(`:${key}`, params[key])
   })
-  return path
+  return url
+}
+
+export function addQueryParams<T extends object>(url: string, params: T): string {
+  const urlObj = new URL(url)
+  Object.keys(params).forEach((key) => {
+    urlObj.searchParams.append(key, params[key])
+  })
+
+  return urlObj.toString()
 }
