@@ -18,6 +18,7 @@ export enum Route {
   ExerciseTypes = "/exercise-types",
   ExerciseTypesDuplicate = `${Route.ExerciseTypes}/duplicate`,
   Blocks = "/blocks",
+  BlocksId = "/blocks/:id",
   Weeks = "/weeks",
   WeeksId = "/weeks/:id",
 }
