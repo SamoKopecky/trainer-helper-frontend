@@ -8,10 +8,6 @@ export interface TimeslotGetRequest {
   end_date: string
 }
 
-export interface TimeslotUndeletePostRequest {
-  id: number
-}
-
 export interface TimeslotPostRequest {
   trainer_id: string
   start: string
@@ -76,9 +72,9 @@ export class TimeslotService extends ServiceI {
     }) as Promise<Timeslot>
   }
 
-  async postUndelete(body: TimeslotUndeletePostRequest): Promise<void> {
+  async postUndelete(id: number): Promise<void> {
     return this.handleRequest({
-      jsonParams: body,
+      pathParams: { id: id },
       method: Method.POST,
       route: Route.TimeslotsUndelete,
     }) as Promise<void>

@@ -41,10 +41,6 @@ export interface ExerciseDuplicatePostRequest {
   timeslot_id: number
 }
 
-export interface ExerciseUndeletePostRequest {
-  id: number
-}
-
 export class ExerciseService extends ServiceI {
   async get(timeslot_id: number): Promise<FullExerciseResponse> {
     return this.handleRequest({
@@ -94,9 +90,9 @@ export class ExerciseService extends ServiceI {
     }) as Promise<FullExerciseResponse>
   }
 
-  async postUndelete(jsonParams: ExerciseUndeletePostRequest): Promise<void> {
+  async postUndelete(id: number): Promise<void> {
     return this.handleRequest({
-      jsonParams,
+      pathParams: { id: id },
       method: Method.POST,
       route: Route.ExercisesUndelete,
     }) as Promise<void>

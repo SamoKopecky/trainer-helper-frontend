@@ -32,4 +32,12 @@ export class BlockService extends ServiceI {
       route: Route.BlocksId,
     }) as Promise<void>
   }
+
+  async postUndelete(id: number): Promise<void> {
+    return this.handleRequest({
+      pathParams: { id: id },
+      method: Method.POST,
+      route: Route.BlocksUndelete,
+    }) as Promise<void>
+  }
 }

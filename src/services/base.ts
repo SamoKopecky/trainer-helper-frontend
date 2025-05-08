@@ -5,21 +5,23 @@ const API_BASE_URL = import.meta.env.VITE_APP_BACKEND ?? "http://localhost:2001"
 export enum Route {
   Timeslots = "/timeslots",
   TimeslotsId = `${Route.Timeslots}/:id`,
-  TimeslotsUndelete = `${Route.Timeslots}/undelete`,
+  TimeslotsUndelete = `${Route.Timeslots}/undelete/:id`,
   WorkSets = "/work-sets",
   WorkSetsUndelete = `${Route.WorkSets}/undelete`,
   Exercises = "/exercises",
   // TODO: Make exercise a subpath of timeslot
   ExercisesId = "/exercises/:id",
-  ExercisesUndelete = `${Route.Exercises}/undelete`,
+  ExercisesUndelete = `${Route.Exercises}/undelete/:id`,
   ExercisesCount = `${Route.Exercises}/count`,
   ExercisesDuplicate = `${Route.Exercises}/duplicate`,
   Users = "/users",
   ExerciseTypes = "/exercise-types",
   ExerciseTypesDuplicate = `${Route.ExerciseTypes}/duplicate`,
   Blocks = "/blocks",
+  BlocksUndelete = `${Route.Blocks}/undelete/:id`,
   BlocksId = "/blocks/:id",
   Weeks = "/weeks",
+  WeeksUndelete = `${Route.Weeks}/undelete/:id`,
   WeeksId = "/weeks/:id",
 }
 

@@ -30,7 +30,14 @@ const theme = useTheme()
 <template>
   <NotificationFloat :notifications="notifications" />
   <!-- TODO: Adjust change events for calendar -->
-  <ChangeEventBar :is-undo-active="undoActive" :is-redo-active="false" @undo="undo" @redo="redo" />
+  <v-app-bar density="compact" rounded>
+    <ChangeEventBar
+      :is-undo-active="undoActive"
+      :is-redo-active="false"
+      @undo="undo"
+      @redo="redo"
+    />
+  </v-app-bar>
   <VueCal
     :dark="theme.global.current.value.dark"
     style="height: 100%"

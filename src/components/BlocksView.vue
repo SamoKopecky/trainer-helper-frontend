@@ -2,13 +2,17 @@
 import { useNotifications } from "@/composables/useNotifications"
 import { useUser } from "@/composables/useUser"
 import NotificationFloat from "@/components/NotificationFloat.vue"
+import ChangeEventBar from "@/components/ChangeEventBar.vue"
 import { BlockService } from "@/services/block"
-import { WeekService } from "@/services/week"
 import type { BlockMap } from "@/types/block"
-import { getMaxLabel } from "@/utils/blockView"
-import { blocksToMap, blockToBlockValue } from "@/utils/tranformators"
+import { blocksToMap } from "@/utils/tranformators"
 import { computed } from "vue"
 import { onMounted, ref } from "vue"
+import { useChangeEvents } from "@/composables/useChangeEvents"
+import { BlockAdd } from "@/changeEvents/user/blockAdd"
+import { BlockDelete } from "@/changeEvents/user/blockDelete"
+import { WeekAdd } from "@/changeEvents/user/weekAdd"
+import { WeekDelete } from "@/changeEvents/user/weekDelete"
 
 const { userId } = defineProps({
   userId: {
@@ -19,8 +23,8 @@ const { userId } = defineProps({
 
 const { isTrainer } = useUser()
 const { notifications, addNotification } = useNotifications()
+const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
 const blockService = new BlockService()
-const weekService = new WeekService()
 const activeBlocks = ref<BlockMap>(new Map())
 const activeBlockId = ref<number>(0)
 const activeWeekId = ref<number>(0)
@@ -42,16 +46,11 @@ onMounted(() =>
 )
 
 function addBlock() {
-  blockService
-    .post({ user_id: userId, label: getMaxLabel(activeBlocks.value) + 1 })
-    .then((res) => activeBlocks.value.set(res.id, blockToBlockValue(res)))
+  addChangeEvent(new BlockAdd(activeBlocks.value, userId))
 }
 
 function deleteBlock() {
-  const values = Array.from(activeBlocks.value.values())
-  const lastId = values[values.length - 1].id
-
-  blockService.delete(lastId).then(() => activeBlocks.value.delete(lastId))
+  addChangeEvent(new BlockDelete(activeBlocks.value))
 }
 
 function addWeek() {
@@ -59,15 +58,7 @@ function addWeek() {
     addNotification("No week selected", "info")
     return
   }
-
-  const maxLabel = getMaxLabel(activeWeeks.value)
-  weekService
-    .post({
-      label: maxLabel + 1,
-      block_id: activeBlockId.value,
-      start_date: new Date(),
-    })
-    .then((res) => activeWeeks.value?.set(res.id, res))
+  addChangeEvent(new WeekAdd(activeWeeks.value, userId, activeBlockId.value))
 }
 
 function deleteWeek() {
@@ -76,15 +67,20 @@ function deleteWeek() {
     return
   }
 
-  const valuesArray = Array.from(activeWeeks.value?.values())
-  const lastId = valuesArray[valuesArray.length - 1].id
-  weekService.delete(lastId).then(() => activeWeeks.value?.delete(lastId))
+  addChangeEvent(new WeekDelete(activeWeeks.value))
 }
 </script>
 
 <template>
   <div>
     <NotificationFloat :notifications="notifications" />
+    <ChangeEventBar
+      :use-app-bar="false"
+      :is-undo-active="undoActive"
+      :is-redo-active="redoActive"
+      @undo="undo"
+      @redo="redo"
+    />
     <!-- Blocks -->
     <span class="text-subtitle-1 font-weight-medium"> Block </span>
     <v-spacer />

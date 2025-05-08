@@ -39,7 +39,7 @@ export class ExerciseExerciseTableDelete extends ExerciseUpdate implements Chang
   }
 
   async down(): Promise<void> {
-    return this.service.postUndelete({ id: this.exerciseId }).then(() => {
+    return this.service.postUndelete(this.exerciseId).then(() => {
       if (this.deletedExercises.length === 0) throw new Error("no deleted exercises")
       this.deletedExercises.forEach((de) => {
         this.exercises.push(de)

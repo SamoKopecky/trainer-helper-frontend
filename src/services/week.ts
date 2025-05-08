@@ -5,6 +5,7 @@ export interface WeekPostRequest {
   block_id: number
   start_date: Date
   label: number
+  user_id: string
 }
 
 export class WeekService extends ServiceI {
@@ -21,6 +22,14 @@ export class WeekService extends ServiceI {
       pathParams: { id: id },
       method: Method.DELETE,
       route: Route.WeeksId,
+    }) as Promise<void>
+  }
+
+  async postUndelete(id: number): Promise<void> {
+    return this.handleRequest({
+      pathParams: { id: id },
+      method: Method.POST,
+      route: Route.WeeksUndelete,
     }) as Promise<void>
   }
 }

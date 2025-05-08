@@ -5,7 +5,6 @@ import type { ExerciseType, ExerciseTypeTableRow } from "@/types/exerciseType"
 import type { Timeslot, WorkSet } from "@/types/other"
 import { getTimeslotUserName } from "./user"
 import type { Block, BlockMap, BlockValue, Week } from "@/types/block"
-import { useId } from "vue"
 
 export function deepClone(obj: unknown) {
   return JSON.parse(JSON.stringify(obj))

@@ -28,13 +28,9 @@ export class TimelostDeleteEvent implements ChangeEvent {
   }
 
   public async down() {
-    return this.timeslotService
-      .postUndelete({
-        id: this.timeslot.id,
-      })
-      .then(() => {
-        this.eventsCopy.set(this.timeslot.id, this.timeslot)
-        this.calendarView.createEvent(this.timeslot)
-      })
+    return this.timeslotService.postUndelete(this.timeslot.id).then(() => {
+      this.eventsCopy.set(this.timeslot.id, this.timeslot)
+      this.calendarView.createEvent(this.timeslot)
+    })
   }
 }
