@@ -1,14 +1,16 @@
-export interface Block {
+export interface Labeled {
+  label: number
+}
+
+export interface Block extends Labeled {
   id: number
   user_id: string
-  label: number
   weeks: Week[]
 }
 
-export interface Week {
+export interface Week extends Labeled {
   id: number
   user_id: string
-  label: number
   startDate: Date
 }
 

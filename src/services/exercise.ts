@@ -49,7 +49,7 @@ export class ExerciseService extends ServiceI {
   async get(timeslot_id: number): Promise<FullExerciseResponse> {
     return this.handleRequest({
       method: Method.GET,
-      route: Route.Exercises,
+      route: Route.ExercisesId,
       pathParams: { id: timeslot_id },
     }) as Promise<FullExerciseResponse>
   }

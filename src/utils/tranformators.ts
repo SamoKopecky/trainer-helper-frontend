@@ -5,6 +5,7 @@ import type { ExerciseType, ExerciseTypeTableRow } from "@/types/exerciseType"
 import type { Timeslot, WorkSet } from "@/types/other"
 import { getTimeslotUserName } from "./user"
 import type { Block, BlockMap, BlockValue, Week } from "@/types/block"
+import { useId } from "vue"
 
 export function deepClone(obj: unknown) {
   return JSON.parse(JSON.stringify(obj))
@@ -97,4 +98,13 @@ export function blocksToMap(blocks: Block[]): BlockMap {
     blocksMap.set(b.id, blockValue)
   })
   return blocksMap
+}
+
+export function blockToBlockValue(block: Block): BlockValue {
+  return {
+    label: block.label,
+    user_id: block.user_id,
+    id: block.id,
+    weeks: new Map(),
+  }
 }
