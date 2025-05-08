@@ -4,25 +4,16 @@ import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from "
 const API_BASE_URL = import.meta.env.VITE_APP_BACKEND ?? "http://localhost:2001"
 export enum Route {
   Timeslots = "/timeslots",
-  TimeslotsId = `${Route.Timeslots}/:id`,
-  TimeslotsUndelete = `${Route.Timeslots}/undelete/:id`,
   WorkSets = "/work-sets",
-  WorkSetsUndelete = `${Route.WorkSets}/undelete`,
-  Exercises = "/exercises",
   // TODO: Make exercise a subpath of timeslot
-  ExercisesId = "/exercises/:id",
-  ExercisesUndelete = `${Route.Exercises}/undelete/:id`,
+  Exercises = "/exercises",
   ExercisesCount = `${Route.Exercises}/count`,
   ExercisesDuplicate = `${Route.Exercises}/duplicate`,
   Users = "/users",
   ExerciseTypes = "/exercise-types",
   ExerciseTypesDuplicate = `${Route.ExerciseTypes}/duplicate`,
   Blocks = "/blocks",
-  BlocksUndelete = `${Route.Blocks}/undelete/:id`,
-  BlocksId = "/blocks/:id",
   Weeks = "/weeks",
-  WeeksUndelete = `${Route.Weeks}/undelete/:id`,
-  WeeksId = "/weeks/:id",
 }
 
 export enum Method {
@@ -33,16 +24,42 @@ export enum Method {
 }
 
 export abstract class ServiceBase<P extends object, T extends object> {
-  protected get_api_url(route: Route) {
+  private route: Route
+
+  constructor(routeBase: Route) {
+    this.route = routeBase
+  }
+
+  protected get_api_url(route: string) {
     return `${API_BASE_URL}${route}`
   }
   protected get_headers() {
     return { "Content-Type": "application/json" }
   }
 
-  public abstract post(jsonParams: P): Promise<T>
-  public abstract delete(id: number): Promise<void>
-  public abstract postUndelete(id: number): Promise<void>
+  public async post(jsonParams: P): Promise<T> {
+    return this.handleRequest({
+      jsonParams,
+      method: Method.POST,
+      route: this.route,
+    }) as Promise<T>
+  }
+
+  public async delete(id: number | string): Promise<void> {
+    return this.handleRequest({
+      pathParams: { id: id },
+      method: Method.DELETE,
+      route: `${this.route}/:id`,
+    }) as Promise<void>
+  }
+
+  public async postUndelete(id: number): Promise<void> {
+    return this.handleRequest({
+      pathParams: { id: id },
+      method: Method.POST,
+      route: `${this.route}/undelete/:id`,
+    }) as Promise<void>
+  }
 
   async handleRequest<
     JsonParamsT extends object,
@@ -62,7 +79,7 @@ export abstract class ServiceBase<P extends object, T extends object> {
     queryParams?: QueryParamsT
     pathParams?: PathParamsT
     toRes?: (obj: unknown) => ResponseT
-    route: Route
+    route: string
   }): Promise<ResponseT | void> {
     let url = this.get_api_url(route)
     if (pathParams) url = replacePathParams(url, pathParams)

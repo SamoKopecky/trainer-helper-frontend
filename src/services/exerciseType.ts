@@ -14,6 +14,10 @@ export interface ExerciseTypePutRequest extends ExerciseTypeUpdate {
 }
 
 export class ExerciseTypeService extends ServiceBase<ExerciseTypePostRequest, ExerciseType> {
+  constructor() {
+    super(Route.ExerciseTypes)
+  }
+
   public delete(_id: number): Promise<void> {
     throw new Error("Method not implemented.")
   }
@@ -27,13 +31,6 @@ export class ExerciseTypeService extends ServiceBase<ExerciseTypePostRequest, Ex
       method: Method.GET,
       queryParams: { user_id: userId },
     }) as Promise<ExerciseType[]>
-  }
-  async post(body: ExerciseTypePostRequest): Promise<ExerciseType> {
-    return this.handleRequest({
-      route: Route.ExerciseTypes,
-      jsonParams: body,
-      method: Method.POST,
-    }) as Promise<ExerciseType>
   }
 
   async put(body: ExerciseTypePutRequest): Promise<void> {

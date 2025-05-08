@@ -1,5 +1,5 @@
 import type { Week } from "@/types/block"
-import { ServiceBase, Method, Route } from "./base"
+import { ServiceBase, Route } from "./base"
 
 export interface WeekPostRequest {
   block_id: number
@@ -9,27 +9,7 @@ export interface WeekPostRequest {
 }
 
 export class WeekService extends ServiceBase<WeekPostRequest, Week> {
-  async post(jsonParams: WeekPostRequest): Promise<Week> {
-    return this.handleRequest({
-      jsonParams,
-      method: Method.POST,
-      route: Route.Weeks,
-    }) as Promise<Week>
-  }
-
-  async delete(id: number): Promise<void> {
-    return this.handleRequest({
-      pathParams: { id: id },
-      method: Method.DELETE,
-      route: Route.WeeksId,
-    }) as Promise<void>
-  }
-
-  async postUndelete(id: number): Promise<void> {
-    return this.handleRequest({
-      pathParams: { id: id },
-      method: Method.POST,
-      route: Route.WeeksUndelete,
-    }) as Promise<void>
+  constructor() {
+    super(Route.Weeks)
   }
 }

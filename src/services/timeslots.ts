@@ -28,6 +28,10 @@ export interface TimeslotDeletePathParams {
 }
 
 export class TimeslotService extends ServiceBase<TimeslotPostRequest, Timeslot> {
+  constructor() {
+    super(Route.Timeslots)
+  }
+
   private parseTimeslots(obj: unknown): Timeslot[] {
     if (!isArray(obj)) {
       throw new Error("Invalid response: expected an array")
@@ -48,35 +52,11 @@ export class TimeslotService extends ServiceBase<TimeslotPostRequest, Timeslot> 
     }) as Promise<Timeslot[]>
   }
 
-  async post(body: TimeslotPostRequest): Promise<Timeslot> {
-    return this.handleRequest({
-      route: Route.Timeslots,
-      method: Method.POST,
-      jsonParams: body,
-    }) as Promise<Timeslot>
-  }
-
   async put(body: TimeslotPutRequest): Promise<void> {
     return this.handleRequest({
       route: Route.Timeslots,
       method: Method.PUT,
       jsonParams: body,
-    }) as Promise<void>
-  }
-
-  async delete(pathParams: TimeslotDeletePathParams): Promise<Timeslot> {
-    return this.handleRequest({
-      route: Route.TimeslotsId,
-      method: Method.DELETE,
-      pathParams,
-    }) as Promise<Timeslot>
-  }
-
-  async postUndelete(id: number): Promise<void> {
-    return this.handleRequest({
-      pathParams: { id: id },
-      method: Method.POST,
-      route: Route.TimeslotsUndelete,
     }) as Promise<void>
   }
 }

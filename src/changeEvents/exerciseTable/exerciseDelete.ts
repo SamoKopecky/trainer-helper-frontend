@@ -21,7 +21,7 @@ export class ExerciseExerciseTableDelete extends ExerciseUpdate implements Chang
   }
 
   async up(_initial: boolean): Promise<void> {
-    return this.service.delete({ exercise_id: this.exerciseId }).then(() => {
+    return this.service.delete(this.exerciseId).then(() => {
       const deletedExercises: ExerciseTableData[] = []
       // Loop backwards to delete safely, can't use filter because
       // that creates a new array and we can't replcae the array

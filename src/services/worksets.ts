@@ -13,6 +13,10 @@ export interface WorkSetPostUndeleteRequest {
 }
 
 export class WorkSetService extends ServiceBase<object, WorkSet> {
+  constructor() {
+    super(Route.WorkSets)
+  }
+
   public post(_jsonParams: object): Promise<WorkSet> {
     throw new Error("Method not implemented.")
   }
@@ -43,7 +47,7 @@ export class WorkSetService extends ServiceBase<object, WorkSet> {
     return this.handleRequest({
       jsonParams: jsonParams,
       method: Method.POST,
-      route: Route.WorkSetsUndelete,
+      route: `${Route.WorkSets}/undelete`,
     }) as Promise<void>
   }
 }

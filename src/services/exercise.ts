@@ -42,28 +42,20 @@ export interface ExerciseDuplicatePostRequest {
 }
 
 export class ExerciseService extends ServiceBase<ExercisePostRequest, ExerciseResponse> {
+  constructor() {
+    super(Route.Exercises)
+  }
+
   async get(timeslot_id: number): Promise<FullExerciseResponse> {
     return this.handleRequest({
       method: Method.GET,
-      route: Route.ExercisesId,
+      route: `${Route.Exercises}/:id`,
       pathParams: { id: timeslot_id },
     }) as Promise<FullExerciseResponse>
   }
 
   async put(jsonParams: ExercisePutRequest): Promise<void> {
     this.handleRequest({ jsonParams, method: Method.PUT, route: Route.Exercises })
-  }
-
-  async post(jsonParams: ExercisePostRequest): Promise<ExerciseResponse> {
-    return this.handleRequest({
-      jsonParams,
-      method: Method.POST,
-      route: Route.Exercises,
-    }) as Promise<ExerciseResponse>
-  }
-
-  async delete(jsonParams: ExerciseDeleteRequest): Promise<void> {
-    this.handleRequest({ jsonParams, method: Method.DELETE, route: Route.Exercises })
   }
 
   async putCount(jsonParams: ExerciseCountPutRequest): Promise<WorkSet[]> {
@@ -88,13 +80,5 @@ export class ExerciseService extends ServiceBase<ExercisePostRequest, ExerciseRe
       method: Method.POST,
       route: Route.ExercisesDuplicate,
     }) as Promise<FullExerciseResponse>
-  }
-
-  async postUndelete(id: number): Promise<void> {
-    return this.handleRequest({
-      pathParams: { id: id },
-      method: Method.POST,
-      route: Route.ExercisesUndelete,
-    }) as Promise<void>
   }
 }

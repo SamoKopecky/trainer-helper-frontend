@@ -53,7 +53,7 @@ export class TimeslotCreateEvent implements ChangeEvent {
     if (!this.createdTimeslot) {
       return Promise.reject(new Error("Missing timeslot to delete"))
     }
-    return this.service.delete({ id: this.createdTimeslot?.id }).then(() => {
+    return this.service.delete(this.createdTimeslot?.id).then(() => {
       // Can't be undefined, see condition above
       const createdTimeslot = this.createdTimeslot as AppTimeslot
       const createdTimeslotEvent = this.events.find((e) => e.id === createdTimeslot.id)

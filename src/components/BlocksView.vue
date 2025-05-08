@@ -75,7 +75,6 @@ function deleteWeek() {
   <div>
     <NotificationFloat :notifications="notifications" />
     <ChangeEventBar
-      :use-app-bar="false"
       :is-undo-active="undoActive"
       :is-redo-active="redoActive"
       @undo="undo"
