@@ -13,7 +13,7 @@ export class BlockService extends ServiceBase<BlockPostRequest, Block> {
 
   async get(userId: string): Promise<Block[]> {
     return this.handleRequest({
-      route: Route.Blocks,
+      route: this.route,
       method: Method.GET,
       queryParams: { user_id: userId },
     }) as Promise<Block[]>

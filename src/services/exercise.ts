@@ -49,7 +49,7 @@ export class ExerciseService extends ServiceBase<ExercisePostRequest, ExerciseRe
   async get(timeslot_id: number): Promise<FullExerciseResponse> {
     return this.handleRequest({
       method: Method.GET,
-      route: `${Route.Exercises}/:id`,
+      route: `${this.route}/:id`,
       pathParams: { id: timeslot_id },
     }) as Promise<FullExerciseResponse>
   }

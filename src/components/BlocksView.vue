@@ -69,17 +69,31 @@ function deleteWeek() {
 
   addChangeEvent(new WeekDelete(activeWeeks.value))
 }
+interface Weekday {
+  id: string
+  originalName: string
+  assignedName: string
+  suggestionNames: string[]
+}
+
+// Data for the 7 specific weekdays
+const configuredWeekdays = ref<Weekday[]>([
+  { id: "mon", originalName: "Monday", assignedName: "", suggestionNames: [] },
+  { id: "tue", originalName: "Tuesday", assignedName: "", suggestionNames: [] },
+  { id: "wed", originalName: "Wednesday", assignedName: "", suggestionNames: [] },
+  { id: "thu", originalName: "Thursday", assignedName: "", suggestionNames: [] },
+  { id: "fri", originalName: "Friday", assignedName: "", suggestionNames: [] },
+  { id: "sat", originalName: "Saturday", assignedName: "", suggestionNames: [] },
+  { id: "sun", originalName: "Sunday", assignedName: "", suggestionNames: [] },
+])
+
+// New reactive state for the general, unassigned day names
+const generalDayNames = ref<string[]>([])
 </script>
 
 <template>
   <div>
     <NotificationFloat :notifications="notifications" />
-    <ChangeEventBar
-      :is-undo-active="undoActive"
-      :is-redo-active="redoActive"
-      @undo="undo"
-      @redo="redo"
-    />
     <!-- Blocks -->
     <span class="text-subtitle-1 font-weight-medium"> Block </span>
     <v-spacer />
@@ -119,8 +133,114 @@ function deleteWeek() {
 
     <v-spacer />
 
+    <div class="mt-2">
+      <ChangeEventBar
+        :is-undo-active="undoActive"
+        :is-redo-active="redoActive"
+        @undo="undo"
+        @redo="redo"
+      />
+    </div>
+
+    <v-card variant="text">
+      <v-card-title class="text-h6 py-2">Training assignments</v-card-title>
+      <v-card-text class="pt-2">
+        <v-list density="compact" lines="one" class="mb-3 specific-weekdays-list">
+          <template v-for="(day, index) in configuredWeekdays" :key="day.id">
+            <v-list-item class="px-1 py-0 weekday-list-item">
+              <v-row align="center" no-gutters class="py-1">
+                <v-col
+                  cols="12"
+                  sm="4"
+                  md="3"
+                  class="py-0 pr-sm-2 d-flex align-center weekday-name-col"
+                >
+                  <span class="font-weight-medium text-body-1 ws-nowrap">
+                    {{ day.originalName }}
+                  </span>
+                </v-col>
+                <v-col cols="12" sm="8" md="9" class="py-0 weekday-input-col">
+                  <v-text-field
+                    v-model="day.assignedName"
+                    label="Assigned Name"
+                    placeholder="Name for this day"
+                    density="compact"
+                    clearable
+                    hide-details="auto"
+                    variant="outlined"
+                    class="compact-text-field"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-list-item>
+            <v-divider v-if="index < configuredWeekdays.length - 1" class="my-1"></v-divider>
+          </template>
+        </v-list>
+
+        <v-divider class="my-4"></v-divider>
+
+        <h3 class="text-subtitle-1 font-weight-medium mb-2">General Unassigned Day Names</h3>
+        <p class="text-caption mb-2">Create traning not tied to a specific weekday.</p>
+        <v-combobox
+          v-model="generalDayNames"
+          label="Add General Day Names"
+          placeholder="Type and press Enter"
+          multiple
+          chips
+          density="compact"
+          :chips-props="{ size: 'x-small', closable: true, class: 'my-1' }"
+          hide-details="auto"
+          variant="outlined"
+          append-icon=""
+          class="mb-3"
+        ></v-combobox>
+      </v-card-text>
+    </v-card>
+
     <!-- Week Days -->
     <!-- Use v-menu here -->
     <!-- <v-date-picker></v-date-picker> -->
   </div>
 </template>
+
+<style scoped>
+.weekday-list-item {
+  min-height: 52px; /* Adjust as needed to ensure proper alignment */
+}
+
+.weekday-name-col {
+  /* Ensures the day name doesn't wrap too early if space is tight */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.compact-text-field .v-input__control,
+.compact-text-field .v-field {
+  /* Attempt to reduce the default height of the text field if needed */
+  /* This can be tricky with Vuetify's default styling, adjust with caution */
+}
+
+/* For very small screens, you might want to stack them again */
+@media (max-width: 599.98px) {
+  /* Vuetify's 'xs' breakpoint */
+  .weekday-name-col {
+    padding-bottom: 4px; /* Add some space when stacked */
+    text-align: left;
+    width: 100%; /* Make sure it takes full width */
+  }
+  .weekday-input-col {
+    width: 100%;
+  }
+  .v-list-item.weekday-list-item > .v-row {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
+
+/* Ensure chips don't take too much vertical space */
+:deep(.v-chip) {
+  margin-top: 3px !important;
+  margin-bottom: 3px !important;
+}
+</style>

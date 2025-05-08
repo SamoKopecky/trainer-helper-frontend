@@ -31,15 +31,15 @@ export class WorkSetService extends ServiceBase<object, WorkSet> {
     return this.handleRequest({
       jsonParams: [jsonParams],
       method: Method.PUT,
-      route: Route.WorkSets,
+      route: this.route,
     }) as Promise<void>
   }
 
   async putMany(jsonParams: WorkSetPutRequest[]): Promise<void> {
     return this.handleRequest({
-      jsonParams: jsonParams,
+      jsonParams,
       method: Method.PUT,
-      route: Route.WorkSets,
+      route: this.route,
     }) as Promise<void>
   }
 
@@ -47,7 +47,7 @@ export class WorkSetService extends ServiceBase<object, WorkSet> {
     return this.handleRequest({
       jsonParams: jsonParams,
       method: Method.POST,
-      route: `${Route.WorkSets}/undelete`,
+      route: `${this.route}/undelete`,
     }) as Promise<void>
   }
 }

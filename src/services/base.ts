@@ -4,11 +4,11 @@ import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from "
 const API_BASE_URL = import.meta.env.VITE_APP_BACKEND ?? "http://localhost:2001"
 export enum Route {
   Timeslots = "/timeslots",
-  WorkSets = "/work-sets",
   // TODO: Make exercise a subpath of timeslot
   Exercises = "/exercises",
   ExercisesCount = `${Route.Exercises}/count`,
   ExercisesDuplicate = `${Route.Exercises}/duplicate`,
+  WorkSets = "/work-sets",
   Users = "/users",
   ExerciseTypes = "/exercise-types",
   ExerciseTypesDuplicate = `${Route.ExerciseTypes}/duplicate`,
@@ -24,7 +24,7 @@ export enum Method {
 }
 
 export abstract class ServiceBase<P extends object, T extends object> {
-  private route: Route
+  protected route: Route
 
   constructor(routeBase: Route) {
     this.route = routeBase

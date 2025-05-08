@@ -28,7 +28,7 @@ export class UserService extends ServiceBase<UserPostRequest, { user_id: string 
     return this.handleRequest({
       method: Method.PUT,
       jsonParams: body,
-      route: Route.Users,
+      route: this.route,
     }) as Promise<void>
   }
 }

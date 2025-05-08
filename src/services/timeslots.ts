@@ -45,7 +45,7 @@ export class TimeslotService extends ServiceBase<TimeslotPostRequest, Timeslot> 
 
   async get(queryParams: TimeslotGetRequest): Promise<Timeslot[]> {
     return this.handleRequest({
-      route: Route.Timeslots,
+      route: this.route,
       method: Method.GET,
       toRes: this.parseTimeslots,
       queryParams,
@@ -54,7 +54,7 @@ export class TimeslotService extends ServiceBase<TimeslotPostRequest, Timeslot> 
 
   async put(body: TimeslotPutRequest): Promise<void> {
     return this.handleRequest({
-      route: Route.Timeslots,
+      route: this.route,
       method: Method.PUT,
       jsonParams: body,
     }) as Promise<void>

@@ -19,12 +19,14 @@ const emit = defineEmits(["undo", "redo"])
     :disabled="!isUndoActive"
     v-tooltip:bottom="'Undo'"
     icon="mdi-undo-variant"
+    variant="text"
     @click="emit('undo')"
   />
   <v-btn
     :disabled="!isRedoActive"
     v-tooltip:bottom="'Redo'"
     icon="mdi-redo-variant"
+    variant="text"
     @click="emit('redo')"
   />
   <slot name="extra" />
