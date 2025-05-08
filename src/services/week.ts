@@ -1,5 +1,5 @@
 import type { Week } from "@/types/block"
-import { ServiceI, Method, Route } from "./base"
+import { ServiceBase, Method, Route } from "./base"
 
 export interface WeekPostRequest {
   block_id: number
@@ -8,7 +8,7 @@ export interface WeekPostRequest {
   user_id: string
 }
 
-export class WeekService extends ServiceI {
+export class WeekService extends ServiceBase<WeekPostRequest, Week> {
   async post(jsonParams: WeekPostRequest): Promise<Week> {
     return this.handleRequest({
       jsonParams,

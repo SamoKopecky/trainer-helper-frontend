@@ -1,5 +1,5 @@
 import type { ExerciseType, ExerciseTypeUpdate, MediaType } from "@/types/exerciseType"
-import { ServiceI, Method, Route } from "./base"
+import { ServiceBase, Method, Route } from "./base"
 
 export interface ExerciseTypePostRequest {
   name: string
@@ -13,8 +13,13 @@ export interface ExerciseTypePutRequest extends ExerciseTypeUpdate {
   id: number
 }
 
-export class ExerciseTypeService extends ServiceI {
-  route = Route.ExerciseTypes
+export class ExerciseTypeService extends ServiceBase<ExerciseTypePostRequest, ExerciseType> {
+  public delete(_id: number): Promise<void> {
+    throw new Error("Method not implemented.")
+  }
+  public postUndelete(_id: number): Promise<void> {
+    throw new Error("Method not implemented.")
+  }
 
   async get(userId: string): Promise<ExerciseType[]> {
     return this.handleRequest({

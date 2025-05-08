@@ -1,16 +1,14 @@
 export interface Labeled {
   label: number
+  id: number
+  user_id: string
 }
 
 export interface Block extends Labeled {
-  id: number
-  user_id: string
   weeks: Week[]
 }
 
 export interface Week extends Labeled {
-  id: number
-  user_id: string
   startDate: Date
 }
 

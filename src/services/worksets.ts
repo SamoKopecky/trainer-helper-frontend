@@ -1,4 +1,5 @@
-import { ServiceI, Method, Route } from "./base"
+import type { WorkSet } from "@/types/other"
+import { ServiceBase, Method, Route } from "./base"
 
 export interface WorkSetPutRequest {
   id: number
@@ -11,8 +12,16 @@ export interface WorkSetPostUndeleteRequest {
   ids: number[]
 }
 
-export class WorkSetService extends ServiceI {
-  route = Route.WorkSets
+export class WorkSetService extends ServiceBase<object, WorkSet> {
+  public post(_jsonParams: object): Promise<WorkSet> {
+    throw new Error("Method not implemented.")
+  }
+  public delete(_id: number): Promise<void> {
+    throw new Error("Method not implemented.")
+  }
+  public postUndelete(_id: number): Promise<void> {
+    throw new Error("Method not implemented.")
+  }
 
   async put(jsonParams: WorkSetPutRequest): Promise<void> {
     return this.handleRequest({

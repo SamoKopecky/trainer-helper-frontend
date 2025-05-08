@@ -1,4 +1,4 @@
-import { ServiceI, Route, Method } from "./base"
+import { ServiceBase, Route, Method } from "./base"
 import { type User } from "@/types/user"
 
 export interface UserPostRequest {
@@ -15,7 +15,10 @@ export interface UserPutRequest {
   nickname: string
 }
 
-export class UserService extends ServiceI {
+export class UserService extends ServiceBase<UserPostRequest, { user_id: string }> {
+  public postUndelete(_id: number): Promise<void> {
+    throw new Error("Method not implemented.")
+  }
   route = Route.Users
 
   async get(): Promise<User[]> {

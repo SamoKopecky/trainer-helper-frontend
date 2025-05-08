@@ -1,12 +1,12 @@
 import type { Block } from "@/types/block"
-import { ServiceI, Route, Method } from "./base"
+import { ServiceBase, Route, Method } from "./base"
 
 export interface BlockPostRequest {
   user_id: string
   label: number
 }
 
-export class BlockService extends ServiceI {
+export class BlockService extends ServiceBase<BlockPostRequest, Block> {
   route = Route.Users
 
   async get(userId: string): Promise<Block[]> {
@@ -17,11 +17,11 @@ export class BlockService extends ServiceI {
     }) as Promise<Block[]>
   }
 
-  async post(body: BlockPostRequest): Promise<Block> {
+  async post(jsonParams: BlockPostRequest): Promise<Block> {
     return this.handleRequest({
       route: Route.Blocks,
       method: Method.POST,
-      jsonParams: body,
+      jsonParams,
     }) as Promise<Block>
   }
 

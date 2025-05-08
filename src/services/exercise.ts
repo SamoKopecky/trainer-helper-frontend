@@ -1,5 +1,5 @@
 import type { Timeslot, WorkSet } from "@/types/other"
-import { ServiceI, Method, Route } from "./base"
+import { ServiceBase, Method, Route } from "./base"
 import type { Exercise } from "@/types/exercise"
 
 export interface FullExerciseResponse {
@@ -41,7 +41,7 @@ export interface ExerciseDuplicatePostRequest {
   timeslot_id: number
 }
 
-export class ExerciseService extends ServiceI {
+export class ExerciseService extends ServiceBase<ExercisePostRequest, ExerciseResponse> {
   async get(timeslot_id: number): Promise<FullExerciseResponse> {
     return this.handleRequest({
       method: Method.GET,

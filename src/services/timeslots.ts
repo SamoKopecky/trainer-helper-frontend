@@ -1,4 +1,4 @@
-import { ServiceI, Route, Method } from "./base"
+import { ServiceBase, Route, Method } from "./base"
 import { isArray } from "@/utils/service"
 import type { Timeslot } from "@/types/other"
 
@@ -27,7 +27,7 @@ export interface TimeslotDeletePathParams {
   id: number
 }
 
-export class TimeslotService extends ServiceI {
+export class TimeslotService extends ServiceBase<TimeslotPostRequest, Timeslot> {
   private parseTimeslots(obj: unknown): Timeslot[] {
     if (!isArray(obj)) {
       throw new Error("Invalid response: expected an array")

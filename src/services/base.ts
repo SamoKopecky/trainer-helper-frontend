@@ -32,13 +32,17 @@ export enum Method {
   DELETE = "DELETE",
 }
 
-export abstract class ServiceI {
+export abstract class ServiceBase<P extends object, T extends object> {
   protected get_api_url(route: Route) {
     return `${API_BASE_URL}${route}`
   }
   protected get_headers() {
     return { "Content-Type": "application/json" }
   }
+
+  public abstract post(jsonParams: P): Promise<T>
+  public abstract delete(id: number): Promise<void>
+  public abstract postUndelete(id: number): Promise<void>
 
   async handleRequest<
     JsonParamsT extends object,
