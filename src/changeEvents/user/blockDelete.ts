@@ -4,7 +4,7 @@ import { BlockService, type BlockPostRequest } from "@/services/block"
 import { LabeledDelete } from "./labeledDelete"
 
 export class BlockDelete
-  extends LabeledDelete<BlockValue, BlockPostRequest, Block, BlockService>
+  extends LabeledDelete<BlockValue, Block, object, BlockPostRequest, BlockService>
   implements ChangeEvent
 {
   constructor(blockMap: BlockMap) {

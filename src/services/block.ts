@@ -12,14 +12,14 @@ export class BlockService extends ServiceBase<object, BlockPostRequest, Block> {
     super(Route.Blocks)
   }
 
-  private parseBlocks(blocks: unknown): Block[] {
+  private parseBlocks(blocks: any): Block[] {
     if (!isArray(blocks)) {
       throw new Error("Invalid response: expected an array")
     }
 
-    blocks.forEach((b: Block) => {
-      b.weeks.forEach((w: Week) => {
-        w.week_days.map((wd: WeekDay): WeekDay => {
+    blocks.forEach((b: any) => {
+      b.weeks.forEach((w: any) => {
+        w.week_days.map((wd: any): any => {
           wd.day_date = new Date(wd.day_date)
         })
       })

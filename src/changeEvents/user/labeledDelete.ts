@@ -5,8 +5,9 @@ import type { Labeled } from "@/types/block"
 export class LabeledDelete<
   L extends Labeled,
   T extends object,
-  P extends object,
-  S extends ServiceBase<T, P>,
+  PutObj extends object,
+  PostObj extends object,
+  S extends ServiceBase<PutObj, PostObj, T>,
 > implements ChangeEvent
 {
   private labeledMap: Map<number, L>

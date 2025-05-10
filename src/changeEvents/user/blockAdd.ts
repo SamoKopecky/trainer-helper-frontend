@@ -3,7 +3,13 @@ import { LabeledAdd } from "./labeledAdd"
 import type { Block, BlockValue } from "@/types/block"
 import { blockToBlockValue } from "@/utils/tranformators"
 
-export class BlockAdd extends LabeledAdd<BlockValue, BlockPostRequest, Block, BlockService> {
+export class BlockAdd extends LabeledAdd<
+  BlockValue,
+  Block,
+  object,
+  BlockPostRequest,
+  BlockService
+> {
   constructor(blockMap: Map<number, BlockValue>, userId: string) {
     super(blockMap, userId, new BlockService())
   }

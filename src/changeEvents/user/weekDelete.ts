@@ -4,7 +4,7 @@ import { WeekService, type WeekPostRequest } from "@/services/week"
 import { LabeledDelete } from "./labeledDelete"
 
 export class WeekDelete
-  extends LabeledDelete<Week, WeekPostRequest, Week, WeekService>
+  extends LabeledDelete<Week, Week, object, WeekPostRequest, WeekService>
   implements ChangeEvent
 {
   constructor(weekMap: Map<number, Week>) {

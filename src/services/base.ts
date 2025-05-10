@@ -87,7 +87,7 @@ export abstract class ServiceBase<PutObj extends object, PostObj extends object,
     jsonParams?: JsonParamsT
     queryParams?: QueryParamsT
     pathParams?: PathParamsT
-    toRes?: (obj: unknown) => ResponseT
+    toRes?: (obj: any) => ResponseT
     route: string
   }): Promise<ResponseT | void> {
     let url = this.get_api_url(route)

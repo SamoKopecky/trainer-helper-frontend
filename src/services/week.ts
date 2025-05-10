@@ -13,7 +13,7 @@ export class WeekService extends ServiceBase<object, WeekPostRequest, Week> {
     super(Route.Weeks)
   }
 
-  private parseWeek(week: unknown): Week {
+  private parseWeek(week: any): Week {
     week.week_days.forEach((wd: WeekDay) => {
       wd.day_date = new Date(wd.day_date)
     })

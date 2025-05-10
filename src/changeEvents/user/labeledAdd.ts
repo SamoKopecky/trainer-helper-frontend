@@ -4,9 +4,10 @@ import type { ChangeEvent } from "../base"
 
 export abstract class LabeledAdd<
   L extends Labeled,
-  P extends object,
   T extends object,
-  S extends ServiceBase<P, T>,
+  PutObj extends object,
+  PostObj extends object,
+  S extends ServiceBase<PutObj, PostObj, T>,
 > implements ChangeEvent
 {
   private service: S
@@ -25,7 +26,7 @@ export abstract class LabeledAdd<
   }
 
   protected abstract labeledTransfomer(data: T): L
-  protected abstract getPostPayload(): P
+  protected abstract getPostPayload(): PostObj
 
   async up(initial: boolean): Promise<void> {
     if (initial) {
