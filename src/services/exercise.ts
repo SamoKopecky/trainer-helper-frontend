@@ -41,7 +41,11 @@ export interface ExerciseDuplicatePostRequest {
   timeslot_id: number
 }
 
-export class ExerciseService extends ServiceBase<ExercisePostRequest, ExerciseResponse> {
+export class ExerciseService extends ServiceBase<
+  ExercisePutRequest,
+  ExercisePostRequest,
+  ExerciseResponse
+> {
   constructor() {
     super(Route.Exercises)
   }
@@ -52,10 +56,6 @@ export class ExerciseService extends ServiceBase<ExercisePostRequest, ExerciseRe
       route: `${this.route}/:id`,
       pathParams: { id: timeslot_id },
     }) as Promise<FullExerciseResponse>
-  }
-
-  async put(jsonParams: ExercisePutRequest): Promise<void> {
-    this.handleRequest({ jsonParams, method: Method.PUT, route: Route.Exercises })
   }
 
   async putCount(jsonParams: ExerciseCountPutRequest): Promise<WorkSet[]> {

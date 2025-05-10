@@ -14,6 +14,7 @@ export enum Route {
   ExerciseTypesDuplicate = `${Route.ExerciseTypes}/duplicate`,
   Blocks = "/blocks",
   Weeks = "/weeks",
+  WeekDays = "/week-days",
 }
 
 export enum Method {
@@ -23,7 +24,7 @@ export enum Method {
   DELETE = "DELETE",
 }
 
-export abstract class ServiceBase<P extends object, T extends object> {
+export abstract class ServiceBase<PutObj extends object, PostObj extends object, T extends object> {
   protected route: Route
 
   constructor(routeBase: Route) {
@@ -37,12 +38,20 @@ export abstract class ServiceBase<P extends object, T extends object> {
     return { "Content-Type": "application/json" }
   }
 
-  public async post(jsonParams: P): Promise<T> {
+  public async post(jsonParams: PostObj): Promise<T> {
     return this.handleRequest({
       jsonParams,
       method: Method.POST,
       route: this.route,
     }) as Promise<T>
+  }
+
+  public async put(jsonParams: PutObj): Promise<void> {
+    return this.handleRequest({
+      jsonParams,
+      method: Method.PUT,
+      route: this.route,
+    }) as Promise<void>
   }
 
   public async delete(id: number | string): Promise<void> {

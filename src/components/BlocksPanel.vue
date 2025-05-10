@@ -4,7 +4,7 @@ import { useUser } from "@/composables/useUser"
 import NotificationFloat from "@/components/NotificationFloat.vue"
 import ChangeEventBar from "@/components/ChangeEventBar.vue"
 import { BlockService } from "@/services/block"
-import type { BlockMap } from "@/types/block"
+import type { BlockMap, WeekDay } from "@/types/block"
 import { blocksToMap } from "@/utils/tranformators"
 import { computed } from "vue"
 import { onMounted, ref } from "vue"
@@ -13,6 +13,8 @@ import { BlockAdd } from "@/changeEvents/user/blockAdd"
 import { BlockDelete } from "@/changeEvents/user/blockDelete"
 import { WeekAdd } from "@/changeEvents/user/weekAdd"
 import { WeekDelete } from "@/changeEvents/user/weekDelete"
+import { getDateWeekDayString } from "@/utils/date"
+import { WeekDayService } from "@/services/weekDay"
 
 const { userId } = defineProps({
   userId: {
@@ -25,10 +27,24 @@ const { isTrainer } = useUser()
 const { notifications, addNotification } = useNotifications()
 const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
 const blockService = new BlockService()
+const weekDayService = new WeekDayService()
 const activeBlocks = ref<BlockMap>(new Map())
-const activeBlockId = ref<number>(0)
-const activeWeekId = ref<number>(0)
-const activeWeeks = computed(() => activeBlocks.value.get(activeBlockId.value)?.weeks)
+const activeBlockId = ref<number>()
+const activeWeekId = ref<number>()
+const activeWeeks = computed(() => {
+  if (!activeBlockId.value) return
+  let activeBlockIdLocal = activeBlockId.value
+  const blocks = Array.from(activeBlocks.value?.values())
+  if (blocks.length == 1) {
+    activeBlockIdLocal = blocks[0].id
+  }
+  return activeBlocks.value.get(activeBlockIdLocal)?.weeks
+})
+const activeWeekDays = computed(() => {
+  if (!activeWeekId.value) return
+  return activeWeeks.value?.get(activeWeekId.value)?.week_days
+})
+const generalDayNames = ref<string[]>([])
 
 onMounted(() =>
   blockService.get(userId).then((res) => {
@@ -54,7 +70,7 @@ function deleteBlock() {
 }
 
 function addWeek() {
-  if (!activeWeeks.value) {
+  if (!activeWeeks.value || !activeBlockId.value) {
     addNotification("No week selected", "info")
     return
   }
@@ -69,26 +85,10 @@ function deleteWeek() {
 
   addChangeEvent(new WeekDelete(activeWeeks.value))
 }
-interface Weekday {
-  id: string
-  originalName: string
-  assignedName: string
-  suggestionNames: string[]
+
+function changeName(weekDay: WeekDay) {
+  weekDayService.put({ name: weekDay.name, id: weekDay.id })
 }
-
-// Data for the 7 specific weekdays
-const configuredWeekdays = ref<Weekday[]>([
-  { id: "mon", originalName: "Monday", assignedName: "", suggestionNames: [] },
-  { id: "tue", originalName: "Tuesday", assignedName: "", suggestionNames: [] },
-  { id: "wed", originalName: "Wednesday", assignedName: "", suggestionNames: [] },
-  { id: "thu", originalName: "Thursday", assignedName: "", suggestionNames: [] },
-  { id: "fri", originalName: "Friday", assignedName: "", suggestionNames: [] },
-  { id: "sat", originalName: "Saturday", assignedName: "", suggestionNames: [] },
-  { id: "sun", originalName: "Sunday", assignedName: "", suggestionNames: [] },
-])
-
-// New reactive state for the general, unassigned day names
-const generalDayNames = ref<string[]>([])
 </script>
 
 <template>
@@ -146,7 +146,7 @@ const generalDayNames = ref<string[]>([])
       <v-card-title class="text-h6 py-2">Training assignments</v-card-title>
       <v-card-text class="pt-2">
         <v-list density="compact" lines="one" class="mb-3 specific-weekdays-list">
-          <template v-for="(day, index) in configuredWeekdays" :key="day.id">
+          <template v-for="(day, index) in activeWeekDays" :key="day.id">
             <v-list-item class="px-1 py-0 weekday-list-item">
               <v-row align="center" no-gutters class="py-1">
                 <v-col
@@ -155,35 +155,36 @@ const generalDayNames = ref<string[]>([])
                   md="3"
                   class="py-0 pr-sm-2 d-flex align-center weekday-name-col"
                 >
-                  <span class="font-weight-medium text-body-1 ws-nowrap">
-                    {{ day.originalName }}
+                  <span class="font-weight-medium text-body-1 ws-nowrap"
+                    >{{ getDateWeekDayString(day.day_date) }}
                   </span>
                 </v-col>
                 <v-col cols="12" sm="8" md="9" class="py-0 weekday-input-col">
                   <v-text-field
-                    v-model="day.assignedName"
-                    label="Assigned Name"
+                    v-model="day.name"
+                    label="Name"
                     placeholder="Name for this day"
                     density="compact"
                     clearable
                     hide-details="auto"
                     variant="outlined"
                     class="compact-text-field"
+                    @update:model-value="changeName(day)"
                   ></v-text-field>
                 </v-col>
               </v-row>
             </v-list-item>
-            <v-divider v-if="index < configuredWeekdays.length - 1" class="my-1"></v-divider>
+            <v-divider v-if="index < activeWeekDays!.length - 1" class="my-1"></v-divider>
           </template>
         </v-list>
 
         <v-divider class="my-4"></v-divider>
 
-        <h3 class="text-subtitle-1 font-weight-medium mb-2">General Unassigned Day Names</h3>
+        <h3 class="text-subtitle-1 font-weight-medium mb-2">General Unassigned Training days</h3>
         <p class="text-caption mb-2">Create traning not tied to a specific weekday.</p>
         <v-combobox
           v-model="generalDayNames"
-          label="Add General Day Names"
+          label="Add days here"
           placeholder="Type and press Enter"
           multiple
           chips

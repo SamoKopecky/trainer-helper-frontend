@@ -11,7 +11,7 @@ export interface UserPutRequest {
   nickname: string
 }
 
-export class UserService extends ServiceBase<UserPostRequest, { user_id: string }> {
+export class UserService extends ServiceBase<UserPutRequest, UserPostRequest, { user_id: string }> {
   constructor() {
     super(Route.Users)
   }
@@ -22,13 +22,5 @@ export class UserService extends ServiceBase<UserPostRequest, { user_id: string 
 
   async get(): Promise<User[]> {
     return this.handleRequest({ method: Method.GET, route: Route.Users }) as Promise<User[]>
-  }
-
-  async put(body: UserPutRequest): Promise<void> {
-    return this.handleRequest({
-      method: Method.PUT,
-      jsonParams: body,
-      route: this.route,
-    }) as Promise<void>
   }
 }

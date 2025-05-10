@@ -12,7 +12,7 @@ export interface WorkSetPostUndeleteRequest {
   ids: number[]
 }
 
-export class WorkSetService extends ServiceBase<object, WorkSet> {
+export class WorkSetService extends ServiceBase<object, object, WorkSet> {
   constructor() {
     super(Route.WorkSets)
   }

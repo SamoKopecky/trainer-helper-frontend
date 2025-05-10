@@ -27,7 +27,11 @@ export interface TimeslotDeletePathParams {
   id: number
 }
 
-export class TimeslotService extends ServiceBase<TimeslotPostRequest, Timeslot> {
+export class TimeslotService extends ServiceBase<
+  TimeslotPutRequest,
+  TimeslotPostRequest,
+  Timeslot
+> {
   constructor() {
     super(Route.Timeslots)
   }
@@ -50,13 +54,5 @@ export class TimeslotService extends ServiceBase<TimeslotPostRequest, Timeslot> 
       toRes: this.parseTimeslots,
       queryParams,
     }) as Promise<Timeslot[]>
-  }
-
-  async put(body: TimeslotPutRequest): Promise<void> {
-    return this.handleRequest({
-      route: this.route,
-      method: Method.PUT,
-      jsonParams: body,
-    }) as Promise<void>
   }
 }

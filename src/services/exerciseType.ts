@@ -13,7 +13,11 @@ export interface ExerciseTypePutRequest extends ExerciseTypeUpdate {
   id: number
 }
 
-export class ExerciseTypeService extends ServiceBase<ExerciseTypePostRequest, ExerciseType> {
+export class ExerciseTypeService extends ServiceBase<
+  ExerciseTypePutRequest,
+  ExerciseTypePostRequest,
+  ExerciseType
+> {
   constructor() {
     super(Route.ExerciseTypes)
   }
@@ -31,14 +35,6 @@ export class ExerciseTypeService extends ServiceBase<ExerciseTypePostRequest, Ex
       method: Method.GET,
       queryParams: { user_id: userId },
     }) as Promise<ExerciseType[]>
-  }
-
-  async put(body: ExerciseTypePutRequest): Promise<void> {
-    return this.handleRequest({
-      route: Route.ExerciseTypes,
-      jsonParams: body,
-      method: Method.PUT,
-    }) as Promise<void>
   }
 
   async postDuplicate(): Promise<ExerciseType[]> {

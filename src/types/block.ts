@@ -9,10 +9,19 @@ export interface Block extends Labeled {
 }
 
 export interface Week extends Labeled {
-  startDate: Date
+  start_date: Date
+  week_days: WeekDay[]
 }
 
 export interface BlockValue extends Omit<Block, "weeks"> {
   weeks: Map<number, Week>
 }
 export type BlockMap = Map<number, BlockValue>
+
+export interface WeekDay {
+  id: number
+  week_id: number
+  user_id: string
+  day_date: Date
+  name?: string
+}
