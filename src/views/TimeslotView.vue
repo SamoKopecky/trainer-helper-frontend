@@ -80,28 +80,30 @@ function displayExerciseType(exerciseTypeId: number) {
 
 <template>
   <NotificationFloat :notifications="notifications" />
-  <ChangeEventBar
-    :is-undo-active="undoActive"
-    :is-redo-active="redoActive"
-    @undo="undo"
-    @redo="redo"
-  >
-    <template #extra>
-      <v-btn
-        v-if="!isTableEditable"
-        v-tooltip:bottom="'Edit table'"
-        @click="isTableEditable = true"
-        icon="mdi-table-edit"
-      />
-      <v-btn
-        v-else-if="isTableEditable"
-        color="green"
-        v-tooltip:bottom="'Save table'"
-        @click="isTableEditable = false"
-        icon="mdi-check"
-      />
-    </template>
-  </ChangeEventBar>
+  <v-app-bar density="compact" rounded>
+    <ChangeEventBar
+      :is-undo-active="undoActive"
+      :is-redo-active="redoActive"
+      @undo="undo"
+      @redo="redo"
+    >
+      <template #extra>
+        <v-btn
+          v-if="!isTableEditable"
+          v-tooltip:bottom="'Edit table'"
+          @click="isTableEditable = true"
+          icon="mdi-table-edit"
+        />
+        <v-btn
+          v-else-if="isTableEditable"
+          color="green"
+          v-tooltip:bottom="'Save table'"
+          @click="isTableEditable = false"
+          icon="mdi-check"
+        />
+      </template>
+    </ChangeEventBar>
+  </v-app-bar>
   <TimeslotControlPanel
     :app-timeslot="exerciseRes ? timeslotToAppTimeslot(exerciseRes.timeslot) : undefined"
     :is-trainer="isTrainer"

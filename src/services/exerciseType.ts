@@ -1,9 +1,5 @@
 import type { ExerciseType, ExerciseTypeUpdate, MediaType } from "@/types/exerciseType"
-import { ServiceI, Method, Route } from "./base"
-
-export interface ExerciseTypeGetRequest {
-  user_id: string
-}
+import { ServiceBase, Method, Route } from "./base"
 
 export interface ExerciseTypePostRequest {
   name: string
@@ -17,37 +13,33 @@ export interface ExerciseTypePutRequest extends ExerciseTypeUpdate {
   id: number
 }
 
-export class ExerciseTypeService extends ServiceI {
-  route = Route.ExerciseType
+export class ExerciseTypeService extends ServiceBase<
+  ExerciseTypePutRequest,
+  ExerciseTypePostRequest,
+  ExerciseType
+> {
+  constructor() {
+    super(Route.ExerciseTypes)
+  }
 
-  async get(body: ExerciseTypeGetRequest): Promise<ExerciseType[]> {
-    const requestUrl = new URL(this.get_api_url(Route.ExerciseType))
-    requestUrl.searchParams.append("user_id", body.user_id)
+  public delete(_id: number): Promise<void> {
+    throw new Error("Method not implemented.")
+  }
+  public postUndelete(_id: number): Promise<void> {
+    throw new Error("Method not implemented.")
+  }
+
+  async get(userId: string): Promise<ExerciseType[]> {
     return this.handleRequest({
-      route: Route.ExerciseType,
+      route: Route.ExerciseTypes,
       method: Method.GET,
-      url: requestUrl.toString(),
+      queryParams: { user_id: userId },
     }) as Promise<ExerciseType[]>
-  }
-  async post(body: ExerciseTypePostRequest): Promise<ExerciseType> {
-    return this.handleRequest({
-      route: Route.ExerciseType,
-      body: body,
-      method: Method.POST,
-    }) as Promise<ExerciseType>
-  }
-
-  async put(body: ExerciseTypePutRequest): Promise<void> {
-    return this.handleRequest({
-      route: Route.ExerciseType,
-      body: body,
-      method: Method.PUT,
-    }) as Promise<void>
   }
 
   async postDuplicate(): Promise<ExerciseType[]> {
     return this.handleRequest({
-      route: Route.ExerciseTypeDuplicate,
+      route: Route.ExerciseTypesDuplicate,
       method: Method.POST,
     }) as Promise<ExerciseType[]>
   }

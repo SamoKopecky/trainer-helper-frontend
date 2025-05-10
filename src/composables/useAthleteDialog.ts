@@ -15,7 +15,7 @@ export function useAthleteDialog(
   function deleteUser() {
     if (user.value)
       userService
-        .delete({ id: user.value?.id })
+        .delete(user.value?.id)
         .then(() => addNotification("User deleted succsefully!", "success"))
         .catch((err) => addNotification(err, "error"))
         .finally(() => {

@@ -1,4 +1,4 @@
-import { ServiceI, Route, Method } from "./base"
+import { ServiceBase, Route, Method } from "./base"
 import { isArray } from "@/utils/service"
 import type { Timeslot } from "@/types/other"
 
@@ -6,10 +6,6 @@ export interface TimeslotGetRequest {
   // TODO: Make date jsonify correcly
   start_date: string
   end_date: string
-}
-
-export interface TimeslotUndeletePostRequest {
-  id: number
 }
 
 export interface TimeslotPostRequest {
@@ -27,12 +23,18 @@ export interface TimeslotPutRequest {
   deleted_at?: string
 }
 
-export interface TimeslotDeleteRequest {
+export interface TimeslotDeletePathParams {
   id: number
 }
 
-export class TimeslotService extends ServiceI {
-  route = Route.Timeslot
+export class TimeslotService extends ServiceBase<
+  TimeslotPutRequest,
+  TimeslotPostRequest,
+  Timeslot
+> {
+  constructor() {
+    super(Route.Timeslots)
+  }
 
   private parseTimeslots(obj: unknown): Timeslot[] {
     if (!isArray(obj)) {
@@ -45,39 +47,12 @@ export class TimeslotService extends ServiceI {
     })
   }
 
-  async get(body: TimeslotGetRequest): Promise<Timeslot[]> {
-    const requestUrl = new URL(this.get_api_url(Route.Timeslot))
-    requestUrl.searchParams.append("start_date", body.start_date)
-    requestUrl.searchParams.append("end_date", body.end_date)
+  async get(queryParams: TimeslotGetRequest): Promise<Timeslot[]> {
     return this.handleRequest({
-      route: Route.Timeslot,
+      route: this.route,
       method: Method.GET,
       toRes: this.parseTimeslots,
-      url: requestUrl.toString(),
+      queryParams,
     }) as Promise<Timeslot[]>
-  }
-
-  async post(body: TimeslotPostRequest): Promise<Timeslot> {
-    return this.handleRequest({
-      route: Route.Timeslot,
-      method: Method.POST,
-      body,
-    }) as Promise<Timeslot>
-  }
-
-  async put(body: TimeslotPutRequest): Promise<void> {
-    return this.handleRequest({ route: Route.Timeslot, method: Method.PUT, body })
-  }
-
-  async delete(body: TimeslotDeleteRequest): Promise<Timeslot> {
-    return this.handleRequest({
-      route: Route.Timeslot,
-      method: Method.DELETE,
-      body,
-    }) as Promise<Timeslot>
-  }
-
-  async postUndelete(body: TimeslotUndeletePostRequest): Promise<void> {
-    return this.handleRequest({ body, method: Method.POST, route: Route.TimeslotUndelete })
   }
 }

@@ -17,6 +17,7 @@ import {
   VDialog,
   VIcon,
   VListItem,
+  VList,
   VMain,
   VNavigationDrawer,
   VSlideYTransition,
@@ -39,6 +40,10 @@ import {
   VChip,
   VFab,
   VSheet,
+  VToolbar,
+  VToolbarTitle,
+  VDatePicker,
+  VCombobox,
 } from "vuetify/components"
 import router from "./router"
 import VueKeyCloak from "@dsb-norge/vue-keycloak-js"
@@ -46,10 +51,15 @@ import { tokenInterceptor } from "./services/base"
 
 const vuetify = createVuetify({
   components: {
+    VDatePicker,
+    VCombobox,
+    VToolbar,
+    VToolbarTitle,
     VFab,
     VSheet,
     VCardText,
     VListItem,
+    VList,
     VNavigationDrawer,
     VAppBarNavIcon,
     VAppBarTitle,

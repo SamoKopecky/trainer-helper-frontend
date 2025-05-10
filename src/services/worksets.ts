@@ -1,4 +1,5 @@
-import { ServiceI, Method, Route } from "./base"
+import type { WorkSet } from "@/types/other"
+import { ServiceBase, Method, Route } from "./base"
 
 export interface WorkSetPutRequest {
   id: number
@@ -11,18 +12,42 @@ export interface WorkSetPostUndeleteRequest {
   ids: number[]
 }
 
-export class WorkSetService extends ServiceI {
-  route = Route.WorkSet
-
-  async put(body: WorkSetPutRequest): Promise<void> {
-    return this.handleRequest({ body: [body], method: Method.PUT, route: Route.WorkSet })
+export class WorkSetService extends ServiceBase<object, object, WorkSet> {
+  constructor() {
+    super(Route.WorkSets)
   }
 
-  async putMany(body: WorkSetPutRequest[]): Promise<void> {
-    return this.handleRequest({ body, method: Method.PUT, route: Route.WorkSet })
+  public post(_jsonParams: object): Promise<WorkSet> {
+    throw new Error("Method not implemented.")
+  }
+  public delete(_id: number): Promise<void> {
+    throw new Error("Method not implemented.")
+  }
+  public postUndelete(_id: number): Promise<void> {
+    throw new Error("Method not implemented.")
   }
 
-  async undeleteMany(body: WorkSetPostUndeleteRequest): Promise<void> {
-    return this.handleRequest({ body, method: Method.POST, route: Route.WorkSetUndelete })
+  async put(jsonParams: WorkSetPutRequest): Promise<void> {
+    return this.handleRequest({
+      jsonParams: [jsonParams],
+      method: Method.PUT,
+      route: this.route,
+    }) as Promise<void>
+  }
+
+  async putMany(jsonParams: WorkSetPutRequest[]): Promise<void> {
+    return this.handleRequest({
+      jsonParams,
+      method: Method.PUT,
+      route: this.route,
+    }) as Promise<void>
+  }
+
+  async undeleteMany(jsonParams: WorkSetPostUndeleteRequest): Promise<void> {
+    return this.handleRequest({
+      jsonParams: jsonParams,
+      method: Method.POST,
+      route: `${this.route}/undelete`,
+    }) as Promise<void>
   }
 }
