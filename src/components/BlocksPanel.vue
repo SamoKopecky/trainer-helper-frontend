@@ -14,6 +14,8 @@ import { BlockDelete } from "@/changeEvents/user/blockDelete"
 import { WeekAdd } from "@/changeEvents/user/weekAdd"
 import { WeekDelete } from "@/changeEvents/user/weekDelete"
 import { watch } from "vue"
+import { WeekService } from "@/services/week"
+import { getISODateString } from "@/utils/date"
 
 const { userId } = defineProps({
   userId: {
@@ -27,6 +29,7 @@ const { notifications, addNotification } = useNotifications()
 const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
 
 const blockService = new BlockService()
+const weekService = new WeekService()
 
 const selectedDate = ref<Date>()
 
@@ -106,6 +109,14 @@ function mondaysOnly(val: unknown): boolean {
   const date = new Date(val as string)
   return date.getDay() === 1
 }
+
+function changeStartOfTheWeek() {
+  if (!activeWeekId.value || !selectedDate.value) return
+  weekService.put({
+    start_date: getISODateString(selectedDate.value),
+    id: activeWeekId.value,
+  })
+}
 </script>
 
 <template>
@@ -167,6 +178,7 @@ function mondaysOnly(val: unknown): boolean {
         variant="outlined"
         label="Start of the week"
         :allowed-dates="mondaysOnly"
+        @update:model-value="changeStartOfTheWeek"
       ></v-date-input>
     </div>
   </div>

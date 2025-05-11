@@ -8,7 +8,12 @@ export interface WeekPostRequest {
   is_first: boolean
 }
 
-export class WeekService extends ServiceBase<object, WeekPostRequest, Week> {
+export interface WeekPutRequest {
+  id: number
+  start_date: string
+}
+
+export class WeekService extends ServiceBase<WeekPutRequest, WeekPostRequest, Week> {
   constructor() {
     super(Route.Weeks)
   }

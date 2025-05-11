@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import BlocksPanel from "@/components/BlocksPanel.vue"
-import { onMounted } from "vue"
 import { useRouter } from "vue-router"
 
 defineProps({
@@ -20,6 +19,19 @@ function goToAthlete(userId: string) {
 
 <template>
   <v-card :title="'User name/nickname'" flat>
+    <template #title>
+      <!-- <v-autocomplete -->
+      <!--   ref="input" -->
+      <!--   v-model="selectedId" -->
+      <!--   :items="users" -->
+      <!--   :item-title="getUserDisplaytitle" -->
+      <!--   item-value="id" -->
+      <!--   placeholder="Enter name" -->
+      <!--   variant="plain" -->
+      <!--   density="compact" -->
+      <!--   hide-details="auto" -->
+      <!-- /> -->
+    </template>
     <template #text>
       <div v-if="id">
         <BlocksPanel :user-id="id" />
