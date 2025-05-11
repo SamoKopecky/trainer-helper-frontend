@@ -15,10 +15,12 @@ export class WeekAdd extends LabeledAdd<Week, Week, object, WeekPostRequest, Wee
   }
 
   protected getPostPayload(): WeekPostRequest {
+    const maxLabel = this.getMaxLabel(this.labeledMap)
     return {
       block_id: this.activeBlockId,
-      label: this.getMaxLabel(this.labeledMap) + 1,
+      label: maxLabel + 1,
       user_id: this.userId,
+      is_first: maxLabel === 0,
     }
   }
 }

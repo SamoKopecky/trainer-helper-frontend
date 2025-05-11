@@ -111,7 +111,6 @@ watch(generalDayNames, (newNames, oldNames) => {
 })
 
 function mondaysOnly(val: unknown): boolean {
-  console.log(val)
   const date = new Date(val as string)
   return date.getDay() === 1
 }

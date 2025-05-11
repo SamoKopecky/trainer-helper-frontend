@@ -5,6 +5,7 @@ export interface WeekPostRequest {
   block_id: number
   label: number
   user_id: string
+  is_first: boolean
 }
 
 export class WeekService extends ServiceBase<object, WeekPostRequest, Week> {
