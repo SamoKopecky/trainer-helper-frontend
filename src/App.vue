@@ -5,12 +5,17 @@ import { useRoute } from "vue-router"
 import { useTheme } from "vuetify"
 import { capitalizeWords } from "./utils/user"
 import { useUser } from "@/composables/useUser"
+import { computed } from "vue"
 
 const keycloak = useKeycloak()
 const drawer = ref(false)
 const route = useRoute()
 const theme = useTheme()
 const { isTrainer } = useUser()
+const athleteIdPath = computed(() => {
+  const athleteBasePath = "/athlete"
+  return !isTrainer.value ? `${athleteBasePath}/${keycloak.subject}` : athleteBasePath
+})
 
 function LogOut() {
   if (keycloak && keycloak.logoutFn) {
@@ -27,6 +32,7 @@ function toggleTheme() {
   <v-app>
     <v-navigation-drawer v-model="drawer">
       <v-list-item link title="Home" to="/" />
+      <v-list-item link title="Athlete Info" :to="athleteIdPath" />
       <v-list-item v-if="isTrainer" link title="Athletes" to="/athleteList" />
       <v-list-item link title="Time schedule" to="/calendar" />
       <v-list-item v-if="isTrainer" link title="Exercise types" to="/exerciseType" />
