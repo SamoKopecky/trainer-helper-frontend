@@ -5,6 +5,7 @@ import "vuetify/styles"
 import { createVuetify } from "vuetify"
 import * as directives from "vuetify/directives"
 import App from "./App.vue"
+import { createPinia } from "pinia"
 import {
   VAlert,
   VApp,
@@ -103,14 +104,16 @@ const vuetify = createVuetify({
   },
 })
 
-const VITE_KEYCLOAK_URL = import.meta.env.VITE_APP_KEYCLOAK_URL ?? "http://localhost:8080"
+const pinia = createPinia()
+const viteKeycloakUrl = import.meta.env.VITE_APP_KEYCLOAK_URL ?? "http://localhost:8080"
 const app = createApp(App)
 app
   .use(router)
   .use(vuetify)
+  .use(pinia)
   .use(VueKeyCloak, {
     config: {
-      url: VITE_KEYCLOAK_URL,
+      url: viteKeycloakUrl,
       realm: "trainer-helper",
       clientId: "trainer-helper",
     },

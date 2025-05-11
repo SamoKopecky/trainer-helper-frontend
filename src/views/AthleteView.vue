@@ -1,16 +1,32 @@
 <script setup lang="ts">
 import BlocksPanel from "@/components/BlocksPanel.vue"
+import { useUsers } from "@/composables/useUsers"
+import { watch } from "vue"
+import { ref } from "vue"
 import { useRouter } from "vue-router"
 
-defineProps({
+const props = defineProps({
   id: {
     type: String,
     required: false,
-    default: "",
+    default: undefined,
   },
 })
 
+const selectedUserId = ref<string>()
 const router = useRouter()
+const { users, userDisplay } = useUsers()
+
+watch(
+  () => props.id,
+  () => {
+    selectedUserId.value = undefined
+    if (props.id) {
+      selectedUserId.value = props.id
+    }
+  },
+  { immediate: true },
+)
 
 function goToAthlete(userId: string) {
   router.push({ path: `/athlete/${userId}` })
@@ -20,26 +36,31 @@ function goToAthlete(userId: string) {
 <template>
   <v-card :title="'User name/nickname'" flat>
     <template #title>
-      <!-- <v-autocomplete -->
-      <!--   ref="input" -->
-      <!--   v-model="selectedId" -->
-      <!--   :items="users" -->
-      <!--   :item-title="getUserDisplaytitle" -->
-      <!--   item-value="id" -->
-      <!--   placeholder="Enter name" -->
-      <!--   variant="plain" -->
-      <!--   density="compact" -->
-      <!--   hide-details="auto" -->
-      <!-- /> -->
+      <v-autocomplete
+        v-model="selectedUserId"
+        :items="users"
+        :item-title="userDisplay"
+        item-value="id"
+        placeholder="Enter name"
+        variant="plain"
+        density="compact"
+        hide-details="auto"
+        @update:model-value="goToAthlete"
+      >
+        <template #selection="{ item }">
+          <span class="text-h5 font-weight-medium">
+            {{ userDisplay(item.raw) }}
+          </span></template
+        >
+      </v-autocomplete>
     </template>
     <template #text>
+      <v-divider />
       <div v-if="id">
         <BlocksPanel :user-id="id" />
       </div>
 
-      <div v-else>
-        <v-btn @click="goToAthlete('4de8189c-e8cb-4b8f-9ff7-ee673fc956c9')"> Go to user X </v-btn>
-      </div>
+      <div v-else>Choose a user above</div>
     </template>
   </v-card>
 </template>

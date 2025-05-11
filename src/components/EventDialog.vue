@@ -3,9 +3,7 @@ import type { CalTimeslot } from "@/types/calendar"
 import { useRouter } from "vue-router"
 import { ref, useTemplateRef, watch, watchEffect, type PropType } from "vue"
 import { EMPTY_USER } from "@/constants"
-import type { User } from "@/types/user"
-import { onMounted } from "vue"
-import { UserService } from "../services/user"
+import { useUsers } from "@/composables/useUsers"
 
 const { selectedEvent, modelValue } = defineProps({
   selectedEvent: {
@@ -32,11 +30,10 @@ watch(
 )
 
 const selectedId = ref<string | undefined>()
-const users = ref<User[]>()
+const { users, userDisplay } = useUsers()
 const titleEditable = ref(false)
 const router = useRouter()
 const emit = defineEmits(["delete-cal-timeslot", "update:modelValue", "update-user"])
-const userService = new UserService()
 const input = useTemplateRef("input")
 
 watchEffect(() => {
@@ -64,14 +61,6 @@ function buttonClick() {
     users.value?.find((p) => p.id === selectedId.value),
   )
 }
-
-function getUserDisplaytitle(user: User): string {
-  return user.nickname || user.name || user.email
-}
-
-onMounted(() => {
-  userService.get().then((res) => (users.value = res))
-})
 </script>
 
 <template>
@@ -88,7 +77,7 @@ onMounted(() => {
             v-if="titleEditable"
             v-model="selectedId"
             :items="users"
-            :item-title="getUserDisplaytitle"
+            :item-title="userDisplay"
             item-value="id"
             placeholder="Enter name"
             variant="plain"

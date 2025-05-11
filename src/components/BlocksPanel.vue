@@ -7,7 +7,7 @@ import { BlockService } from "@/services/block"
 import type { BlockMap } from "@/types/block"
 import { blocksToMap } from "@/utils/tranformators"
 import { computed } from "vue"
-import { onMounted, ref } from "vue"
+import { ref } from "vue"
 import { useChangeEvents } from "@/composables/useChangeEvents"
 import { BlockAdd } from "@/changeEvents/user/blockAdd"
 import { BlockDelete } from "@/changeEvents/user/blockDelete"
@@ -17,7 +17,7 @@ import { watch } from "vue"
 import { WeekService } from "@/services/week"
 import { getISODateString } from "@/utils/date"
 
-const { userId } = defineProps({
+const props = defineProps({
   userId: {
     type: String,
     required: true,
@@ -60,23 +60,26 @@ watch(activeWeekId, (newWeekId) => {
 
 const generalDayNames = ref<string[]>([])
 
-onMounted(() =>
-  blockService.get(userId).then((res) => {
-    activeBlocks.value = blocksToMap(res)
-    // TODO: Set default depedning on todays date
-    const firstBlock = activeBlocks.value.values().next()
-    if (firstBlock.value) {
-      activeBlockId.value = firstBlock.value.id
-      const firstWeek = firstBlock.value.weeks.values().next()
-      if (firstWeek.value) {
-        activeWeekId.value = firstWeek.value.id
+watch(
+  () => props.userId,
+  (newUserId) =>
+    blockService.get(newUserId).then((res) => {
+      activeBlocks.value = blocksToMap(res)
+      // TODO: Set default depedning on todays date
+      const firstBlock = activeBlocks.value.values().next()
+      if (firstBlock.value) {
+        activeBlockId.value = firstBlock.value.id
+        const firstWeek = firstBlock.value.weeks.values().next()
+        if (firstWeek.value) {
+          activeWeekId.value = firstWeek.value.id
+        }
       }
-    }
-  }),
+    }),
+  { immediate: true },
 )
 
 function addBlock() {
-  addChangeEvent(new BlockAdd(activeBlocks.value, userId))
+  addChangeEvent(new BlockAdd(activeBlocks.value, props.userId))
 }
 
 function deleteBlock() {
@@ -88,7 +91,7 @@ function addWeek() {
     addNotification("No week selected", "info")
     return
   }
-  addChangeEvent(new WeekAdd(activeWeeks.value, userId, activeBlockId.value))
+  addChangeEvent(new WeekAdd(activeWeeks.value, props.userId, activeBlockId.value))
 }
 
 function deleteWeek() {
@@ -170,7 +173,6 @@ function changeStartOfTheWeek() {
       />
     </div>
 
-    <!-- TODO: Add date update -->
     <div class="mt-4">
       <v-date-input
         :readonly="!isTrainer"
