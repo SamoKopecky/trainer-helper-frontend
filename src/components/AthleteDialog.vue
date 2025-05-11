@@ -3,6 +3,7 @@ import type { User } from "@/types/user"
 import { watchDebounced } from "@vueuse/core"
 import { useTemplateRef, watchEffect } from "vue"
 import { ref, watch, type PropType } from "vue"
+import { useRouter } from "vue-router"
 
 const props = defineProps({
   modelValue: {
@@ -19,6 +20,7 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue", "update:nickname", "delete:user"])
 const input = useTemplateRef("input")
 const nickname = ref<string>()
+const router = useRouter()
 
 watch(
   () => props.user,
@@ -42,6 +44,10 @@ watchDebounced(
   },
   { debounce: 1000 },
 )
+
+function goToAthlete(userId: string) {
+  router.push({ path: `/athlete/${userId}` })
+}
 
 function exitButton() {
   emit("update:modelValue", false)
@@ -71,6 +77,7 @@ function unregisterUser() {
           placeholder="Choose a nickname..."
           prepend-inner-icon="mdi-account"
         />
+        <v-btn class="mr-2" @click="goToAthlete(user!.id)">Athlete Info</v-btn>
         <v-btn color="red-darken-1" @click="unregisterUser">Unregister user</v-btn>
       </v-card-text>
       <v-card-actions>

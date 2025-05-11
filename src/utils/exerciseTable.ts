@@ -1,5 +1,34 @@
 import type { ExerciseTableColumn, ExerciseTableData } from "@/types/exercise"
 
+const ALPHABET = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+]
+
 export function getColumns(
   columns: ExerciseTableColumn[],
   row: ExerciseTableData,
@@ -35,7 +64,6 @@ export function getAllGroupIds(exercises: ExerciseTableData[]): number[] {
 export function getGroupAlphabetMap(exercises: ExerciseTableData[]): Map<number, string> {
   const result = new Map()
   // TODO: Whole alphabet
-  const alphabet = ["A", "B", "C", "D", "E", "F"]
   if (exercises.length === 0) {
     return result
   }
@@ -54,7 +82,7 @@ export function getGroupAlphabetMap(exercises: ExerciseTableData[]): Map<number,
       }
 
       oldGroupId = e.group_id
-      result.set(e.exercise_id, `${alphabet[alphabetIndex]}${groupIdCount}`)
+      result.set(e.exercise_id, `${ALPHABET[alphabetIndex]}${groupIdCount}`)
     })
   return result
 }

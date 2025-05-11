@@ -21,20 +21,16 @@ export class TimelostDeleteEvent implements ChangeEvent {
   }
 
   public async up(_initial: boolean) {
-    return this.timeslotService.delete({ id: this.timeslot.id }).then(() => {
+    return this.timeslotService.delete(this.timeslot.id).then(() => {
       this.eventsCopy.delete(this.timeslot.id)
       this.timeslot.delete(3)
     })
   }
 
   public async down() {
-    return this.timeslotService
-      .postUndelete({
-        id: this.timeslot.id,
-      })
-      .then(() => {
-        this.eventsCopy.set(this.timeslot.id, this.timeslot)
-        this.calendarView.createEvent(this.timeslot)
-      })
+    return this.timeslotService.postUndelete(this.timeslot.id).then(() => {
+      this.eventsCopy.set(this.timeslot.id, this.timeslot)
+      this.calendarView.createEvent(this.timeslot)
+    })
   }
 }

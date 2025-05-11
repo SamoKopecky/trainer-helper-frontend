@@ -1,19 +1,20 @@
-const API_BASE_URL = import.meta.env.VITE_APP_BACKEND ?? "http://localhost:2001"
 import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
 import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios"
 
+const API_BASE_URL = import.meta.env.VITE_APP_BACKEND ?? "http://localhost:2001"
 export enum Route {
-  Timeslot = "/timeslot",
-  TimeslotUndelete = "/timeslot/undelete",
-  WorkSet = "/workset",
-  WorkSetUndelete = "/workset/undelete",
-  Exercise = "/exercise",
-  ExerciseUndelete = "/exercise/undelete",
-  ExerciseCount = "/exercise/count",
-  ExerciseDuplicate = "/exercise/duplicate",
-  User = "/user",
-  ExerciseType = "/exerciseType",
-  ExerciseTypeDuplicate = "/exerciseType/duplicate",
+  Timeslots = "/timeslots",
+  // TODO: Make exercise a subpath of timeslot
+  Exercises = "/exercises",
+  ExercisesCount = `${Route.Exercises}/count`,
+  ExercisesDuplicate = `${Route.Exercises}/duplicate`,
+  WorkSets = "/work-sets",
+  Users = "/users",
+  ExerciseTypes = "/exercise-types",
+  ExerciseTypesDuplicate = `${Route.ExerciseTypes}/duplicate`,
+  Blocks = "/blocks",
+  Weeks = "/weeks",
+  WeekDays = "/week-days",
 }
 
 export enum Method {
@@ -23,35 +24,80 @@ export enum Method {
   DELETE = "DELETE",
 }
 
-export abstract class ServiceI {
-  protected get_api_url(route: Route) {
+export abstract class ServiceBase<PutObj extends object, PostObj extends object, T extends object> {
+  protected route: Route
+
+  constructor(routeBase: Route) {
+    this.route = routeBase
+  }
+
+  protected get_api_url(route: string) {
     return `${API_BASE_URL}${route}`
   }
   protected get_headers() {
     return { "Content-Type": "application/json" }
   }
 
-  async handleRequest<RequestT, ResponseT>({
-    body,
+  public async post(jsonParams: PostObj): Promise<T> {
+    return this.handleRequest({
+      jsonParams,
+      method: Method.POST,
+      route: this.route,
+    }) as Promise<T>
+  }
+
+  public async put(jsonParams: PutObj): Promise<void> {
+    return this.handleRequest({
+      jsonParams,
+      method: Method.PUT,
+      route: this.route,
+    }) as Promise<void>
+  }
+
+  public async delete(id: number | string): Promise<void> {
+    return this.handleRequest({
+      pathParams: { id: id },
+      method: Method.DELETE,
+      route: `${this.route}/:id`,
+    }) as Promise<void>
+  }
+
+  public async postUndelete(id: number): Promise<void> {
+    return this.handleRequest({
+      pathParams: { id: id },
+      method: Method.POST,
+      route: `${this.route}/undelete/:id`,
+    }) as Promise<void>
+  }
+
+  async handleRequest<
+    JsonParamsT extends object,
+    PathParamsT extends object,
+    QueryParamsT extends object,
+    ResponseT,
+  >({
     method,
+    pathParams,
+    queryParams,
+    jsonParams,
     toRes = (obj) => obj as ResponseT,
-    url,
     route,
   }: {
     method: Method
-    body?: RequestT
-    toRes?: (obj: unknown) => ResponseT
-    url?: string
-    route: Route
+    jsonParams?: JsonParamsT
+    queryParams?: QueryParamsT
+    pathParams?: PathParamsT
+    toRes?: (obj: any) => ResponseT
+    route: string
   }): Promise<ResponseT | void> {
-    if (!url) {
-      url = this.get_api_url(route)
-    }
+    let url = this.get_api_url(route)
+    if (pathParams) url = replacePathParams(url, pathParams)
+    if (queryParams) url = addQueryParams(url, queryParams)
 
     const request: AxiosRequestConfig = {
       method: method.toString().toLowerCase(),
       headers: this.get_headers(),
-      data: JSON.stringify(body),
+      data: JSON.stringify(jsonParams),
       url: url,
     }
 
@@ -81,4 +127,20 @@ export function tokenInterceptor() {
       return Promise.reject(error)
     },
   )
+}
+
+export function replacePathParams<T extends object>(url: string, params: T): string {
+  Object.keys(params).forEach((key) => {
+    url = url.replace(`:${key}`, params[key])
+  })
+  return url
+}
+
+export function addQueryParams<T extends object>(url: string, params: T): string {
+  const urlObj = new URL(url)
+  Object.keys(params).forEach((key) => {
+    urlObj.searchParams.append(key, params[key])
+  })
+
+  return urlObj.toString()
 }

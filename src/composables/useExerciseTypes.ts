@@ -11,7 +11,7 @@ export function useExerciseTypes(loading?: Ref<boolean>) {
   onMounted(() => {
     if (loading) loading.value = true
     if (trainerId.value) {
-      exerciseTypeServise.get({ user_id: trainerId.value }).then((res) => {
+      exerciseTypeServise.get(trainerId.value).then((res) => {
         exerciseTypes.value = res
         if (loading) loading.value = false
       })

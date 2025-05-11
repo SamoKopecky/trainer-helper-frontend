@@ -5,6 +5,7 @@ import "vuetify/styles"
 import { createVuetify } from "vuetify"
 import * as directives from "vuetify/directives"
 import App from "./App.vue"
+import { createPinia } from "pinia"
 import {
   VAlert,
   VApp,
@@ -17,6 +18,7 @@ import {
   VDialog,
   VIcon,
   VListItem,
+  VList,
   VMain,
   VNavigationDrawer,
   VSlideYTransition,
@@ -39,18 +41,30 @@ import {
   VChip,
   VFab,
   VSheet,
+  VToolbar,
+  VToolbarTitle,
+  VDatePicker,
+  VCombobox,
+  VMenu,
 } from "vuetify/components"
 import router from "./router"
 import VueKeyCloak from "@dsb-norge/vue-keycloak-js"
 import { tokenInterceptor } from "./services/base"
+import { VDateInput } from "vuetify/labs/components"
 
 const vuetify = createVuetify({
   components: {
+    VDatePicker,
+    VCombobox,
+    VToolbar,
+    VToolbarTitle,
     VFab,
     VSheet,
     VCardText,
     VListItem,
+    VList,
     VNavigationDrawer,
+    VMenu,
     VAppBarNavIcon,
     VAppBarTitle,
     VAppBar,
@@ -63,6 +77,7 @@ const vuetify = createVuetify({
     VSpacer,
     VAlert,
     VSlideYTransition,
+    VDateInput,
     VAutocomplete,
     VBtn,
     VDivider,
@@ -89,14 +104,16 @@ const vuetify = createVuetify({
   },
 })
 
-const VITE_KEYCLOAK_URL = import.meta.env.VITE_APP_KEYCLOAK_URL ?? "http://localhost:8080"
+const pinia = createPinia()
+const viteKeycloakUrl = import.meta.env.VITE_APP_KEYCLOAK_URL ?? "http://localhost:8080"
 const app = createApp(App)
 app
   .use(router)
   .use(vuetify)
+  .use(pinia)
   .use(VueKeyCloak, {
     config: {
-      url: VITE_KEYCLOAK_URL,
+      url: viteKeycloakUrl,
       realm: "trainer-helper",
       clientId: "trainer-helper",
     },

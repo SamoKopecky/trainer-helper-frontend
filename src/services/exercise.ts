@@ -1,5 +1,5 @@
 import type { Timeslot, WorkSet } from "@/types/other"
-import { ServiceI, Method, Route } from "./base"
+import { ServiceBase, Method, Route } from "./base"
 import type { Exercise } from "@/types/exercise"
 
 export interface FullExerciseResponse {
@@ -41,64 +41,44 @@ export interface ExerciseDuplicatePostRequest {
   timeslot_id: number
 }
 
-export interface ExerciseUndeletePostRequest {
-  id: number
-}
+export class ExerciseService extends ServiceBase<
+  ExercisePutRequest,
+  ExercisePostRequest,
+  ExerciseResponse
+> {
+  constructor() {
+    super(Route.Exercises)
+  }
 
-export class ExerciseService extends ServiceI {
   async get(timeslot_id: number): Promise<FullExerciseResponse> {
     return this.handleRequest({
       method: Method.GET,
-      url: `${this.get_api_url(Route.Exercise)}/${timeslot_id}`,
-      route: Route.Exercise,
+      route: `${this.route}/:id`,
+      pathParams: { id: timeslot_id },
     }) as Promise<FullExerciseResponse>
   }
 
-  async put(body: ExercisePutRequest): Promise<void> {
-    this.handleRequest({ body, method: Method.PUT, route: Route.Exercise })
-  }
-
-  async post(body: ExercisePostRequest): Promise<ExerciseResponse> {
+  async putCount(jsonParams: ExerciseCountPutRequest): Promise<WorkSet[]> {
     return this.handleRequest({
-      body,
-      method: Method.POST,
-      route: Route.Exercise,
-    }) as Promise<ExerciseResponse>
-  }
-
-  async delete(body: ExerciseDeleteRequest): Promise<void> {
-    this.handleRequest({ body, method: Method.DELETE, route: Route.Exercise })
-  }
-
-  async putCount(body: ExerciseCountPutRequest): Promise<WorkSet[]> {
-    return this.handleRequest({
-      body,
+      jsonParams,
       method: Method.PUT,
-      route: Route.ExerciseCount,
+      route: Route.ExercisesCount,
     }) as Promise<WorkSet[]>
   }
 
-  async deleteCount(body: ExerciseCountDeleteRequest): Promise<number> {
+  async deleteCount(jsonParams: ExerciseCountDeleteRequest): Promise<number> {
     return this.handleRequest({
-      body,
+      jsonParams,
       method: Method.DELETE,
-      route: Route.ExerciseCount,
+      route: Route.ExercisesCount,
     }) as Promise<number>
   }
 
-  async postDuplicate(body: ExerciseDuplicatePostRequest): Promise<FullExerciseResponse> {
+  async postDuplicate(jsonParams: ExerciseDuplicatePostRequest): Promise<FullExerciseResponse> {
     return this.handleRequest({
-      body,
+      jsonParams,
       method: Method.POST,
-      route: Route.ExerciseDuplicate,
+      route: Route.ExercisesDuplicate,
     }) as Promise<FullExerciseResponse>
-  }
-
-  async postUndelete(body: ExerciseUndeletePostRequest): Promise<void> {
-    return this.handleRequest({
-      body,
-      method: Method.POST,
-      route: Route.ExerciseUndelete,
-    }) as Promise<void>
   }
 }
