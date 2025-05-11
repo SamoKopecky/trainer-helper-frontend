@@ -1,7 +1,7 @@
 import type { AppTimeslot, CalTimeslot } from "@/types/calendar"
 import type { ChangeEvent } from "./base"
 import { TimeslotService, type TimeslotPutRequest } from "@/services/timeslots"
-import { getISODateString } from "@/utils/date"
+import { getISODateTimeString } from "@/utils/date"
 
 export class TimeslotMoveEvent implements ChangeEvent {
   private eventsCopy: Map<number, AppTimeslot>
@@ -24,8 +24,8 @@ export class TimeslotMoveEvent implements ChangeEvent {
   private generateUpdatePayload(timeslot: CalTimeslot | AppTimeslot): TimeslotPutRequest {
     return {
       id: this.newTimeslot.id,
-      start: getISODateString(timeslot.start),
-      end: getISODateString(timeslot.end),
+      start: getISODateTimeString(timeslot.start),
+      end: getISODateTimeString(timeslot.end),
     }
   }
 

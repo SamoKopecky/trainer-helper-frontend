@@ -1,7 +1,7 @@
 import { TimeslotService } from "@/services/timeslots"
 import type { UnresolvedCalTimeslot, UnresolvedVueCalTimeslot } from "@/types/vuecal"
 import type { ChangeEvent } from "./base"
-import { getISODateString } from "@/utils/date"
+import { getISODateTimeString } from "@/utils/date"
 import type { AppTimeslot, CalTimeslot } from "@/types/calendar"
 import { timeslotToAppTimeslot } from "@/utils/tranformators"
 
@@ -33,8 +33,8 @@ export class TimeslotCreateEvent implements ChangeEvent {
     return this.service
       .post({
         trainer_id: this.subjectId,
-        start: getISODateString(this.timeslot.start),
-        end: getISODateString(this.timeslot.end),
+        start: getISODateTimeString(this.timeslot.start),
+        end: getISODateTimeString(this.timeslot.end),
       })
       .then((res) => {
         const appTimeslot = timeslotToAppTimeslot(res)
