@@ -1,4 +1,4 @@
-import type { Block, Week, WeekDay } from "@/types/block"
+import type { Block, Week } from "@/types/block"
 import { ServiceBase, Route, Method } from "./base"
 import { isArray } from "@/utils/service"
 
@@ -19,6 +19,7 @@ export class BlockService extends ServiceBase<object, BlockPostRequest, Block> {
 
     blocks.forEach((b: any) => {
       b.weeks.forEach((w: any) => {
+        w.start_date = new Date(w.start_date)
         w.week_days.map((wd: any): any => {
           wd.day_date = new Date(wd.day_date)
         })

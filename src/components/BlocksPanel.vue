@@ -15,6 +15,8 @@ import { WeekAdd } from "@/changeEvents/user/weekAdd"
 import { WeekDelete } from "@/changeEvents/user/weekDelete"
 import { getDateWeekDayString } from "@/utils/date"
 import { WeekDayService } from "@/services/weekDay"
+import { useDebounceFn } from "@vueuse/core"
+import { watch } from "vue"
 
 const { userId } = defineProps({
   userId: {
@@ -26,11 +28,16 @@ const { userId } = defineProps({
 const { isTrainer } = useUser()
 const { notifications, addNotification } = useNotifications()
 const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
+
 const blockService = new BlockService()
 const weekDayService = new WeekDayService()
-const activeBlocks = ref<BlockMap>(new Map())
+
+const selectedDate = ref<Date>()
+
 const activeBlockId = ref<number>()
 const activeWeekId = ref<number>()
+
+const activeBlocks = ref<BlockMap>(new Map())
 const activeWeeks = computed(() => {
   if (!activeBlockId.value) return
   let activeBlockIdLocal = activeBlockId.value
@@ -40,10 +47,17 @@ const activeWeeks = computed(() => {
   }
   return activeBlocks.value.get(activeBlockIdLocal)?.weeks
 })
+
 const activeWeekDays = computed(() => {
   if (!activeWeekId.value) return
   return activeWeeks.value?.get(activeWeekId.value)?.week_days
 })
+
+watch(activeWeekId, (newWeekId) => {
+  if (!newWeekId) return
+  selectedDate.value = activeWeeks.value?.get(newWeekId)?.start_date
+})
+
 const generalDayNames = ref<string[]>([])
 
 onMounted(() =>
@@ -86,8 +100,20 @@ function deleteWeek() {
   addChangeEvent(new WeekDelete(activeWeeks.value))
 }
 
-function changeName(weekDay: WeekDay) {
-  weekDayService.put({ name: weekDay.name, id: weekDay.id })
+const debounceUpdateName = useDebounceFn(
+  (weekDay: WeekDay) => weekDayService.put({ id: weekDay.id, name: weekDay.name }),
+  1000,
+)
+
+watch(generalDayNames, (newNames, oldNames) => {
+  if (newNames.length == oldNames.length) return
+  alert("general names not not implemented yet")
+})
+
+function mondaysOnly(val: unknown): boolean {
+  console.log(val)
+  const date = new Date(val as string)
+  return date.getDay() === 1
 }
 </script>
 
@@ -142,6 +168,15 @@ function changeName(weekDay: WeekDay) {
       />
     </div>
 
+    <div class="mt-2">
+      <v-date-input
+        v-model="selectedDate"
+        variant="outlined"
+        label="Start of the week"
+        :allowed-dates="mondaysOnly"
+      ></v-date-input>
+    </div>
+
     <v-card variant="text">
       <v-card-title class="text-h6 py-2">Training assignments</v-card-title>
       <v-card-text class="pt-2">
@@ -169,12 +204,15 @@ function changeName(weekDay: WeekDay) {
                     hide-details="auto"
                     variant="outlined"
                     class="compact-text-field"
-                    @update:model-value="changeName(day)"
+                    @update:model-value="debounceUpdateName(day)"
                   ></v-text-field>
                 </v-col>
               </v-row>
             </v-list-item>
-            <v-divider v-if="index < activeWeekDays!.length - 1" class="my-1"></v-divider>
+            <v-divider
+              v-if="activeWeekDays && index < activeWeekDays.length - 1"
+              class="my-1"
+            ></v-divider>
           </template>
         </v-list>
 

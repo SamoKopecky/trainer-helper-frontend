@@ -19,7 +19,6 @@ export class WeekAdd extends LabeledAdd<Week, Week, object, WeekPostRequest, Wee
       block_id: this.activeBlockId,
       label: this.getMaxLabel(this.labeledMap) + 1,
       user_id: this.userId,
-      start_date: new Date(),
     }
   }
 }
