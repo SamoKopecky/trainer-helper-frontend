@@ -1,15 +1,12 @@
 import type { ChangeNotification, NotificationType } from "@/types/other"
+import { randomStringId } from "@/utils/other"
 import { ref } from "vue"
-
-function randomId(): string {
-  return (Math.random() + 1).toString(36).substring(2)
-}
 
 export function useNotifications() {
   const notifications = ref<Map<string, ChangeNotification>>(new Map())
 
   function addNotification(text: string, type: NotificationType) {
-    const notificationId = randomId()
+    const notificationId = randomStringId()
     notifications.value.set(notificationId, {
       text,
       type,

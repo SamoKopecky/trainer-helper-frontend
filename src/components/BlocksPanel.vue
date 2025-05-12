@@ -28,6 +28,8 @@ const { isTrainer } = useUser()
 const { notifications, addNotification } = useNotifications()
 const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
 
+const emit = defineEmits(["update:active-week-id"])
+
 const blockService = new BlockService()
 const weekService = new WeekService()
 
@@ -47,18 +49,12 @@ const activeWeeks = computed(() => {
   return activeBlocks.value.get(activeBlockIdLocal)?.weeks
 })
 
-// Emit this
-const activeWeekDays = computed(() => {
-  if (!activeWeekId.value) return
-  return activeWeeks.value?.get(activeWeekId.value)?.week_days
-})
-
 watch(activeWeekId, (newWeekId) => {
   if (!newWeekId) return
-  selectedDate.value = activeWeeks.value?.get(newWeekId)?.start_date
+  const activeWeek = activeWeeks.value?.get(newWeekId)
+  selectedDate.value = activeWeek?.start_date
+  emit("update:active-week-id", newWeekId, activeWeek?.start_date)
 })
-
-const generalDayNames = ref<string[]>([])
 
 watch(
   () => props.userId,
@@ -102,11 +98,6 @@ function deleteWeek() {
 
   addChangeEvent(new WeekDelete(activeWeeks.value))
 }
-
-watch(generalDayNames, (newNames, oldNames) => {
-  if (newNames.length == oldNames.length) return
-  alert("general names not not implemented yet")
-})
 
 function mondaysOnly(val: unknown): boolean {
   const date = new Date(val as string)
