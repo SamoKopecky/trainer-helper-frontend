@@ -17,6 +17,8 @@ const selectedUserId = ref<string>()
 const router = useRouter()
 const { users, userDisplay } = useUsers()
 
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
 watch(
   () => props.id,
   () => {
@@ -40,7 +42,7 @@ function goToAthlete(userId: string) {
         v-model="selectedUserId"
         :items="users"
         :item-title="userDisplay"
-        item-value="id"
+        item-value="mad"
         placeholder="Enter name"
         variant="plain"
         density="compact"
@@ -48,7 +50,7 @@ function goToAthlete(userId: string) {
         @update:model-value="goToAthlete"
       >
         <template #selection="{ item }">
-          <span class="text-h5 font-weight-medium">
+          <span class="text-h6 font-weight-medium pd-4">
             {{ userDisplay(item.raw) }}
           </span></template
         >
@@ -58,6 +60,14 @@ function goToAthlete(userId: string) {
       <v-divider />
       <div v-if="id">
         <BlocksPanel :user-id="id" />
+        <v-divider />
+        <v-expansion-panels variant="accordion" multiple>
+          <v-expansion-panel v-for="day in days" :key="day" :title="day">
+            <v-expansion-panel-text>
+              <v-btn>Add exercise table</v-btn>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </div>
 
       <div v-else>Choose a user above</div>

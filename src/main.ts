@@ -46,6 +46,10 @@ import {
   VDatePicker,
   VCombobox,
   VMenu,
+  VExpansionPanel,
+  VExpansionPanels,
+  VExpansionPanelText,
+  VExpansionPanelTitle,
 } from "vuetify/components"
 import router from "./router"
 import VueKeyCloak from "@dsb-norge/vue-keycloak-js"
@@ -61,6 +65,10 @@ const vuetify = createVuetify({
     VFab,
     VSheet,
     VCardText,
+    VExpansionPanel,
+    VExpansionPanels,
+    VExpansionPanelText,
+    VExpansionPanelTitle,
     VListItem,
     VList,
     VNavigationDrawer,
