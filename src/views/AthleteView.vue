@@ -38,6 +38,7 @@ watch(
 )
 
 function updateActiveWeekId(weekId: number, startDate: Date) {
+  weekDays.value = new Map()
   for (let i = 0; i < 7; i++) {
     // Create new date to avoid altering emited date
     const dayDate = new Date(startDate.valueOf())
