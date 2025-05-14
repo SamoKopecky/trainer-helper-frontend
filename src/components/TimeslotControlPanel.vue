@@ -7,7 +7,6 @@ import { useTemplateRef, watch, watchEffect } from "vue"
 import { ref, type PropType } from "vue"
 import { TimeslotService } from "@/services/timeslots"
 import { deepClone } from "@/utils/tranformators"
-import { useRouter } from "vue-router"
 
 // TODO: Rewrite all events in create:...
 const emit = defineEmits([
@@ -30,11 +29,9 @@ const { appTimeslot } = defineProps({
   },
 })
 
-const router = useRouter()
 const nameEditable = ref(false)
 const duplicateDialog = ref(false)
 const timeslotName = ref<string | unknown>()
-const nameInput = useTemplateRef("nameInput")
 const duplicateInput = useTemplateRef("duplicateInput")
 const duplicateTimeslotId = ref<number | undefined>()
 const duplicateTimeslots = ref<Timeslot[]>([])
@@ -48,12 +45,6 @@ const computedDuplicateTimeslots = computed(() => {
     timeslotCopy.name = `${userName} | ${dayString} ${date[1]}-${date[0]} | ${timeslot.name}`
     return timeslotCopy
   })
-})
-
-watchEffect(() => {
-  if (nameInput.value) {
-    nameInput.value.focus()
-  }
 })
 
 watchEffect(() => {
@@ -83,13 +74,6 @@ function duplicate() {
   duplicateDialog.value = true
 }
 
-function submitTitle() {
-  nameEditable.value = !nameEditable.value
-  if (nameEditable.value === false) {
-    emit("update-title", timeslotName.value)
-  }
-}
-
 function addExercise() {
   emit("add-exercise")
 }
@@ -97,10 +81,6 @@ function addExercise() {
 function submitDuplicate() {
   duplicateDialog.value = false
   emit("duplicate-timeslot", duplicateTimeslotId.value)
-}
-
-function backToCalendar() {
-  router.push({ path: "/calendar" })
 }
 
 function addNewExerciseType() {
@@ -116,30 +96,12 @@ function addNewExerciseType() {
     variant="text"
   >
     <v-card-text>
-      <v-row no-gutters>
-        <v-col cols="12" sm="4" class="d-inline-flex align-center">
-          <v-text-field
-            ref="nameInput"
-            v-if="nameEditable"
-            v-model="timeslotName"
-            type="text"
-            variant="plain"
-            density="compact"
-            hide-details
-            @keydown.enter="submitTitle"
-          />
-          <span v-if="!nameEditable">
-            {{ appTimeslot?.name ?? "Title" }}
-          </span>
-          <v-icon v-if="isTrainer" small class="ml-2" @click="submitTitle">
-            {{ nameEditable ? "mdi-check" : "mdi-pencil" }}
-          </v-icon>
-        </v-col>
-      </v-row>
+      <span v-if="!nameEditable">
+        {{ appTimeslot?.name ?? "Title" }}
+      </span>
     </v-card-text>
   </v-card>
   <slot />
-  <v-btn text="Go back" @click="backToCalendar" />
   <v-btn text="Add exercise" @click="addExercise" />
   <v-btn v-if="isTrainer" text="Add exercise type" @click="addNewExerciseType" />
   <v-btn v-if="isTrainer" text="Duplicate from another timeslot" @click="duplicate" />
