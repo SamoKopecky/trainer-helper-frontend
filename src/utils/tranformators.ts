@@ -4,7 +4,8 @@ import type { ExerciseTableData } from "@/types/exercise"
 import type { ExerciseType, ExerciseTypeTableRow } from "@/types/exerciseType"
 import type { Timeslot, WorkSet } from "@/types/other"
 import { getTimeslotUserName } from "./user"
-import type { Block, BlockMap, BlockValue, Week } from "@/types/block"
+import type { Block, BlockMap, BlockValue, DisplayWeekDay, Week, WeekDay } from "@/types/block"
+import { getDateWeekDayString } from "./date"
 
 export function deepClone(obj: unknown) {
   return JSON.parse(JSON.stringify(obj))
@@ -105,5 +106,17 @@ export function blockToBlockValue(block: Block): BlockValue {
     user_id: block.user_id,
     id: block.id,
     weeks: new Map(),
+  }
+}
+
+export function weekDayToDisplayWeekDay(weekDay: WeekDay): DisplayWeekDay {
+  return {
+    day_date: weekDay.day_date,
+    day_string: getDateWeekDayString(weekDay.day_date),
+    name: weekDay.name,
+    week_id: weekDay.week_id,
+    id: weekDay.id,
+    user_id: weekDay.user_id,
+    is_created: true,
   }
 }

@@ -20,9 +20,6 @@ export class WeekService extends ServiceBase<WeekPutRequest, WeekPostRequest, We
 
   private parseWeek(week: any): Week {
     week.start_date = new Date(week.start_date)
-    week.week_days.forEach((wd: WeekDay) => {
-      wd.day_date = new Date(wd.day_date)
-    })
     return week
   }
 

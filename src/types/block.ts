@@ -10,7 +10,6 @@ export interface Block extends Labeled {
 
 export interface Week extends Labeled {
   start_date: Date
-  week_days: WeekDay[]
 }
 
 export interface BlockValue extends Omit<Block, "weeks"> {
@@ -18,10 +17,19 @@ export interface BlockValue extends Omit<Block, "weeks"> {
 }
 export type BlockMap = Map<number, BlockValue>
 
-export interface WeekDay {
+export interface WeekDay extends WeekBase {
+  user_id: string
+}
+
+export interface DisplayWeekDay extends WeekBase {
+  is_created: boolean
+  user_id?: string
+  day_string: string
+}
+
+export interface WeekBase {
   id: number
   week_id: number
-  user_id: string
   day_date: Date
   name?: string
 }
