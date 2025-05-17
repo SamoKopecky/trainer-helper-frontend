@@ -4,14 +4,13 @@ import ExercisesPanel from "@/components/ExercisesPanel.vue"
 import { useUsers } from "@/composables/useUsers"
 import { ExerciseService, type ExerciseResponse } from "@/services/exercise"
 import { WeekDayService } from "@/services/weekDay"
-import type { DisplayWeekDay, WeekDay } from "@/types/block"
+import type { DisplayWeekDay } from "@/types/block"
 import { getDateWeekDayString, getISODateString } from "@/utils/date"
 import { randomNumberId } from "@/utils/other"
 import { exerciseResponsesToMap, weekDayToDisplayWeekDay } from "@/utils/tranformators"
-import { useDebounce, useDebounceFn } from "@vueuse/core"
+import { useDebounceFn } from "@vueuse/core"
 import { watch, ref } from "vue"
 import { useRouter } from "vue-router"
-import { de } from "vuetify/locale"
 
 const props = defineProps({
   id: {
@@ -108,18 +107,14 @@ const updateNameDebounce = useDebounceFn((newDay: DisplayWeekDay) => {
 function deleteWeekDay(day: DisplayWeekDay) {
   weekDayService.delete(day.id).then(() => {
     const deletedWeekDay = weekDays.value.get(getISODateString(day.day_date))
-    if (deletedWeekDay) {
-      deletedWeekDay.is_deleted = true
-    }
+    if (deletedWeekDay) deletedWeekDay.is_deleted = true
   })
 }
 
 function restoreDeletedExerciseTable(day: DisplayWeekDay) {
   weekDayService.postUndelete(day.id).then(() => {
     const deletedWeekDay = weekDays.value.get(getISODateString(day.day_date))
-    if (deletedWeekDay) {
-      deletedWeekDay.is_deleted = false
-    }
+    if (deletedWeekDay) deletedWeekDay.is_deleted = false
   })
 }
 </script>

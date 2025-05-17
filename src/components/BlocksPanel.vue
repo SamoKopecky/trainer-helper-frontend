@@ -40,6 +40,7 @@ const activeWeekId = ref<number>()
 
 const activeBlocks = ref<BlockMap>(new Map())
 const activeWeeks = computed(() => {
+  // FIXME: Choose based on date
   if (!activeBlockId.value) return
   let activeBlockIdLocal = activeBlockId.value
   const blocks = Array.from(activeBlocks.value?.values())

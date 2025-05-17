@@ -1,4 +1,3 @@
-import { EMPTY_USER } from "@/constants"
 import type { Timeslot } from "@/types/other"
 import type { VueKeycloakTokenParsed } from "@dsb-norge/vue-keycloak-js"
 import type { DeepReadonly } from "vue"
@@ -30,8 +29,8 @@ export function capitalizeWords(str?: string): string | undefined {
     .join(" ")
 }
 
-export function getTimeslotUserName(timeslot: Timeslot): string {
-  return timeslot.user_nickname ?? timeslot.user_name ?? EMPTY_USER
+export function getTimeslotUserName(timeslot: Timeslot): string | undefined {
+  return timeslot.user?.nickname ?? timeslot.user?.name ?? timeslot.user?.email
 }
 
 export function getUserFromEmail(email: string): string | null {

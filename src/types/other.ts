@@ -1,3 +1,5 @@
+import type { User } from "./user"
+
 export interface WorkSet {
   id: number
   exercise_id: number
@@ -10,12 +12,10 @@ export interface Timeslot {
   id: number
   trainer_id: string
   trainee_id?: string
-  // TODO: Maybe think about separating this into a user call instead
-  user_name?: string
-  user_nickname?: string
   name: string
   end: Date
   start: Date
+  user?: User
 }
 
 export type NotificationType = "success" | "info" | "warning" | "error" | undefined

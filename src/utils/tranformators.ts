@@ -62,7 +62,7 @@ export function mergeTableDataAndWorkSetModel(
 }
 
 export function timeslotToAppTimeslot(timeslot: Timeslot): AppTimeslot {
-  const isAssigned = timeslot.user_name
+  const isAssigned = timeslot.user?.name ?? false
   return {
     ...timeslot,
     title: getTimeslotUserName(timeslot),
