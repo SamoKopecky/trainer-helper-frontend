@@ -24,7 +24,9 @@
     "pinia": "^3.0.2",
     "vue": "^3.5.13",
     "vue-cal": "^5.0.1-rc.14",
+    "vue-draggable-next": "^2.2.1",
     "vue-router": "^4.5.0",
+    "vuedraggable": "^4.1.0",
     "vuetify": "^3.7.9"
   },
   "devDependencies": {

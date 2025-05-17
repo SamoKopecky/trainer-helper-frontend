@@ -4,12 +4,12 @@ import ExercisesPanel from "@/components/ExercisesPanel.vue"
 import { useUsers } from "@/composables/useUsers"
 import { ExerciseService, type ExerciseResponse } from "@/services/exercise"
 import { WeekDayService } from "@/services/weekDay"
-import type { DisplayWeekDay } from "@/types/block"
+import type { DisplayWeekDay, WeekDay } from "@/types/block"
 import { getDateWeekDayString, getISODateString } from "@/utils/date"
 import { randomNumberId } from "@/utils/other"
 import { exerciseResponsesToMap, weekDayToDisplayWeekDay } from "@/utils/tranformators"
-import { watch } from "vue"
-import { ref } from "vue"
+import { useDebounce, useDebounceFn } from "@vueuse/core"
+import { watch, ref } from "vue"
 import { useRouter } from "vue-router"
 
 const props = defineProps({
@@ -49,7 +49,7 @@ function updateActiveWeekId(weekId: number, startDate: Date) {
     dayDate.setDate(startDate.getDate() + i)
     weekDays.value.set(getISODateString(dayDate), {
       day_date: dayDate,
-      name: "-",
+      name: "",
       id: randomNumberId(),
       is_created: false,
       day_string: getDateWeekDayString(dayDate),
@@ -92,6 +92,13 @@ function addWeekDay(week: DisplayWeekDay) {
 function redirectToAthlete() {
   router.push({ path: `/athlete/${selectedUserId.value}` })
 }
+
+const updateNameDebounce = useDebounceFn((newDay: DisplayWeekDay) => {
+  weekDayService.put({
+    name: newDay.name,
+    id: newDay.id,
+  })
+}, 1000)
 </script>
 
 <template>
@@ -111,8 +118,8 @@ function redirectToAthlete() {
         <template #selection="{ item }">
           <span class="text-h6 font-weight-medium pd-4">
             {{ userDisplay(item.raw) }}
-          </span></template
-        >
+          </span>
+        </template>
       </v-autocomplete>
     </template>
     <template #text>
@@ -120,23 +127,30 @@ function redirectToAthlete() {
       <div v-if="id">
         <BlocksPanel :user-id="id" @update:active-week-id="updateActiveWeekId" />
         <v-divider />
-        <v-expansion-panels variant="accordion" multiple v-model="panels">
-          <v-expansion-panel v-for="day in weekDays.values()" :key="day.id" :title="day.day_string">
-            <!-- Panel has table -->
-            <v-expansion-panel-text v-if="day.is_created">
-              <ExercisesPanel
-                :week-day-id="day.id"
-                :model-value="exercisesMap.get(day.id)"
-                @update:model-value="(newValue) => exercisesMap.set(day.id, newValue!)"
-              >
-              </ExercisesPanel>
-            </v-expansion-panel-text>
-            <!-- Panel doesn't have table -->
-            <v-expansion-panel-text v-else>
-              <v-btn @click="addWeekDay(day)">Add exercise table</v-btn>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
+        <v-card v-for="day in weekDays.values()" :key="day.id" :subtitle="day.day_string">
+          <template #title>
+            <div class="mt-2">
+              <v-text-field
+                label="Name"
+                variant="outlined"
+                v-model="day.name"
+                placeholder="Choose a name..."
+                @update:model-value="updateNameDebounce(day)"
+              />
+            </div>
+          </template>
+          <template #text v-if="day.is_created">
+            <ExercisesPanel
+              :week-day-id="day.id"
+              :model-value="exercisesMap.get(day.id)"
+              @update:model-value="(newValue) => exercisesMap.set(day.id, newValue!)"
+            />
+          </template>
+          <template #text v-else>
+            <v-btn @click="addWeekDay(day)">Add exercise table</v-btn>
+          </template>
+          <v-divider />
+        </v-card>
       </div>
 
       <div v-else>Choose a user above</div>
