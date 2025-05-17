@@ -175,7 +175,11 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
             <div>{{ `${day.day_string} | ${getISODateString(day.day_date)}` }}</div>
           </template>
           <template #text v-if="day.is_deleted">
-            <v-btn @click="restoreDeletedExerciseTable(day)">Restore exercise table</v-btn>
+            <v-btn
+              @click="restoreDeletedExerciseTable(day)"
+              icon="mdi-plus"
+              v-tooltip:bottom="'Recover deleted exercise table'"
+            />
           </template>
           <template #text v-else-if="day.is_created">
             <ExercisesPanel
@@ -186,7 +190,11 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
             <v-spacer></v-spacer>
           </template>
           <template #text v-else>
-            <v-btn @click="addWeekDay(day)">Add new exercise table</v-btn>
+            <v-btn
+              @click="addWeekDay(day)"
+              icon="mdi-plus"
+              v-tooltip:bottom="'Add new exercise table'"
+            />
           </template>
           <v-divider />
         </v-card>
