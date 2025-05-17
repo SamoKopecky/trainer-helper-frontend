@@ -115,6 +115,7 @@ export function weekDayToDisplayWeekDay(weekDay: WeekDay): DisplayWeekDay {
   return {
     day_date: weekDay.day_date,
     day_string: getDateWeekDayString(weekDay.day_date),
+    is_deleted: weekDay.is_deleted,
     name: weekDay.name,
     week_id: weekDay.week_id,
     id: weekDay.id,

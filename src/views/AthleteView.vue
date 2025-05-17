@@ -11,6 +11,7 @@ import { exerciseResponsesToMap, weekDayToDisplayWeekDay } from "@/utils/tranfor
 import { useDebounce, useDebounceFn } from "@vueuse/core"
 import { watch, ref } from "vue"
 import { useRouter } from "vue-router"
+import { de } from "vuetify/locale"
 
 const props = defineProps({
   id: {
@@ -24,7 +25,6 @@ const weekDayService = new WeekDayService()
 const exerciseService = new ExerciseService()
 
 const selectedUserId = ref<string>()
-const panels = ref([])
 const router = useRouter()
 const { users, userDisplay } = useUsers()
 const weekDays = ref<Map<string, DisplayWeekDay>>(new Map())
@@ -41,20 +41,25 @@ watch(
   { immediate: true },
 )
 
+function getEmptyWeekDay(dayDate: Date, weekId: number): DisplayWeekDay {
+  return {
+    day_date: dayDate,
+    is_deleted: false,
+    name: "",
+    id: randomNumberId(),
+    is_created: false,
+    day_string: getDateWeekDayString(dayDate),
+    week_id: weekId,
+  }
+}
+
 function updateActiveWeekId(weekId: number, startDate: Date) {
   weekDays.value = new Map()
   for (let i = 0; i < 7; i++) {
     // Create new date to avoid altering emited date
     const dayDate = new Date(startDate.valueOf())
     dayDate.setDate(startDate.getDate() + i)
-    weekDays.value.set(getISODateString(dayDate), {
-      day_date: dayDate,
-      name: "",
-      id: randomNumberId(),
-      is_created: false,
-      day_string: getDateWeekDayString(dayDate),
-      week_id: weekId,
-    })
+    weekDays.value.set(getISODateString(dayDate), getEmptyWeekDay(dayDate, weekId))
   }
 
   const weekDayIds: number[] = []
@@ -99,6 +104,24 @@ const updateNameDebounce = useDebounceFn((newDay: DisplayWeekDay) => {
     id: newDay.id,
   })
 }, 1000)
+
+function deleteWeekDay(day: DisplayWeekDay) {
+  weekDayService.delete(day.id).then(() => {
+    const deletedWeekDay = weekDays.value.get(getISODateString(day.day_date))
+    if (deletedWeekDay) {
+      deletedWeekDay.is_deleted = true
+    }
+  })
+}
+
+function restoreDeletedExerciseTable(day: DisplayWeekDay) {
+  weekDayService.postUndelete(day.id).then(() => {
+    const deletedWeekDay = weekDays.value.get(getISODateString(day.day_date))
+    if (deletedWeekDay) {
+      deletedWeekDay.is_deleted = false
+    }
+  })
+}
 </script>
 
 <template>
@@ -127,27 +150,43 @@ const updateNameDebounce = useDebounceFn((newDay: DisplayWeekDay) => {
       <div v-if="id">
         <BlocksPanel :user-id="id" @update:active-week-id="updateActiveWeekId" />
         <v-divider />
-        <v-card v-for="day in weekDays.values()" :key="day.id" :subtitle="day.day_string">
+        <v-card v-for="day in weekDays.values()" :key="day.id">
           <template #title>
-            <div class="mt-2">
+            <div class="mt-2 d-flex align-center">
               <v-text-field
                 label="Name"
                 variant="outlined"
+                hide-details="auto"
                 v-model="day.name"
                 placeholder="Choose a name..."
                 @update:model-value="updateNameDebounce(day)"
               />
+              <v-btn
+                class="ml-2"
+                icon="mdi-close"
+                variant="text"
+                v-tooltip:bottom="'Delete'"
+                color="error"
+                @click="deleteWeekDay(day)"
+              />
             </div>
           </template>
-          <template #text v-if="day.is_created">
+          <template #subtitle>
+            <div>{{ `${day.day_string} | ${getISODateString(day.day_date)}` }}</div>
+          </template>
+          <template #text v-if="day.is_deleted">
+            <v-btn @click="restoreDeletedExerciseTable(day)">Restore exercise table</v-btn>
+          </template>
+          <template #text v-else-if="day.is_created">
             <ExercisesPanel
               :week-day-id="day.id"
               :model-value="exercisesMap.get(day.id)"
               @update:model-value="(newValue) => exercisesMap.set(day.id, newValue!)"
             />
+            <v-spacer></v-spacer>
           </template>
           <template #text v-else>
-            <v-btn @click="addWeekDay(day)">Add exercise table</v-btn>
+            <v-btn @click="addWeekDay(day)">Add new exercise table</v-btn>
           </template>
           <v-divider />
         </v-card>

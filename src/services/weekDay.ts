@@ -26,6 +26,7 @@ export class WeekDayService extends ServiceBase<WeekDayPutRequest, WeekDayPostRe
 
     weekDays.forEach((w: any) => {
       w.day_date = new Date(w.day_date)
+      w.is_deleted = Boolean(w.deleted_at)
     })
     return weekDays as WeekDay[]
   }
