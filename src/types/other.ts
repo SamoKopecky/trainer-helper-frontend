@@ -1,3 +1,4 @@
+import type { WeekDay } from "./block"
 import type { User } from "./user"
 
 export interface WorkSet {
@@ -12,10 +13,10 @@ export interface Timeslot {
   id: number
   trainer_id: string
   trainee_id?: string
-  name: string
   end: Date
   start: Date
   user?: User
+  week_day?: WeekDay
 }
 
 export type NotificationType = "success" | "info" | "warning" | "error" | undefined

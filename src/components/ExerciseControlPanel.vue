@@ -27,7 +27,7 @@ const computedDuplicateTimeslots = computed(() => {
     const dayString = timeslot.start.toLocaleString("en-US", { weekday: "long" })
     const date = timeslot.start.toLocaleDateString().split("/")
     // const userName = timeslot.user_nickname ?? timeslot.user_name
-    timeslotCopy.name = `bleh | ${dayString} ${date[1]}-${date[0]} | ${timeslot.name}`
+    timeslotCopy.name = `bleh | ${dayString} ${date[1]}-${date[0]}`
     return timeslotCopy
   })
 })

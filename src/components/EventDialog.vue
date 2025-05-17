@@ -3,6 +3,7 @@ import type { CalTimeslot } from "@/types/calendar"
 import { useRouter } from "vue-router"
 import { ref, watch, type PropType } from "vue"
 import { useUsers } from "@/composables/useUsers"
+import { time } from "console"
 
 const { selectedEvent, modelValue } = defineProps({
   selectedEvent: {
@@ -34,7 +35,14 @@ const router = useRouter()
 const emit = defineEmits(["delete-cal-timeslot", "update:modelValue", "update-user"])
 
 function redirectExercise(timeslot: CalTimeslot | null) {
-  router.push({ path: `/timeslot/${timeslot?.id}` })
+  if (!timeslot) return
+
+  const basePath = "/weekDay"
+  if (timeslot.week_day) {
+    router.push({ path: `${basePath}/${timeslot.week_day.id}` })
+  } else {
+    router.push({ path: basePath })
+  }
 }
 
 function deleteCalTimeslot(event: CalTimeslot | null) {
@@ -71,10 +79,10 @@ function buttonClick() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <p class="pd-1">{{ selectedEvent?.name }}</p>
+        <p v-if="selectedEvent?.week_day?.name" class="pd-1">{{ selectedEvent?.week_day?.name }}</p>
         <v-btn
           style="margin-left: 0px"
-          text="Go to timeslot"
+          text="Go to exercises"
           @click="redirectExercise(selectedEvent)"
         />
         <v-btn v-if="isTrainer" text="Delete timeslot" @click="deleteCalTimeslot(selectedEvent)" />
