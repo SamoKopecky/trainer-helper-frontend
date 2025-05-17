@@ -31,5 +31,6 @@ export interface WeekBase {
   id: number
   week_id: number
   day_date: Date
+  is_deleted: boolean
   name?: string
 }

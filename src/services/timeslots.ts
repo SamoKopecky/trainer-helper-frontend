@@ -20,7 +20,6 @@ export interface TimeslotPutRequest {
   trainee_id?: string
   start?: string
   end?: string
-  deleted_at?: string
 }
 
 export interface TimeslotDeletePathParams {

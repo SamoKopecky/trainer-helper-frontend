@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { CalTimeslot } from "@/types/calendar"
 import { useRouter } from "vue-router"
-import { ref, useTemplateRef, watch, watchEffect, type PropType } from "vue"
-import { EMPTY_USER } from "@/constants"
+import { ref, watch, type PropType } from "vue"
 import { useUsers } from "@/composables/useUsers"
+import { time } from "console"
 
 const { selectedEvent, modelValue } = defineProps({
   selectedEvent: {
@@ -24,26 +24,25 @@ const { selectedEvent, modelValue } = defineProps({
 watch(
   () => selectedEvent,
   () => {
-    selectedId.value = undefined
-    titleEditable.value = selectedEvent?.title === EMPTY_USER
+    console.log(selectedEvent)
+    selectedId.value = selectedEvent?.user?.id
   },
 )
 
-const selectedId = ref<string | undefined>()
+const selectedId = ref<string>()
 const { users, userDisplay } = useUsers()
-const titleEditable = ref(false)
 const router = useRouter()
 const emit = defineEmits(["delete-cal-timeslot", "update:modelValue", "update-user"])
-const input = useTemplateRef("input")
-
-watchEffect(() => {
-  if (input.value) {
-    input.value.focus()
-  }
-})
 
 function redirectExercise(timeslot: CalTimeslot | null) {
-  router.push({ path: `/timeslot/${timeslot?.id}` })
+  if (!timeslot) return
+
+  const basePath = "/weekDay"
+  if (timeslot.week_day) {
+    router.push({ path: `${basePath}/${timeslot.week_day.id}` })
+  } else {
+    router.push({ path: basePath })
+  }
 }
 
 function deleteCalTimeslot(event: CalTimeslot | null) {
@@ -55,7 +54,6 @@ function closeDialog() {
 }
 
 function buttonClick() {
-  titleEditable.value = !titleEditable.value
   emit(
     "update-user",
     users.value?.find((p) => p.id === selectedId.value),
@@ -67,37 +65,24 @@ function buttonClick() {
   <v-dialog :model-value="modelValue" @update:model-value="closeDialog">
     <v-card>
       <v-card-title>
-        <div style="display: flex; align-items: center; width: 100%">
-          <!-- Static Title -->
-          <span v-if="!titleEditable" style="flex: 1"> {{ selectedEvent?.title }}</span>
-
-          <!-- Editable Title -->
-          <v-autocomplete
-            ref="input"
-            v-if="titleEditable"
-            v-model="selectedId"
-            :items="users"
-            :item-title="userDisplay"
-            item-value="id"
-            placeholder="Enter name"
-            variant="plain"
-            density="compact"
-            hide-details="auto"
-            @keydown.enter="buttonClick"
-          />
-
-          <!-- Edit Icon -->
-          <v-icon v-if="isTrainer" small class="ml-2" @click="buttonClick">
-            {{ titleEditable ? "mdi-check" : "mdi-pencil" }}
-          </v-icon>
-        </div>
+        <v-autocomplete
+          v-model="selectedId"
+          :items="users"
+          :item-title="userDisplay"
+          item-value="id"
+          placeholder="Asign athlete..."
+          variant="plain"
+          density="compact"
+          hide-details="auto"
+          @update:model-value="buttonClick"
+        />
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <p style="padding-bottom: 1rem">{{ selectedEvent?.name }}</p>
+        <p v-if="selectedEvent?.week_day?.name" class="pd-1">{{ selectedEvent?.week_day?.name }}</p>
         <v-btn
           style="margin-left: 0px"
-          text="Go to timeslot"
+          text="Go to exercises"
           @click="redirectExercise(selectedEvent)"
         />
         <v-btn v-if="isTrainer" text="Delete timeslot" @click="deleteCalTimeslot(selectedEvent)" />

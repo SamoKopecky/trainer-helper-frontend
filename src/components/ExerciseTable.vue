@@ -59,7 +59,7 @@ watch(
     groups.value = getAllGroupIds(newExercises)
     groupIdAlphabetMap.value = getGroupAlphabetMap(newExercises)
   },
-  { deep: true },
+  { deep: true, immediate: true },
 )
 
 const exercisesByExerciseId: ComputedRef<Map<number, ExerciseTableData[]>> = computed(() => {

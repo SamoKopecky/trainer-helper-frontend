@@ -11,6 +11,7 @@ export function workSetFactory({
 }): ExerciseTableData {
   return {
     work_set_id: work_set_id,
+    week_day_id: 1,
     rpe: 7,
     intensity: intensity ?? "105Kg",
     reps: 2,

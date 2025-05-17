@@ -12,6 +12,7 @@ export function useUsers() {
   })
 
   function userDisplay(user: User): string {
+    console.log("user", user)
     return user.nickname || user.name || user.email
   }
 
