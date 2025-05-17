@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { useRoute } from "vue-router"
 import { useNotifications } from "@/composables/useNotifications"
 import NotificationFloat from "@/components/NotificationFloat.vue"
 import ExerciseTable from "@/components/ExerciseTable.vue"
-import TimeslotControlPanel from "@/components/TimeslotControlPanel.vue"
+import ExerciseControlPanel from "@/components/ExerciseControlPanel.vue"
 import { useExercises } from "@/composables/useExercises"
 import type { ExerciseTableColumn } from "@/types/exercise"
-import { ExerciseService, type FullExerciseResponse } from "@/services/exercise"
+import { type ExerciseResponse } from "@/services/exercise"
 import { ref } from "vue"
-import { onMounted } from "vue"
-import { timeslotToAppTimeslot } from "@/utils/tranformators"
 import { useUser } from "@/composables/useUser"
 import { useExerciseTypes } from "@/composables/useExerciseTypes"
 import { useExerciseTypeDialog } from "@/composables/useExerciseTypeDialog"
@@ -34,42 +31,38 @@ const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "delete", type: "special", name: "", isMultirow: true, align: "center" },
 ]
 
-defineProps({
-  id: {
-    type: String,
+const exercisesModel = defineModel<ExerciseResponse[]>()
+const props = defineProps({
+  weekDayId: {
+    type: Number,
     required: true,
   },
 })
 
-const route = useRoute()
-const weekDayId = Number(route.params.id)
-const exerciseService = new ExerciseService()
-const exerciseRes = ref<FullExerciseResponse | undefined>()
 const { isTrainer } = useUser()
 const isTableEditable = ref(false)
 
-onMounted(() => {
-  exerciseService.get(weekDayId).then((res) => {
-    exerciseRes.value = res
-  })
-})
-
 const { notifications, addNotification } = useNotifications()
 const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
-const { exercises, addExercise, deleteExercise, updateTable, updateTitle, copyWorkSet } =
-  useExercises(weekDayId, exerciseRes, addNotification, addChangeEvent)
+const { exercises, addExercise, deleteExercise, updateTable, copyWorkSet } = useExercises(
+  props.weekDayId,
+  exercisesModel,
+  addNotification,
+  addChangeEvent,
+)
 const { exerciseTypes } = useExerciseTypes()
 const { showDialog, selectedType, handleCreate, handleUpdate, isNew, addNew } =
   useExerciseTypeDialog(exerciseTypes)
 
-function duplicateTimeslot(duplicateFrom: number | undefined) {
-  if (duplicateFrom) {
-    exerciseService
-      .postDuplicate({ copy_timeslot_id: duplicateFrom, timeslot_id: weekDayId })
-      .then((res) => {
-        exerciseRes.value = res
-      })
-  }
+function duplicateTimeslot(_duplicateFrom: number | undefined) {
+  alert("Fix this")
+  // if (duplicateFrom) {
+  //   exerciseService
+  //     .postDuplicate({ copy_timeslot_id: duplicateFrom, timeslot_id: weekDayId })
+  //     .then((res) => {
+  //       exerciseRes.value = res
+  //     })
+  // }
 }
 
 function displayExerciseType(exerciseTypeId: number) {
@@ -102,11 +95,9 @@ function displayExerciseType(exerciseTypeId: number) {
       />
     </template>
   </ChangeEventBar>
-  <TimeslotControlPanel
-    :app-timeslot="exerciseRes ? timeslotToAppTimeslot(exerciseRes.timeslot) : undefined"
+  <ExerciseControlPanel
     :is-trainer="isTrainer"
     @add-exercise="addExercise"
-    @update-title="updateTitle"
     @duplicate-timeslot="duplicateTimeslot"
     @create:exercise-type="addNew"
   >
@@ -120,7 +111,7 @@ function displayExerciseType(exerciseTypeId: number) {
       @display:exercise-type="displayExerciseType"
       @update:copy-work-set="copyWorkSet"
     />
-  </TimeslotControlPanel>
+  </ExerciseControlPanel>
 
   <ExerciseTypeDialog
     v-model="showDialog"

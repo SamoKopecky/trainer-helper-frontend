@@ -15,6 +15,7 @@ export function responseToTableData(response: ExerciseResponse): ExerciseTableDa
   return response.work_sets.map(
     (work_set: WorkSet, index: number): ExerciseTableData => ({
       work_set_id: work_set.id,
+      week_day_id: response.week_day_id,
       reps: work_set.reps,
       intensity: work_set.intensity,
       rpe: work_set.rpe,
@@ -46,6 +47,7 @@ export function mergeTableDataAndWorkSetModel(
 ): ExerciseTableData {
   return {
     exercise_id: work_set.exercise_id,
+    week_day_id: tableRow.week_day_id,
     work_set_id: work_set.id,
     reps: work_set.reps,
     intensity: work_set.intensity,
@@ -119,4 +121,21 @@ export function weekDayToDisplayWeekDay(weekDay: WeekDay): DisplayWeekDay {
     user_id: weekDay.user_id,
     is_created: true,
   }
+}
+
+export function exerciseResponsesToMap(
+  exercises: ExerciseResponse[],
+): Map<number, ExerciseResponse[]> {
+  const result: Map<number, ExerciseResponse[]> = new Map()
+  if (!exercises) return result
+
+  exercises.forEach((e) => {
+    if (result.has(e.week_day_id)) {
+      const exercises = result.get(e.week_day_id)
+      exercises?.push(e)
+    } else {
+      result.set(e.week_day_id, [e])
+    }
+  })
+  return result
 }

@@ -1,37 +1,22 @@
 <script setup lang="ts">
-import type { AppTimeslot } from "@/types/calendar"
 import type { Timeslot } from "@/types/other"
 import { onMounted } from "vue"
 import { computed } from "vue"
-import { useTemplateRef, watch, watchEffect } from "vue"
-import { ref, type PropType } from "vue"
-import { TimeslotService } from "@/services/timeslots"
+import { useTemplateRef, watchEffect } from "vue"
+import { ref } from "vue"
 import { deepClone } from "@/utils/tranformators"
 
 // TODO: Rewrite all events in create:...
-const emit = defineEmits([
-  "add-exercise",
-  "update-title",
-  "duplicate-timeslot",
-  "create:exercise-type",
-])
-const timeslotService = new TimeslotService()
+const emit = defineEmits(["add-exercise", "duplicate-timeslot", "create:exercise-type"])
 
-const { appTimeslot } = defineProps({
-  appTimeslot: {
-    type: Object as PropType<AppTimeslot>,
-    required: false,
-    default: undefined,
-  },
+defineProps({
   isTrainer: {
     type: Boolean,
     required: true,
   },
 })
 
-const nameEditable = ref(false)
 const duplicateDialog = ref(false)
-const timeslotName = ref<string | unknown>()
 const duplicateInput = useTemplateRef("duplicateInput")
 const duplicateTimeslotId = ref<number | undefined>()
 const duplicateTimeslots = ref<Timeslot[]>([])
@@ -53,21 +38,14 @@ watchEffect(() => {
   }
 })
 
-watch(
-  // Fill in input field with old name
-  () => appTimeslot,
-  () => {
-    timeslotName.value = appTimeslot?.name
-  },
-)
-
 onMounted(() => {
-  const request = {
-    // TODO: Adjust start_date
-    start_date: "2025-01-20T12:00:00Z",
-    end_date: "2026-02-28T20:15:00Z",
-  }
-  timeslotService.get(request).then((res) => (duplicateTimeslots.value = res))
+  // const request = {
+  //   // TODO: Adjust start_date
+  //   start_date: "2025-01-20T12:00:00Z",
+  //   end_date: "2026-02-28T20:15:00Z",
+  // }
+  // FIXME: todo
+  // timeslotService.get(request).then((res) => (duplicateTimeslots.value = res))
 })
 
 function duplicate() {
@@ -89,18 +67,6 @@ function addNewExerciseType() {
 </script>
 
 <template>
-  <v-card
-    class="mx-auto"
-    prepend-icon="mdi-account"
-    :title="appTimeslot?.title ?? 'loading...'"
-    variant="text"
-  >
-    <v-card-text>
-      <span v-if="!nameEditable">
-        {{ appTimeslot?.name ?? "Title" }}
-      </span>
-    </v-card-text>
-  </v-card>
   <slot />
   <v-btn text="Add exercise" @click="addExercise" />
   <v-btn v-if="isTrainer" text="Add exercise type" @click="addNewExerciseType" />

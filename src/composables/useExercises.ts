@@ -1,10 +1,6 @@
 import { deepClone, responseToTableData } from "@/utils/tranformators"
 import { ref, watch } from "vue"
-import {
-  ExerciseService,
-  type ExerciseResponse,
-  type FullExerciseResponse,
-} from "@/services/exercise"
+import { ExerciseService, type ExerciseResponse } from "@/services/exercise"
 import { tableDataDiff } from "@/utils/diff"
 import { sortRows } from "@/utils/exerciseTable"
 import {
@@ -14,23 +10,21 @@ import {
   type DiffNumber,
 } from "@/types/exercise"
 import type { NotificationType } from "@/types/other"
-import type { Ref } from "vue"
-import { TimeslotService } from "@/services/timeslots"
 import type { ChangeEvent } from "@/changeEvents/base"
 import { GroupExerciseTableUpdate } from "@/changeEvents/exerciseTable/groupUpdate"
 import { SingleExerciseTableUpdate } from "@/changeEvents/exerciseTable/singleUpdate"
 import { ExerciseExerciseTableDelete } from "@/changeEvents/exerciseTable/exerciseDelete"
 import { CopyWorkSetExerciseTableUpdate } from "@/changeEvents/exerciseTable/copyWorkSet"
 import { SetCountExerciseTableUpdate } from "@/changeEvents/exerciseTable/setCount"
+import type { ModelRef } from "vue"
 
 export function useExercises(
-  timeslotId: number,
-  exerciseRes: Ref<FullExerciseResponse | undefined>,
+  weekDayId: number,
+  exercisesModel: ModelRef<ExerciseResponse[] | undefined>,
   addNotification: (text: string, type: NotificationType) => void,
   addChangeEvent: (event: ChangeEvent) => void,
 ) {
   const exerciseService = new ExerciseService()
-  const timeslotService = new TimeslotService()
 
   const exercises = ref<ExerciseTableData[]>([])
   const exercisesOld: Map<number, ExerciseTableData> = new Map()
@@ -76,20 +70,24 @@ export function useExercises(
     exercisesOld.clear()
   }
 
-  watch(exerciseRes, () => {
-    if (exerciseRes.value) {
-      clearExercises()
-      exerciseRes.value.exercises.forEach((e) => addNewTableData(e))
-      exercises.value.sort((a, b) => sortRows(a, b))
-    }
-  })
+  watch(
+    exercisesModel,
+    () => {
+      if (exercisesModel.value) {
+        clearExercises()
+        exercisesModel.value.forEach((e) => addNewTableData(e))
+        exercises.value.sort((a, b) => sortRows(a, b))
+      }
+    },
+    { immediate: true },
+  )
 
   function addExercise() {
     const groupId =
       exercises.value.length !== 0 ? exercises.value[exercises.value.length - 1].group_id + 1 : 1
     handleError(
       exerciseService
-        .post({ group_id: groupId, timeslot_id: timeslotId })
+        .post({ group_id: groupId, week_day_id: weekDayId })
         .then((response) => addNewTableData(response)),
     )
   }
@@ -112,12 +110,5 @@ export function useExercises(
     return promise.catch((error: Error) => addNotification(error.message, "error"))
   }
 
-  function updateTitle(title: string | undefined) {
-    if (exerciseRes.value && title) {
-      exerciseRes.value.timeslot.name = title
-      timeslotService.put({ id: timeslotId, name: title })
-    }
-  }
-
-  return { exercises, addExercise, deleteExercise, updateTable, updateTitle, copyWorkSet }
+  return { exercises, addExercise, deleteExercise, updateTable, copyWorkSet }
 }
