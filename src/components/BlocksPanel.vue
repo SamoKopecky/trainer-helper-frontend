@@ -4,7 +4,7 @@ import { useUser } from "@/composables/useUser"
 import NotificationFloat from "@/components/NotificationFloat.vue"
 import ChangeEventBar from "@/components/ChangeEventBar.vue"
 import { BlockService } from "@/services/block"
-import type { BlockMap } from "@/types/block"
+import type { BlockMap, Week } from "@/types/block"
 import { blocksToMap } from "@/utils/tranformators"
 import { computed } from "vue"
 import { ref } from "vue"
@@ -15,7 +15,8 @@ import { WeekAdd } from "@/changeEvents/user/weekAdd"
 import { WeekDelete } from "@/changeEvents/user/weekDelete"
 import { watch } from "vue"
 import { WeekService } from "@/services/week"
-import { getISODateString, getISODateTimeString } from "@/utils/date"
+import { getClosestWeek, getISODateString } from "@/utils/date"
+import { da } from "vuetify/locale"
 
 const props = defineProps({
   userId: {
@@ -39,15 +40,15 @@ const activeBlockId = ref<number>()
 const activeWeekId = ref<number>()
 
 const activeBlocks = ref<BlockMap>(new Map())
-const activeWeeks = computed(() => {
-  // FIXME: Choose based on date
-  if (!activeBlockId.value) return
-  let activeBlockIdLocal = activeBlockId.value
-  const blocks = Array.from(activeBlocks.value?.values())
-  if (blocks.length == 1) {
-    activeBlockIdLocal = blocks[0].id
-  }
-  return activeBlocks.value.get(activeBlockIdLocal)?.weeks
+const activeWeeks = ref<Map<number, Week>>(new Map())
+
+watch(activeBlockId, (newBlockId) => {
+  if (!newBlockId) return
+  const weeks = activeBlocks.value.get(newBlockId)?.weeks
+  if (!weeks) return
+  activeWeeks.value = weeks
+  if (weeks.size == 0) return
+  activeWeekId.value = getClosestWeek(Array.from(weeks.values())).id
 })
 
 watch(activeWeekId, (newWeekId) => {
@@ -61,6 +62,12 @@ watch(
   () => props.userId,
   (newUserId) =>
     blockService.get(newUserId).then((res) => {
+      if (res.length == 0) {
+        activeBlocks.value = new Map()
+        activeWeeks.value = new Map()
+        activeWeekId.value = undefined
+        activeBlockId.value = undefined
+      }
       activeBlocks.value = blocksToMap(res)
       weekService
         .get({
@@ -108,10 +115,17 @@ function mondaysOnly(val: unknown): boolean {
 
 function changeStartOfTheWeek() {
   if (!activeWeekId.value || !selectedDate.value) return
-  weekService.put({
-    start_date: getISODateString(selectedDate.value),
-    id: activeWeekId.value,
-  })
+  weekService
+    .put({
+      start_date: getISODateString(selectedDate.value),
+      id: activeWeekId.value,
+    })
+    .then(() => {
+      const activeWeek = activeWeeks.value.get(activeWeekId.value!)
+      const date = selectedDate.value
+      if (!date || !activeWeek) return
+      activeWeek.start_date = date
+    })
 }
 </script>
 
