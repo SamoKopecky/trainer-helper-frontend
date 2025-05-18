@@ -6,7 +6,6 @@ import ChangeEventBar from "@/components/ChangeEventBar.vue"
 import { BlockService } from "@/services/block"
 import type { BlockMap, Week } from "@/types/block"
 import { blocksToMap } from "@/utils/tranformators"
-import { computed } from "vue"
 import { ref } from "vue"
 import { useChangeEvents } from "@/composables/useChangeEvents"
 import { BlockAdd } from "@/changeEvents/user/blockAdd"
@@ -16,7 +15,6 @@ import { WeekDelete } from "@/changeEvents/user/weekDelete"
 import { watch } from "vue"
 import { WeekService } from "@/services/week"
 import { getClosestWeek, getISODateString } from "@/utils/date"
-import { da } from "vuetify/locale"
 
 const props = defineProps({
   userId: {
@@ -29,7 +27,7 @@ const { isTrainer } = useUser()
 const { notifications, addNotification } = useNotifications()
 const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
 
-const emit = defineEmits(["update:active-week-id"])
+const emit = defineEmits(["update:active-week-id", "update:active-week-days"])
 
 const blockService = new BlockService()
 const weekService = new WeekService()
@@ -125,6 +123,7 @@ function changeStartOfTheWeek() {
       const date = selectedDate.value
       if (!date || !activeWeek) return
       activeWeek.start_date = date
+      emit("update:active-week-days", date)
     })
 }
 </script>

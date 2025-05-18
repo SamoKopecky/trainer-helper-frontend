@@ -58,7 +58,9 @@ export function useCalendar(
     if (selectedEvent.value && user) {
       selectedEvent.value.title = user.nickname ?? user.name
       selectedEvent.value.class = "assigned"
-      timeslotService.put({ id: selectedEvent.value.id, trainee_id: user.id })
+      timeslotService
+        .put({ id: selectedEvent.value.id, trainee_id: user.id })
+        .then(() => (selectedEvent.value!.trainee_id = user.id))
     }
   }
 

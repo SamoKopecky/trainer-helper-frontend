@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BlocksPanel from "@/components/BlocksPanel.vue"
 import ExercisesPanel from "@/components/ExercisesPanel.vue"
+import { useUser } from "@/composables/useUser"
 import { useUsers } from "@/composables/useUsers"
 import { ExerciseService, type ExerciseResponse } from "@/services/exercise"
 import { WeekDayService } from "@/services/weekDay"
@@ -28,6 +29,7 @@ const router = useRouter()
 const { users, userDisplay } = useUsers()
 const weekDays = ref<Map<string, DisplayWeekDay>>(new Map())
 const exercisesMap = ref<Map<number, ExerciseResponse[]>>(new Map())
+const { isTrainer } = useUser()
 
 watch(
   () => props.id,
@@ -52,6 +54,23 @@ function getEmptyWeekDay(dayDate: Date, weekId: number): DisplayWeekDay {
   }
 }
 
+function updateActiveWeekIdWithNewDate(startDate: Date) {
+  let index = 0
+  weekDays.value.forEach((week) => {
+    // TODO: possible preformance improvment, update many
+    if (!week.is_created) {
+      index++
+      return
+    }
+    const newDayDate = new Date(startDate.valueOf())
+    newDayDate.setDate(startDate.getDate() + index)
+    weekDayService.put({ id: week.id, day_date: getISODateString(newDayDate) }).then(() => {
+      week.day_date = startDate
+    })
+    index++
+  })
+}
+
 function updateActiveWeekId(weekId: number, startDate: Date) {
   weekDays.value = new Map()
   for (let i = 0; i < 7; i++) {
@@ -63,7 +82,7 @@ function updateActiveWeekId(weekId: number, startDate: Date) {
 
   const weekDayIds: number[] = []
   weekDayService
-    .get(weekId)
+    .get({ week_id: weekId })
     .then((res) =>
       res.forEach((weekDay) => {
         weekDayIds.push(weekDay.id)
@@ -85,12 +104,9 @@ function addWeekDay(week: DisplayWeekDay) {
       week_id: week.week_id,
       day_date: getISODateString(week.day_date),
     })
-    .then((newWeekDay) =>
-      weekDays.value.set(
-        getISODateString(newWeekDay.day_date),
-        weekDayToDisplayWeekDay(newWeekDay),
-      ),
-    )
+    .then((newWeekDay) => {
+      weekDays.value.set(getISODateString(newWeekDay.day_date), weekDayToDisplayWeekDay(newWeekDay))
+    })
 }
 
 function redirectToAthlete() {
@@ -143,13 +159,18 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
     <template #text>
       <v-divider />
       <div v-if="id">
-        <BlocksPanel :user-id="id" @update:active-week-id="updateActiveWeekId" />
+        <BlocksPanel
+          :user-id="id"
+          @update:active-week-id="updateActiveWeekId"
+          @update:active-week-days="updateActiveWeekIdWithNewDate"
+        />
         <v-divider />
         <v-card v-for="day in weekDays.values()" :key="day.id">
           <template #title>
             <div class="mt-2 d-flex align-center">
               <v-text-field
                 label="Name"
+                :disabled="!isTrainer"
                 variant="outlined"
                 hide-details="auto"
                 v-model="day.name"
@@ -157,6 +178,7 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
                 @update:model-value="updateNameDebounce(day)"
               />
               <v-btn
+                v-if="isTrainer"
                 class="ml-2"
                 icon="mdi-close"
                 variant="text"
@@ -169,7 +191,7 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
           <template #subtitle>
             <div>{{ `${day.day_string} | ${getISODateString(day.day_date)}` }}</div>
           </template>
-          <template #text v-if="day.is_deleted">
+          <template #text v-if="day.is_deleted && isTrainer">
             <v-btn
               @click="restoreDeletedExerciseTable(day)"
               icon="mdi-plus"
@@ -184,7 +206,7 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
             />
             <v-spacer></v-spacer>
           </template>
-          <template #text v-else>
+          <template #text v-else-if="isTrainer">
             <v-btn
               @click="addWeekDay(day)"
               icon="mdi-plus"

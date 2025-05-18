@@ -2,9 +2,19 @@ import type { WeekDay } from "@/types/block"
 import { ServiceBase, Route, Method } from "./base"
 import { isArray } from "@/utils/service"
 
+export interface WeekDayGetRequest {
+  // this one
+  week_id?: number
+
+  // or these two
+  day_date?: string
+  user_id?: string
+}
+
 export interface WeekDayPutRequest {
   id: number
   name?: string
+  day_date?: string
 }
 
 export interface WeekDayPostRequest {
@@ -43,11 +53,11 @@ export class WeekDayService extends ServiceBase<WeekDayPutRequest, WeekDayPostRe
     }) as Promise<WeekDay>
   }
 
-  async get(weekId: number): Promise<WeekDay[]> {
+  public async get(queryParams: WeekDayGetRequest): Promise<WeekDay[]> {
     return this.handleRequest({
       route: this.route,
       method: Method.GET,
-      queryParams: { week_id: weekId },
+      queryParams,
       toRes: this.parseWeekDays,
     }) as Promise<WeekDay[]>
   }

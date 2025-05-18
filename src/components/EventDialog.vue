@@ -3,7 +3,9 @@ import type { CalTimeslot } from "@/types/calendar"
 import { useRouter } from "vue-router"
 import { ref, watch, type PropType } from "vue"
 import { useUsers } from "@/composables/useUsers"
-import { time } from "console"
+import { WeekDayService } from "@/services/weekDay"
+import { getISODateString } from "@/utils/date"
+import { type WeekDay } from "@/types/block"
 
 const { selectedEvent, modelValue } = defineProps({
   selectedEvent: {
@@ -24,15 +26,28 @@ const { selectedEvent, modelValue } = defineProps({
 watch(
   () => selectedEvent,
   () => {
-    console.log(selectedEvent)
-    selectedId.value = selectedEvent?.user?.id
+    dayDateMatch.value = undefined
+    if (!selectedEvent) return
+    selectedUserId.value = selectedEvent.user?.id
+    if (!selectedUserId.value) return
+    weekDayService
+      .get({
+        user_id: selectedUserId.value,
+        day_date: getISODateString(selectedEvent.start),
+      })
+      .then((res) => {
+        if (res.length == 0) return
+        dayDateMatch.value = res[0]
+      })
   },
 )
 
-const selectedId = ref<string>()
+const weekDayService = new WeekDayService()
+const selectedUserId = ref<string>()
 const { users, userDisplay } = useUsers()
 const router = useRouter()
 const emit = defineEmits(["delete-cal-timeslot", "update:modelValue", "update-user"])
+const dayDateMatch = ref<WeekDay>()
 
 function redirectExercise(timeslot: CalTimeslot | null) {
   if (!timeslot) return
@@ -53,10 +68,10 @@ function closeDialog() {
   emit("update:modelValue", false)
 }
 
-function buttonClick() {
+function updateUser() {
   emit(
     "update-user",
-    users.value?.find((p) => p.id === selectedId.value),
+    users.value?.find((p) => p.id === selectedUserId.value),
   )
 }
 </script>
@@ -66,7 +81,7 @@ function buttonClick() {
     <v-card>
       <v-card-title>
         <v-autocomplete
-          v-model="selectedId"
+          v-model="selectedUserId"
           :items="users"
           :item-title="userDisplay"
           item-value="id"
@@ -74,25 +89,29 @@ function buttonClick() {
           variant="plain"
           density="compact"
           hide-details="auto"
-          @update:model-value="buttonClick"
+          @update:model-value="updateUser"
         />
       </v-card-title>
       <v-divider />
       <v-card-text>
         <p v-if="selectedEvent?.week_day?.name" class="pd-1">{{ selectedEvent?.week_day?.name }}</p>
-        <v-btn
-          style="margin-left: 0px"
-          text="Go to exercises"
-          @click="redirectExercise(selectedEvent)"
-        />
+        <v-btn class="mr-2" text="Go to exercises" @click="redirectExercise(selectedEvent)" />
         <v-btn v-if="isTrainer" text="Delete timeslot" @click="deleteCalTimeslot(selectedEvent)" />
+        <v-spacer />
+        <v-btn text="Assign" :disabled="!dayDateMatch" class="mt-3" />
+        <div v-if="dayDateMatch" class="mt-2">
+          <v-icon color="green">mdi-check-circle</v-icon>
+          <span class="text-green text-caption">
+            Week day found! {{ dayDateMatch.name }} at
+            {{ dayDateMatch.day_date.toLocaleDateString() }}
+          </span>
+        </div>
+        <div v-else-if="!dayDateMatch" class="mt-2">
+          <span class="text-caption text-grey">
+            Week day not found, go to athelte overview and create a new week day
+          </span>
+        </div>
       </v-card-text>
     </v-card>
   </v-dialog>
 </template>
-
-<style scoped>
-.v-btn {
-  margin: 1rem 0px 0px 1rem;
-}
-</style>
