@@ -1,5 +1,10 @@
-import type { Week, WeekDay } from "@/types/block"
+import type { Week } from "@/types/block"
 import { ServiceBase, Route, Method } from "./base"
+
+export interface WeekGetRequest {
+  user_id: string
+  start_date: string
+}
 
 export interface WeekPostRequest {
   block_id: number
@@ -21,6 +26,15 @@ export class WeekService extends ServiceBase<WeekPutRequest, WeekPostRequest, We
   private parseWeek(week: any): Week {
     week.start_date = new Date(week.start_date)
     return week
+  }
+
+  public get(queryParams: WeekGetRequest): Promise<Week> {
+    return this.handleRequest({
+      method: Method.GET,
+      route: this.route,
+      queryParams,
+      toRes: this.parseWeek,
+    }) as Promise<Week>
   }
 
   public post(jsonParams: WeekPostRequest): Promise<Week> {

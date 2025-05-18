@@ -15,7 +15,7 @@ import { WeekAdd } from "@/changeEvents/user/weekAdd"
 import { WeekDelete } from "@/changeEvents/user/weekDelete"
 import { watch } from "vue"
 import { WeekService } from "@/services/week"
-import { getISODateString } from "@/utils/date"
+import { getISODateString, getISODateTimeString } from "@/utils/date"
 
 const props = defineProps({
   userId: {
@@ -62,15 +62,16 @@ watch(
   (newUserId) =>
     blockService.get(newUserId).then((res) => {
       activeBlocks.value = blocksToMap(res)
-      // TODO: Set default depedning on todays date
-      const firstBlock = activeBlocks.value.values().next()
-      if (firstBlock.value) {
-        activeBlockId.value = firstBlock.value.id
-        const firstWeek = firstBlock.value.weeks.values().next()
-        if (firstWeek.value) {
-          activeWeekId.value = firstWeek.value.id
-        }
-      }
+      weekService
+        .get({
+          start_date: getISODateString(new Date()),
+          user_id: props.userId,
+        })
+        .then((res) => {
+          if (!res) return
+          activeBlockId.value = res.block_id
+          activeWeekId.value = res.id
+        })
     }),
   { immediate: true },
 )
