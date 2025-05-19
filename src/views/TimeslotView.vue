@@ -7,8 +7,7 @@ const exerciseService = new ExerciseService()
 const props = defineProps({
   id: {
     type: String,
-    required: false,
-    default: undefined,
+    required: true,
   },
 })
 
@@ -24,6 +23,5 @@ watch(
 </script>
 
 <template>
-  <ExercisesPanel v-if="props.id" :week-day-id="Number(id)" v-model="exercise" />
-  <div v-else>Assign a weekDay</div>
+  <ExercisesPanel :week-day-id="Number(id)" v-model="exercise" />
 </template>

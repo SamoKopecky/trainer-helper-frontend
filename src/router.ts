@@ -9,7 +9,7 @@ import AthleteView from "@/views/AthleteView.vue"
 const routes = [
   { path: "/", component: HomeView, name: "Home" },
   { path: "/calendar", component: CalendarView, name: "Time schedule" },
-  { path: "/weekDay/:id?", component: TimeslotView, name: "Timeslot", props: true },
+  { path: "/weekDay/:id", component: TimeslotView, name: "Timeslot", props: true },
   { path: "/exerciseType", component: ExerciseTypeView, name: "Exercise types" },
   { path: "/athleteList", component: AthleteListView, name: "Athletes" },
   { path: "/athlete/:id?", component: AthleteView, name: "Athlete", props: true },

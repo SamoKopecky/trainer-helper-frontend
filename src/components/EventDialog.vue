@@ -115,7 +115,12 @@ function unassingWeekDay() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <v-btn class="mr-2" text="Go to exercises" @click="redirectExercise(timeslot)" />
+        <v-btn
+          v-if="hasWeekDay"
+          class="mr-2"
+          text="Go to exercises"
+          @click="redirectExercise(timeslot)"
+        />
         <v-btn v-if="isTrainer" text="Delete timeslot" @click="deleteCalTimeslot(timeslot)" />
         <v-spacer />
 
