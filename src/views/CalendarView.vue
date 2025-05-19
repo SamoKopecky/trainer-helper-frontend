@@ -2,7 +2,6 @@
 import "vue-cal/style"
 import { VueCal } from "vue-cal"
 import { useChangeEvents } from "@/composables/useChangeEvents"
-import { useEventDialog } from "@/composables/useEventDialog"
 import EventDialog from "@/components/EventDialog.vue"
 import { useCalendar } from "@/composables/useCalendar"
 import { useUser } from "@/composables/useUser"
@@ -10,10 +9,13 @@ import { useTheme } from "vuetify"
 import { useNotifications } from "@/composables/useNotifications"
 import NotificationFloat from "@/components/NotificationFloat.vue"
 import ChangeEventBar from "@/components/ChangeEventBar.vue"
+import { ref } from "vue"
+import type { CalTimeslot } from "@/types/calendar"
 
 const { notifications, addNotification } = useNotifications()
 const { addChangeEvent, undo, redo, undoActive } = useChangeEvents(addNotification)
-const { showDialog, selectedEvent } = useEventDialog()
+const showDialog = ref(false)
+const selectedEvent = ref<CalTimeslot>()
 const {
   events,
   vueCalRef,
@@ -61,11 +63,10 @@ const theme = useTheme()
   ></VueCal>
 
   <EventDialog
-    :selected-event="selectedEvent"
-    :is-trainer="isTrainer"
     @delete-cal-timeslot="deleteTimeslot"
     @update-user="updateEventUser"
-    v-model="showDialog"
+    v-model:active="showDialog"
+    v-model:timeslot="selectedEvent"
   >
   </EventDialog>
 </template>

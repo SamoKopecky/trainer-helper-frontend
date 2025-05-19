@@ -13,7 +13,7 @@ import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
 import { onMounted, ref, type Ref } from "vue"
 
 export function useCalendar(
-  selectedEvent: Ref<CalTimeslot | null>,
+  selectedEvent: Ref<CalTimeslot | undefined>,
   showDialog: Ref<boolean, boolean>,
   addChangeEvent: (event: ChangeEvent) => void,
 ) {
@@ -56,11 +56,12 @@ export function useCalendar(
 
   function updateEventUser(user: User | undefined) {
     if (selectedEvent.value && user) {
-      selectedEvent.value.title = user.nickname ?? user.name
+      selectedEvent.value.title = user.nickname ?? user.name ?? user.email
       selectedEvent.value.class = "assigned"
-      timeslotService
-        .put({ id: selectedEvent.value.id, trainee_id: user.id })
-        .then(() => (selectedEvent.value!.trainee_id = user.id))
+      timeslotService.put({ id: selectedEvent.value.id, trainee_id: user.id }).then(() => {
+        selectedEvent.value!.trainee_id = user.id
+        selectedEvent.value!.user = user
+      })
     }
   }
 

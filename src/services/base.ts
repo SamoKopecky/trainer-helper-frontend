@@ -16,6 +16,7 @@ export enum Route {
   Blocks = "/blocks",
   Weeks = "/weeks",
   WeekDays = "/week-days",
+  WeekDaysTimeslots = `${Route.WeekDays}/timeslots`,
 }
 
 export enum Method {

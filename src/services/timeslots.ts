@@ -42,6 +42,9 @@ export class TimeslotService extends ServiceBase<
 
     return obj.map((o: any): Timeslot => {
       o.start = new Date(o.start)
+      if (o.week_day) {
+        o.week_day.day_date = new Date(o.week_day.day_date)
+      }
       return o
     })
   }

@@ -19,6 +19,7 @@ watch(
   () => {
     exerciseService.getMany([Number(props.id)]).then((res) => (exercise.value = res))
   },
+  { immediate: true },
 )
 </script>
 

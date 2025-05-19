@@ -6,8 +6,9 @@ export function getISODateTimeString(date: Date): string {
 
 export function getISODateString(date: Date): string {
   // Ugly chack to proevent timezone messing up date
-  date.setHours(12)
-  return date.toISOString().split("T")[0]
+  const newDate = new Date(date.valueOf())
+  newDate.setHours(12)
+  return newDate.toISOString().split("T")[0]
 }
 
 export function getDateWeekDayString(date: Date): string {

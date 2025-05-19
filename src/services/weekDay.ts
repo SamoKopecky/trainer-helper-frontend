@@ -15,6 +15,7 @@ export interface WeekDayPutRequest {
   id: number
   name?: string
   day_date?: string
+  timeslot_id?: number
 }
 
 export interface WeekDayPostRequest {
@@ -60,5 +61,13 @@ export class WeekDayService extends ServiceBase<WeekDayPutRequest, WeekDayPostRe
       queryParams,
       toRes: this.parseWeekDays,
     }) as Promise<WeekDay[]>
+  }
+
+  public async deleteTimeslot(id: number): Promise<void> {
+    return this.handleRequest({
+      route: `${Route.WeekDaysTimeslots}/:id`,
+      method: Method.DELETE,
+      pathParams: { id },
+    }) as Promise<void>
   }
 }
