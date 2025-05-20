@@ -33,7 +33,7 @@ const { users, userDisplay } = useUsers()
 const weekDays = ref<Map<string, DisplayWeekDay>>(new Map())
 const exercisesMap = ref<Map<number, ExerciseResponse[]>>(new Map())
 const { isTrainer } = useUser()
-const foundTimeslots = ref<Map<number, Timeslot>>(new Map())
+const foundTimeslots = ref<Map<string, Timeslot>>(new Map())
 
 watch(
   () => props.id,
@@ -45,6 +45,33 @@ watch(
   },
   { immediate: true },
 )
+
+function assignAll() {
+  weekDays.value.forEach((wd) => {
+    if (!wd.is_deleted) {
+      assignWeekDay(wd)
+    }
+  })
+}
+
+function findTimeslots(startDate: Date) {
+  if (!selectedUserId.value) return
+  const endDate = new Date(startDate.valueOf())
+  endDate.setDate(startDate.getDate() + 7)
+
+  timeslotService
+    .get({
+      start_date: getISODateString(startDate),
+      end_date: getISODateString(endDate),
+      user_id: selectedUserId.value,
+    })
+    .then((res) => {
+      res.forEach((timeslot) => {
+        // NOTE:: Fix later, solve situation when there are multiple timeslots per day
+        foundTimeslots.value.set(getISODateString(timeslot.start), timeslot)
+      })
+    })
+}
 
 function getEmptyWeekDay(dayDate: Date, weekId: number): DisplayWeekDay {
   return {
@@ -61,29 +88,49 @@ function getEmptyWeekDay(dayDate: Date, weekId: number): DisplayWeekDay {
 // Update when start of week changes
 function updateActiveWeekIdWithNewDate(startDate: Date) {
   let index = 0
-  weekDays.value.forEach((week) => {
+  weekDays.value.forEach((weekDay) => {
+    unassignWeekDay(weekDay)
+    const newDayDate = new Date(startDate.valueOf())
+    newDayDate.setDate(startDate.getDate() + index)
+
     // NOTE: possible preformance improvment, update many
-    if (!week.is_created) {
+    if (!weekDay.is_created) {
+      weekDay.day_date = newDayDate
       index++
       return
     }
-    const newDayDate = new Date(startDate.valueOf())
-    newDayDate.setDate(startDate.getDate() + index)
-    weekDayService.put({ id: week.id, day_date: getISODateString(newDayDate) }).then(() => {
-      week.day_date = startDate
+    weekDayService.put({ id: weekDay.id, day_date: getISODateString(newDayDate) }).then(() => {
+      weekDay.day_date = newDayDate
     })
     index++
   })
+  findTimeslots(startDate)
+}
+
+function assignWeekDay(day: DisplayWeekDay) {
+  const timeslot = foundTimeslots.value.get(getISODateString(day.day_date))
+  if (!timeslot) return
+
+  weekDayService
+    .put({ id: day.id, timeslot_id: timeslot.id })
+    .then(() => (day.timeslot_id = timeslot.id))
+}
+
+function unassignWeekDay(day: DisplayWeekDay) {
+  weekDayService.deleteTimeslot(day.id).then(() => (day.timeslot_id = undefined))
 }
 
 function updateActiveWeekId(weekId: number, startDate: Date) {
   weekDays.value = new Map()
+
   for (let i = 0; i < 7; i++) {
     // Create new date to avoid altering emited date
     const dayDate = new Date(startDate.valueOf())
     dayDate.setDate(startDate.getDate() + i)
     weekDays.value.set(getISODateString(dayDate), getEmptyWeekDay(dayDate, weekId))
   }
+
+  findTimeslots(startDate)
 
   const weekDayIds: number[] = []
   weekDayService
@@ -124,6 +171,10 @@ const updateNameDebounce = useDebounceFn((newDay: DisplayWeekDay) => {
     id: newDay.id,
   })
 }, 1000)
+
+// TODO: Assign all button
+// Make everything prettier
+// clean up this shit
 
 function deleteWeekDay(day: DisplayWeekDay) {
   weekDayService.delete(day.id).then(() => {
@@ -173,6 +224,7 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
         />
         <v-divider />
 
+        <v-btn @click="assignAll">Assign all available</v-btn>
         <v-card v-for="day in weekDays.values()" :key="day.id">
           <template #title>
             <div class="mt-2 d-flex align-center">
@@ -208,6 +260,10 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
                 icon="mdi-plus"
                 v-tooltip:bottom="'Recover deleted exercise table'"
               />
+              <div v-if="foundTimeslots.has(getISODateString(day.day_date))">
+                Timeslot exists, create exercise to assign week day to timeslot
+                {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
+              </div>
             </div>
 
             <div v-else-if="day.is_created">
@@ -216,7 +272,16 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
                 :model-value="exercisesMap.get(day.id)"
                 @update:model-value="(newValue) => exercisesMap.set(day.id, newValue!)"
               />
-              <v-spacer></v-spacer>
+              <v-spacer />
+              <div v-if="day.timeslot_id">
+                Has timeslot: {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
+                <v-btn @click="unassignWeekDay(day)">Unassign</v-btn>
+              </div>
+              <div v-else-if="foundTimeslots.has(getISODateString(day.day_date))">
+                timeslot found at {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
+
+                <v-btn @click="assignWeekDay(day)">Assign</v-btn>
+              </div>
             </div>
 
             <div v-else-if="isTrainer">
@@ -225,8 +290,11 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
                 icon="mdi-plus"
                 v-tooltip:bottom="'Add new exercise table'"
               />
+              <div v-if="foundTimeslots.has(getISODateString(day.day_date))">
+                Timeslot exists, create exercise to assign week day to timeslot
+                {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
+              </div>
             </div>
-            {{ foundTimeslots.get(day.id)?.start }}
           </template>
           <v-divider />
         </v-card>

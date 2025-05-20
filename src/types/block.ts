@@ -34,4 +34,5 @@ export interface WeekBase {
   day_date: Date
   is_deleted: boolean
   name?: string
+  timeslot_id?: number
 }

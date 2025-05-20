@@ -10,8 +10,8 @@ export interface TimeslotDetailedGetRequest {
 
 export interface TimeslotGetRequest {
   // TODO: Make date jsonify correcly
-  start: string
-  end: string
+  start_date: string
+  end_date: string
   user_id: string
 }
 
