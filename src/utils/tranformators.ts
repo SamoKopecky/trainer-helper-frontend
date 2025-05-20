@@ -2,7 +2,7 @@ import type { ExerciseResponse } from "@/services/exercise"
 import type { AppTimeslot } from "@/types/calendar"
 import type { ExerciseTableData } from "@/types/exercise"
 import type { ExerciseType, ExerciseTypeTableRow } from "@/types/exerciseType"
-import type { Timeslot, WorkSet } from "@/types/other"
+import type { EnhancedTimeslot, WorkSet } from "@/types/other"
 import { getTimeslotUserName } from "./user"
 import type { Block, BlockMap, BlockValue, DisplayWeekDay, Week, WeekDay } from "@/types/block"
 import { getDateWeekDayString } from "./date"
@@ -61,7 +61,7 @@ export function mergeTableDataAndWorkSetModel(
   }
 }
 
-export function timeslotToAppTimeslot(timeslot: Timeslot): AppTimeslot {
+export function timeslotToAppTimeslot(timeslot: EnhancedTimeslot): AppTimeslot {
   const isAssigned = timeslot.user?.name ?? false
   return {
     ...timeslot,

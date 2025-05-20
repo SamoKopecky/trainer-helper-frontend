@@ -4,8 +4,10 @@ import ExercisesPanel from "@/components/ExercisesPanel.vue"
 import { useUser } from "@/composables/useUser"
 import { useUsers } from "@/composables/useUsers"
 import { ExerciseService, type ExerciseResponse } from "@/services/exercise"
+import { TimeslotService } from "@/services/timeslots"
 import { WeekDayService } from "@/services/weekDay"
 import type { DisplayWeekDay } from "@/types/block"
+import type { Timeslot } from "@/types/other"
 import { getDateWeekDayString, getISODateString } from "@/utils/date"
 import { randomNumberId } from "@/utils/other"
 import { exerciseResponsesToMap, weekDayToDisplayWeekDay } from "@/utils/tranformators"
@@ -23,6 +25,7 @@ const props = defineProps({
 
 const weekDayService = new WeekDayService()
 const exerciseService = new ExerciseService()
+const timeslotService = new TimeslotService()
 
 const selectedUserId = ref<string>()
 const router = useRouter()
@@ -30,6 +33,7 @@ const { users, userDisplay } = useUsers()
 const weekDays = ref<Map<string, DisplayWeekDay>>(new Map())
 const exercisesMap = ref<Map<number, ExerciseResponse[]>>(new Map())
 const { isTrainer } = useUser()
+const foundTimeslots = ref<Map<number, Timeslot>>(new Map())
 
 watch(
   () => props.id,
@@ -54,10 +58,11 @@ function getEmptyWeekDay(dayDate: Date, weekId: number): DisplayWeekDay {
   }
 }
 
+// Update when start of week changes
 function updateActiveWeekIdWithNewDate(startDate: Date) {
   let index = 0
   weekDays.value.forEach((week) => {
-    // TODO: possible preformance improvment, update many
+    // NOTE: possible preformance improvment, update many
     if (!week.is_created) {
       index++
       return
@@ -156,8 +161,10 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
         </template>
       </v-autocomplete>
     </template>
+
     <template #text>
       <v-divider />
+
       <div v-if="id">
         <BlocksPanel
           :user-id="id"
@@ -165,6 +172,7 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
           @update:active-week-days="updateActiveWeekIdWithNewDate"
         />
         <v-divider />
+
         <v-card v-for="day in weekDays.values()" :key="day.id">
           <template #title>
             <div class="mt-2 d-flex align-center">
@@ -188,30 +196,37 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
               />
             </div>
           </template>
+
           <template #subtitle>
-            <div>{{ `${day.day_string} | ${getISODateString(day.day_date)}` }}</div>
+            {{ `${day.day_string} | ${getISODateString(day.day_date)}` }}
           </template>
-          <template #text v-if="day.is_deleted && isTrainer">
-            <v-btn
-              @click="restoreDeletedExerciseTable(day)"
-              icon="mdi-plus"
-              v-tooltip:bottom="'Recover deleted exercise table'"
-            />
-          </template>
-          <template #text v-else-if="day.is_created">
-            <ExercisesPanel
-              :week-day-id="day.id"
-              :model-value="exercisesMap.get(day.id)"
-              @update:model-value="(newValue) => exercisesMap.set(day.id, newValue!)"
-            />
-            <v-spacer></v-spacer>
-          </template>
-          <template #text v-else-if="isTrainer">
-            <v-btn
-              @click="addWeekDay(day)"
-              icon="mdi-plus"
-              v-tooltip:bottom="'Add new exercise table'"
-            />
+
+          <template #text>
+            <div v-if="day.is_deleted && isTrainer">
+              <v-btn
+                @click="restoreDeletedExerciseTable(day)"
+                icon="mdi-plus"
+                v-tooltip:bottom="'Recover deleted exercise table'"
+              />
+            </div>
+
+            <div v-else-if="day.is_created">
+              <ExercisesPanel
+                :week-day-id="day.id"
+                :model-value="exercisesMap.get(day.id)"
+                @update:model-value="(newValue) => exercisesMap.set(day.id, newValue!)"
+              />
+              <v-spacer></v-spacer>
+            </div>
+
+            <div v-else-if="isTrainer">
+              <v-btn
+                @click="addWeekDay(day)"
+                icon="mdi-plus"
+                v-tooltip:bottom="'Add new exercise table'"
+              />
+            </div>
+            {{ foundTimeslots.get(day.id)?.start }}
           </template>
           <v-divider />
         </v-card>

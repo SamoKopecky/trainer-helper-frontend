@@ -1,4 +1,4 @@
-import type { Timeslot } from "@/types/other"
+import type { EnhancedTimeslot } from "@/types/other"
 import type { VueKeycloakTokenParsed } from "@dsb-norge/vue-keycloak-js"
 import type { DeepReadonly } from "vue"
 
@@ -29,7 +29,7 @@ export function capitalizeWords(str?: string): string | undefined {
     .join(" ")
 }
 
-export function getTimeslotUserName(timeslot: Timeslot): string | undefined {
+export function getTimeslotUserName(timeslot: EnhancedTimeslot): string | undefined {
   return timeslot.user?.nickname ?? timeslot.user?.name ?? timeslot.user?.email
 }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Timeslot } from "@/types/other"
+import type { EnhancedTimeslot } from "@/types/other"
 import { onMounted } from "vue"
 import { computed } from "vue"
 import { useTemplateRef, watchEffect } from "vue"
@@ -19,7 +19,7 @@ defineProps({
 const duplicateDialog = ref(false)
 const duplicateInput = useTemplateRef("duplicateInput")
 const duplicateTimeslotId = ref<number | undefined>()
-const duplicateTimeslots = ref<Timeslot[]>([])
+const duplicateTimeslots = ref<EnhancedTimeslot[]>([])
 
 const computedDuplicateTimeslots = computed(() => {
   return duplicateTimeslots.value.map((timeslot) => {

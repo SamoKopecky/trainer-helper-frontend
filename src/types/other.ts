@@ -15,6 +15,9 @@ export interface Timeslot {
   trainee_id?: string
   end: Date
   start: Date
+}
+
+export interface EnhancedTimeslot extends Timeslot {
   user?: User
   week_day?: WeekDay
 }

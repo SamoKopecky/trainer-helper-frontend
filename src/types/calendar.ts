@@ -1,7 +1,7 @@
-import type { Timeslot } from "./other"
+import type { EnhancedTimeslot } from "./other"
 import type { VueCalTimeslot } from "./vuecal"
 
-export interface AppTimeslot extends Timeslot {
+export interface AppTimeslot extends EnhancedTimeslot {
   title: string | undefined
   class: string
 }
