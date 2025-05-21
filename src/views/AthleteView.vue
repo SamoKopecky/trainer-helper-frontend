@@ -14,6 +14,8 @@ import { exerciseResponsesToMap, weekDayToDisplayWeekDay } from "@/utils/tranfor
 import { useDebounceFn } from "@vueuse/core"
 import { watch, ref } from "vue"
 import { useRouter } from "vue-router"
+import { VueDraggableNext } from "vue-draggable-next"
+import { onUpdated } from "vue"
 
 const props = defineProps({
   id: {
@@ -34,6 +36,16 @@ const weekDays = ref<Map<string, DisplayWeekDay>>(new Map())
 const exercisesMap = ref<Map<number, ExerciseResponse[]>>(new Map())
 const { isTrainer } = useUser()
 const foundTimeslots = ref<Map<string, Timeslot>>(new Map())
+
+const weekDaysArray = ref<DisplayWeekDay[]>()
+watch(
+  weekDays,
+  (currentWeekDaysMap) => {
+    console.log("map updated")
+    weekDaysArray.value = Array.from(currentWeekDaysMap.values())
+  },
+  { deep: true, immediate: true },
+)
 
 watch(
   () => props.id,
@@ -58,6 +70,7 @@ function findTimeslots(startDate: Date) {
   if (!selectedUserId.value) return
   const endDate = new Date(startDate.valueOf())
   endDate.setDate(startDate.getDate() + 7)
+  const newTimeslots: Map<string, Timeslot> = new Map()
 
   timeslotService
     .get({
@@ -68,8 +81,9 @@ function findTimeslots(startDate: Date) {
     .then((res) => {
       res.forEach((timeslot) => {
         // NOTE:: Fix later, solve situation when there are multiple timeslots per day
-        foundTimeslots.value.set(getISODateString(timeslot.start), timeslot)
+        newTimeslots.set(getISODateString(timeslot.start), timeslot)
       })
+      foundTimeslots.value = newTimeslots
     })
 }
 
@@ -172,10 +186,6 @@ const updateNameDebounce = useDebounceFn((newDay: DisplayWeekDay) => {
   })
 }, 1000)
 
-// TODO: Assign all button
-// Make everything prettier
-// clean up this shit
-
 function deleteWeekDay(day: DisplayWeekDay) {
   weekDayService.delete(day.id).then(() => {
     const deletedWeekDay = weekDays.value.get(getISODateString(day.day_date))
@@ -188,6 +198,38 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
     const deletedWeekDay = weekDays.value.get(getISODateString(day.day_date))
     if (deletedWeekDay) deletedWeekDay.is_deleted = false
   })
+}
+
+function onDragEnd(param) {
+  if (!weekDaysArray.value) return
+  console.log(param)
+  console.log(weekDaysArray)
+  const oldDay = weekDaysArray.value[param.oldIndex]
+  const newDay = weekDaysArray.value[param.newIndex]
+  const oldDate = oldDay.day_date
+  const newDate = newDay.day_date
+  const oldDateStr = oldDay.day_string
+  const newDateStr = newDay.day_string
+  console.log(oldDate, oldDateStr)
+  console.log(newDate, newDateStr)
+
+  oldDay.day_string = newDateStr
+  oldDay.day_date = newDate
+  newDay.day_string = oldDateStr
+  newDay.day_date = oldDate
+
+  console.log(oldDay)
+  console.log(newDay)
+
+  const newOrderedMap = new Map<string, DisplayWeekDay>()
+  for (const day of weekDaysArray.value) {
+    newOrderedMap.set(getISODateString(day.day_date), day)
+  }
+  // This will trigger the watch on weekDays, which will update
+  // orderedWeekDaysArray to be Array.from(newOrderedMap.values()).
+  // Since orderedWeekDaysArray was already set by v-model of draggable,
+  // this effectively confirms the new order in the base map.
+  weekDays.value = newOrderedMap
 }
 </script>
 
@@ -225,79 +267,90 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
         <v-divider />
 
         <v-btn @click="assignAll">Assign all available</v-btn>
-        <v-card v-for="day in weekDays.values()" :key="day.id">
-          <template #title>
-            <div class="mt-2 d-flex align-center">
-              <v-text-field
-                label="Name"
-                :disabled="!isTrainer"
-                variant="outlined"
-                hide-details="auto"
-                v-model="day.name"
-                placeholder="Choose a name..."
-                @update:model-value="updateNameDebounce(day)"
-              />
-              <v-btn
-                v-if="isTrainer"
-                class="ml-2"
-                icon="mdi-close"
-                variant="text"
-                v-tooltip:bottom="'Delete'"
-                color="error"
-                @click="deleteWeekDay(day)"
-              />
-            </div>
-          </template>
-
-          <template #subtitle>
-            {{ `${day.day_string} | ${getISODateString(day.day_date)}` }}
-          </template>
-
-          <template #text>
-            <div v-if="day.is_deleted && isTrainer">
-              <v-btn
-                @click="restoreDeletedExerciseTable(day)"
-                icon="mdi-plus"
-                v-tooltip:bottom="'Recover deleted exercise table'"
-              />
-              <div v-if="foundTimeslots.has(getISODateString(day.day_date))">
-                Timeslot exists, create exercise to assign week day to timeslot
-                {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
+        <VueDraggableNext
+          v-model="weekDaysArray"
+          item-key="id"
+          @end="onDragEnd"
+          :animation="200"
+          handle=".drag-handle"
+        >
+          <v-card v-for="day in weekDaysArray" :key="day.id">
+            <template #title>
+              <div class="mt-2 d-flex align-center">
+                <v-icon v-if="isTrainer" class="drag-handle mr-2" style="cursor: grab"
+                  >mdi-drag-vertical</v-icon
+                >
+                <v-text-field
+                  label="Name"
+                  :disabled="!isTrainer || !day.is_created || day.is_deleted"
+                  variant="outlined"
+                  hide-details="auto"
+                  v-model="day.name"
+                  placeholder="Choose a name..."
+                  @update:model-value="updateNameDebounce(day)"
+                />
+                <v-btn
+                  v-if="isTrainer && day.is_created && !day.is_deleted"
+                  class="ml-2"
+                  icon="mdi-close"
+                  variant="text"
+                  v-tooltip:bottom="'Delete'"
+                  color="error"
+                  @click="deleteWeekDay(day)"
+                />
               </div>
-            </div>
+            </template>
 
-            <div v-else-if="day.is_created">
-              <ExercisesPanel
-                :week-day-id="day.id"
-                :model-value="exercisesMap.get(day.id)"
-                @update:model-value="(newValue) => exercisesMap.set(day.id, newValue!)"
-              />
-              <v-spacer />
-              <div v-if="day.timeslot_id">
-                Has timeslot: {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
-                <v-btn @click="unassignWeekDay(day)">Unassign</v-btn>
-              </div>
-              <div v-else-if="foundTimeslots.has(getISODateString(day.day_date))">
-                timeslot found at {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
+            <template #subtitle>
+              {{ `${day.day_string} | ${getISODateString(day.day_date)}` }}
+            </template>
 
-                <v-btn @click="assignWeekDay(day)">Assign</v-btn>
+            <template #text>
+              <div v-if="day.is_deleted && isTrainer">
+                <v-btn
+                  @click="restoreDeletedExerciseTable(day)"
+                  icon="mdi-plus"
+                  v-tooltip:bottom="'Recover deleted exercise table'"
+                />
+                <div v-if="foundTimeslots.has(getISODateString(day.day_date))">
+                  Timeslot exists, create exercise to assign week day to timeslot
+                  {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
+                </div>
               </div>
-            </div>
 
-            <div v-else-if="isTrainer">
-              <v-btn
-                @click="addWeekDay(day)"
-                icon="mdi-plus"
-                v-tooltip:bottom="'Add new exercise table'"
-              />
-              <div v-if="foundTimeslots.has(getISODateString(day.day_date))">
-                Timeslot exists, create exercise to assign week day to timeslot
-                {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
+              <div v-else-if="day.is_created">
+                <ExercisesPanel
+                  :week-day-id="day.id"
+                  :model-value="exercisesMap.get(day.id)"
+                  @update:model-value="(newValue) => exercisesMap.set(day.id, newValue!)"
+                />
+                <v-spacer />
+                <div v-if="day.timeslot_id">
+                  Has timeslot: {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
+                  <v-btn @click="unassignWeekDay(day)">Unassign</v-btn>
+                </div>
+                <div v-else-if="foundTimeslots.has(getISODateString(day.day_date))">
+                  timeslot found at {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
+
+                  <v-btn @click="assignWeekDay(day)">Assign</v-btn>
+                </div>
               </div>
-            </div>
-          </template>
-          <v-divider />
-        </v-card>
+
+              <div v-else-if="isTrainer">
+                <v-btn
+                  @click="addWeekDay(day)"
+                  icon="mdi-plus"
+                  v-tooltip:bottom="'Add new exercise table'"
+                />
+                <div v-if="foundTimeslots.has(getISODateString(day.day_date))">
+                  Timeslot exists, create exercise to assign week day to timeslot
+                  {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
+                </div>
+              </div>
+            </template>
+            <v-divider />
+          </v-card>
+        </VueDraggableNext>
       </div>
 
       <div v-else>Choose a user above</div>
