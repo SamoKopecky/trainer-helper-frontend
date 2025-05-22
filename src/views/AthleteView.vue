@@ -187,6 +187,8 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
     if (deletedWeekDay) deletedWeekDay.is_deleted = false
   })
 }
+
+function duplicateFromWeek() {}
 </script>
 
 <template>
@@ -223,6 +225,7 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
         <v-divider />
 
         <v-btn @click="assignAll">Assign all available</v-btn>
+        <v-btn @click="duplicateFromWeek">Duplicate from other week</v-btn>
         <v-card v-for="day in weekDays.values()" :key="day.id">
           <template #title>
             <div class="mt-2 d-flex align-center">

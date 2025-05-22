@@ -18,6 +18,11 @@ export interface WeekPutRequest {
   start_date: string
 }
 
+export interface WeekPostDuplicateRequest {
+  template_week_id: number
+  new_week_id: number
+}
+
 export class WeekService extends ServiceBase<WeekPutRequest, WeekPostRequest, Week> {
   constructor() {
     super(Route.Weeks)
@@ -44,5 +49,13 @@ export class WeekService extends ServiceBase<WeekPutRequest, WeekPostRequest, We
       route: this.route,
       toRes: this.parseWeek,
     }) as Promise<Week>
+  }
+
+  public postDuplicate(jsonParams: WeekPostDuplicateRequest): Promise<void> {
+    return this.handleRequest({
+      jsonParams,
+      method: Method.POST,
+      route: `${this.route}/duplicate`,
+    }) as Promise<void>
   }
 }
