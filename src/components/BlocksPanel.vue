@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useNotifications } from "@/composables/useNotifications"
-import { useUser } from "@/composables/useUser"
 import NotificationFloat from "@/components/NotificationFloat.vue"
 import ChangeEventBar from "@/components/ChangeEventBar.vue"
 import { BlockService } from "@/services/block"
@@ -21,13 +20,16 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  isEditable: {
+    type: Boolean,
+    required: true,
+  },
 })
 
-const { isTrainer } = useUser()
 const { notifications, addNotification } = useNotifications()
 const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
 
-const emit = defineEmits(["update:active-week-id", "update:active-week-days"])
+const emit = defineEmits(["update:week-id", "update:start-date"])
 
 const blockService = new BlockService()
 const weekService = new WeekService()
@@ -53,7 +55,7 @@ watch(activeWeekId, (newWeekId) => {
   if (!newWeekId) return
   const activeWeek = activeWeeks.value?.get(newWeekId)
   selectedDate.value = activeWeek?.start_date
-  emit("update:active-week-id", newWeekId, activeWeek?.start_date)
+  emit("update:week-id", newWeekId, activeWeek?.start_date)
 })
 
 watch(
@@ -123,7 +125,7 @@ function changeStartOfTheWeek() {
       const date = selectedDate.value
       if (!date || !activeWeek) return
       activeWeek.start_date = date
-      emit("update:active-week-days", date)
+      emit("update:start-date", date)
     })
 }
 </script>
@@ -143,7 +145,7 @@ function changeStartOfTheWeek() {
         :value="block.id"
       />
     </v-btn-toggle>
-    <span v-if="isTrainer">
+    <span v-if="isEditable">
       <v-btn icon="mdi-plus" class="ml-2" size="small" @click="addBlock"></v-btn>
       <v-btn icon="mdi-minus" class="ml-2" size="small" @click="deleteBlock"></v-btn>
     </span>
@@ -163,14 +165,14 @@ function changeStartOfTheWeek() {
         :value="week.id"
       />
     </v-btn-toggle>
-    <span v-if="isTrainer">
+    <span v-if="isEditable">
       <v-btn icon="mdi-plus" class="ml-2" size="small" @click="addWeek"></v-btn>
       <v-btn icon="mdi-minus" class="ml-2" size="small" @click="deleteWeek"></v-btn>
     </span>
 
     <v-spacer />
 
-    <div class="mt-2" v-if="isTrainer">
+    <div class="mt-2" v-if="isEditable">
       <ChangeEventBar
         :is-undo-active="undoActive"
         :is-redo-active="redoActive"
@@ -181,8 +183,7 @@ function changeStartOfTheWeek() {
 
     <div class="mt-4">
       <v-date-input
-        :readonly="!isTrainer"
-        :disabled="!activeWeekId"
+        :disabled="!activeWeekId || !isEditable"
         v-model="selectedDate"
         variant="outlined"
         label="Start of the week"

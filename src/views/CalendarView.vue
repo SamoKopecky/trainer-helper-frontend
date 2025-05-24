@@ -67,8 +67,7 @@ const theme = useTheme()
     @update-user="updateEventUser"
     v-model:active="showDialog"
     v-model:timeslot="selectedEvent"
-  >
-  </EventDialog>
+  />
 </template>
 
 <style>

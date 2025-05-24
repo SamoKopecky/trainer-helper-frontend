@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import BlocksPanel from "@/components/BlocksPanel.vue"
 import ExercisesPanel from "@/components/ExercisesPanel.vue"
+import NotificationFloat from "@/components/NotificationFloat.vue"
+import WeekDuplicateDialog from "@/components/WeekDupliateDialog.vue"
+import { useNotifications } from "@/composables/useNotifications"
 import { useUser } from "@/composables/useUser"
 import { useUsers } from "@/composables/useUsers"
 import { ExerciseService, type ExerciseResponse } from "@/services/exercise"
@@ -16,7 +19,7 @@ import { watch, ref } from "vue"
 import { useRouter } from "vue-router"
 
 const props = defineProps({
-  id: {
+  userId: {
     type: String,
     required: false,
     default: undefined,
@@ -27,6 +30,10 @@ const weekDayService = new WeekDayService()
 const exerciseService = new ExerciseService()
 const timeslotService = new TimeslotService()
 
+const { addNotification, notifications } = useNotifications()
+const duplicateDialogActive = ref(false)
+const activeWeekId = ref<number>()
+const activeStartDate = ref<Date>()
 const selectedUserId = ref<string>()
 const router = useRouter()
 const { users, userDisplay } = useUsers()
@@ -36,11 +43,11 @@ const { isTrainer } = useUser()
 const foundTimeslots = ref<Map<string, Timeslot>>(new Map())
 
 watch(
-  () => props.id,
+  () => props.userId,
   () => {
     selectedUserId.value = undefined
-    if (props.id) {
-      selectedUserId.value = props.id
+    if (props.userId) {
+      selectedUserId.value = props.userId
     }
   },
   { immediate: true },
@@ -88,7 +95,7 @@ function getEmptyWeekDay(dayDate: Date, weekId: number): DisplayWeekDay {
 }
 
 // Update when start of week changes
-function updateActiveWeekIdWithNewDate(startDate: Date) {
+function updateStartDate(startDate: Date) {
   let index = 0
   const newWeekDays: Map<string, DisplayWeekDay> = new Map()
   weekDays.value.forEach((weekDay) => {
@@ -123,7 +130,9 @@ function unassignWeekDay(day: DisplayWeekDay) {
   weekDayService.deleteTimeslot(day.id).then(() => (day.timeslot_id = undefined))
 }
 
-function updateActiveWeekId(weekId: number, startDate: Date) {
+function updateWeekId(weekId: number, startDate: Date) {
+  activeWeekId.value = weekId
+  activeStartDate.value = startDate
   weekDays.value = new Map()
 
   for (let i = 0; i < 7; i++) {
@@ -189,10 +198,26 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
   })
 }
 
-function duplicateFromWeek() {}
+function duplicateFromWeek() {
+  duplicateDialogActive.value = true
+}
+
+function sucesfulDuplication() {
+  addNotification("Duplication succesfull!", "success")
+  if (!activeStartDate.value || !activeWeekId.value) return
+  updateWeekId(activeWeekId.value, activeStartDate.value)
+}
 </script>
 
 <template>
+  <NotificationFloat :notifications="notifications" />
+  <WeekDuplicateDialog
+    v-model="duplicateDialogActive"
+    :user-id="userId"
+    :active-week-id="activeWeekId"
+    @notfiy:reload="sucesfulDuplication"
+  />
+
   <v-card :title="'User name/nickname'" flat>
     <template #title>
       <v-autocomplete
@@ -217,11 +242,12 @@ function duplicateFromWeek() {}
     <template #text>
       <v-divider />
 
-      <div v-if="id">
+      <div v-if="userId">
         <BlocksPanel
-          :user-id="id"
-          @update:active-week-id="updateActiveWeekId"
-          @update:active-week-days="updateActiveWeekIdWithNewDate"
+          :user-id="userId"
+          :is-editable="isTrainer"
+          @update:week-id="updateWeekId"
+          @update:start-date="updateStartDate"
         />
         <v-divider />
 

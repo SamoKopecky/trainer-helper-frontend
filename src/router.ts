@@ -12,7 +12,7 @@ const routes = [
   { path: "/weekDay/:id", component: TimeslotView, name: "Timeslot", props: true },
   { path: "/exerciseType", component: ExerciseTypeView, name: "Exercise types" },
   { path: "/athleteList", component: AthleteListView, name: "Athletes" },
-  { path: "/athlete/:id?", component: AthleteView, name: "Athlete", props: true },
+  { path: "/athlete/:userId?", component: AthleteView, name: "Athlete", props: true },
 ]
 
 const router = createRouter({
