@@ -90,22 +90,23 @@ function getEmptyWeekDay(dayDate: Date, weekId: number): DisplayWeekDay {
 // Update when start of week changes
 function updateActiveWeekIdWithNewDate(startDate: Date) {
   let index = 0
+  const newWeekDays: Map<string, DisplayWeekDay> = new Map()
   weekDays.value.forEach((weekDay) => {
     unassignWeekDay(weekDay)
     const newDayDate = new Date(startDate.valueOf())
     newDayDate.setDate(startDate.getDate() + index)
 
-    // NOTE: possible preformance improvment, update many
     if (!weekDay.is_created) {
       weekDay.day_date = newDayDate
-      index++
-      return
+    } else {
+      weekDayService
+        .put({ id: weekDay.id, day_date: getISODateString(newDayDate) })
+        .then(() => (weekDay.day_date = newDayDate))
     }
-    weekDayService.put({ id: weekDay.id, day_date: getISODateString(newDayDate) }).then(() => {
-      weekDay.day_date = newDayDate
-    })
     index++
+    newWeekDays.set(getISODateString(newDayDate), weekDay)
   })
+  weekDays.value = newWeekDays
   findTimeslots(startDate)
 }
 
