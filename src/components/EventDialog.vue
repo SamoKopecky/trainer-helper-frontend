@@ -36,6 +36,10 @@ function redirectExercise(timeslot: CalTimeslot | undefined) {
   }
 }
 
+function redirectAthlete() {
+  router.push({ path: `/athlete/${timeslotUserId.value}` })
+}
+
 function deleteCalTimeslot(event: CalTimeslot | undefined) {
   emit("delete-cal-timeslot", event)
 }
@@ -95,6 +99,14 @@ function unassingWeekDay() {
     timeslot.value!.week_day = undefined
   })
 }
+
+function formatDate(date: Date) {
+  if (!date) return ""
+  return new Date(date).toLocaleDateString(undefined, {
+    month: "numeric",
+    day: "numeric",
+  })
+}
 </script>
 
 <template>
@@ -118,29 +130,33 @@ function unassingWeekDay() {
         <v-btn
           v-if="hasWeekDay"
           class="mr-2"
-          text="Go to exercises"
+          text="to session"
           @click="redirectExercise(timeslot)"
         />
-        <v-btn v-if="isTrainer" text="Delete timeslot" @click="deleteCalTimeslot(timeslot)" />
+        <span v-if="isTrainer">
+          <v-btn v-if="isAssinged" class="mr-2" text="to athlete" @click="redirectAthlete" />
+          <v-btn text="Delete timeslot" @click="deleteCalTimeslot(timeslot)" />
+        </span>
 
         <v-spacer />
 
         <div v-if="isTrainer">
           <div v-if="!isAssinged" class="mt-2 text-caption text-grey">
-            User not assinged, to match week day assing a user
+            Athlete not assinged, to match a session assing an athlete
           </div>
 
           <div v-else>
-            <div v-if="hasWeekDay" class="mt-3 text-caption">
-              Week day assinged {{ timeslot!.week_day!.name }} at
-              {{ timeslot!.week_day!.day_date.toLocaleDateString() }}
+            <div v-if="hasWeekDay" class="mt-2 d-flex align-center">
+              Session {{ timeslot!.week_day?.name }} assinged at
+              {{ formatDate(timeslot!.week_day!.day_date) }}
               <v-btn
                 icon="mdi-close-circle"
                 variant="text"
-                size="small"
+                density="compact"
                 v-tooltip:bottom="'Unassing'"
                 color="error"
                 @click="unassingWeekDay"
+                class="ml-1"
               />
             </div>
 
@@ -152,14 +168,16 @@ function unassingWeekDay() {
                 @click="assignWeekDay"
               />
 
-              <div v-if="isWeekDayAvailable" class="mt-2 text-green text-caption">
-                <v-icon color="green ">mdi-check-circle</v-icon>
-                Week day found! {{ weekDayMatch!.name }} at
-                {{ weekDayMatch!.day_date.toLocaleDateString() }}
+              <div v-if="isWeekDayAvailable" class="mt-2 text-green d-flex align-center">
+                <v-icon color="green" class="mr-1">mdi-check-circle</v-icon>
+                <span
+                  >Session found {{ weekDayMatch!.name }} at
+                  {{ formatDate(weekDayMatch!.day_date) }}</span
+                >
               </div>
 
               <div v-else-if="!isWeekDayAvailable" class="mt-2 text-caption text-grey">
-                Week day not found, go to athelte overview and create a new week day
+                Session not found, go to athelte overview and create a new week day
               </div>
             </div>
           </div>

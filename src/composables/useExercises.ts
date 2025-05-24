@@ -17,6 +17,7 @@ import { ExerciseExerciseTableDelete } from "@/changeEvents/exerciseTable/exerci
 import { CopyWorkSetExerciseTableUpdate } from "@/changeEvents/exerciseTable/copyWorkSet"
 import { SetCountExerciseTableUpdate } from "@/changeEvents/exerciseTable/setCount"
 import type { ModelRef } from "vue"
+import { useRouter } from "vue-router"
 
 export function useExercises(
   weekDayId: number,
@@ -28,6 +29,8 @@ export function useExercises(
 
   const exercises = ref<ExerciseTableData[]>([])
   const exercisesOld: Map<number, ExerciseTableData> = new Map()
+
+  const router = useRouter()
 
   function deleteExercise(exerciseId: number) {
     addChangeEvent(new ExerciseExerciseTableDelete(exerciseId, exercises.value, exercisesOld))
@@ -110,5 +113,9 @@ export function useExercises(
     return promise.catch((error: Error) => addNotification(error.message, "error"))
   }
 
-  return { exercises, addExercise, deleteExercise, updateTable, copyWorkSet }
+  function goToSession(weekDayId: number) {
+    router.push({ path: `/weekDay/${weekDayId}` })
+  }
+
+  return { exercises, addExercise, deleteExercise, updateTable, copyWorkSet, goToSession }
 }

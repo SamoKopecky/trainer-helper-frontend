@@ -226,11 +226,13 @@ function sucesfulDuplication() {
         />
         <v-divider />
 
-        <div v-if="isTrainer">
-          <v-btn @click="assignAll">Assign all available</v-btn>
-          <v-btn @click="duplicateDialogActive = true">Duplicate from other week</v-btn>
+        <div v-if="isTrainer" class="md-2 mt-2">
+          <v-btn class="mr-2" @click="assignAll">Assign all available timeslots</v-btn>
+          <v-btn @click="duplicateDialogActive = true">Duplicate sessions from other week</v-btn>
         </div>
+
         <WeekDayPanel
+          class="mt-2"
           v-for="day in weekDays.values()"
           :key="day.id"
           :day="day"

@@ -172,14 +172,14 @@ function changeStartOfTheWeek() {
 
     <v-spacer />
 
-    <div class="mt-2" v-if="isEditable">
-      <ChangeEventBar
-        :is-undo-active="undoActive"
-        :is-redo-active="redoActive"
-        @undo="undo"
-        @redo="redo"
-      />
-    </div>
+    <ChangeEventBar
+      class="mt-2"
+      justify="start"
+      :is-undo-active="undoActive"
+      :is-redo-active="redoActive"
+      @undo="undo"
+      @redo="redo"
+    />
 
     <div class="mt-4">
       <v-date-input

@@ -23,5 +23,7 @@ watch(
 </script>
 
 <template>
-  <ExercisesPanel :week-day-id="Number(id)" v-model="exercise" />
+  <div class="mr-2 ml-2">
+    <ExercisesPanel :week-day-id="Number(id)" v-model="exercise" />
+  </div>
 </template>

@@ -43,12 +43,8 @@ const isTableEditable = ref(false)
 
 const { notifications, addNotification } = useNotifications()
 const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
-const { exercises, addExercise, deleteExercise, updateTable, copyWorkSet } = useExercises(
-  props.weekDayId,
-  exercisesModel,
-  addNotification,
-  addChangeEvent,
-)
+const { exercises, addExercise, deleteExercise, updateTable, copyWorkSet, goToSession } =
+  useExercises(props.weekDayId, exercisesModel, addNotification, addChangeEvent)
 const { exerciseTypes } = useExerciseTypes()
 const { showDialog, selectedType, handleCreate, handleUpdate, isNew, addNew } =
   useExerciseTypeDialog(exerciseTypes)
@@ -61,6 +57,14 @@ function displayExerciseType(exerciseTypeId: number) {
 
 <template>
   <NotificationFloat :notifications="notifications" />
+  <ExerciseTypeDialog
+    v-model="showDialog"
+    :exercise-type="selectedType"
+    :is-new="isNew"
+    @update:exercise-type="handleUpdate"
+    @create:exercise-type="handleCreate"
+  />
+
   <ChangeEventBar
     :is-undo-active="undoActive"
     :is-redo-active="redoActive"
@@ -72,6 +76,7 @@ function displayExerciseType(exerciseTypeId: number) {
         v-if="!isTableEditable"
         v-tooltip:bottom="'Edit table'"
         @click="isTableEditable = true"
+        variant="text"
         icon="mdi-table-edit"
       />
       <v-btn
@@ -79,7 +84,14 @@ function displayExerciseType(exerciseTypeId: number) {
         color="green"
         v-tooltip:bottom="'Save table'"
         @click="isTableEditable = false"
+        variant="text"
         icon="mdi-check"
+      />
+      <v-btn
+        v-tooltip:bottom="'To session'"
+        @click="goToSession(weekDayId)"
+        variant="text"
+        icon="mdi-table-arrow-down"
       />
     </template>
   </ChangeEventBar>
@@ -96,12 +108,4 @@ function displayExerciseType(exerciseTypeId: number) {
   />
   <v-btn class="mt-2 mr-2" text="Add exercise" @click="addExercise" />
   <v-btn class="mt-2" v-if="isTrainer" text="Add exercise type" @click="addNew" />
-
-  <ExerciseTypeDialog
-    v-model="showDialog"
-    :exercise-type="selectedType"
-    :is-new="isNew"
-    @update:exercise-type="handleUpdate"
-    @create:exercise-type="handleCreate"
-  />
 </template>

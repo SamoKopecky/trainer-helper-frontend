@@ -48,10 +48,10 @@ function duplicate() {
 <template>
   <v-dialog v-model="active">
     <NotificationFloat :notifications="notifications" />
-    <v-card title="Duplicate week">
+    <v-card title="Choose week to duplicate from">
       <template #text>
         <BlocksPanel :user-id="userId" :is-editable="false" @update:week-id="updateWeekId" />
-        <v-btn @click="duplicate" :loading="isDuplicating">Duplicate !</v-btn>
+        <v-btn @click="duplicate" :loading="isDuplicating">Duplicate selected week</v-btn>
       </template>
     </v-card>
   </v-dialog>
