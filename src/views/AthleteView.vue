@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BlocksPanel from "@/components/BlocksPanel.vue"
-import ExercisesPanel from "@/components/ExercisesPanel.vue"
+import WeekDayCard from "@/components/WeekDayCard.vue"
 import NotificationFloat from "@/components/NotificationFloat.vue"
 import WeekDuplicateDialog from "@/components/WeekDupliateDialog.vue"
 import { useNotifications } from "@/composables/useNotifications"
@@ -14,7 +14,6 @@ import type { Timeslot } from "@/types/other"
 import { getDateWeekDayString, getISODateString } from "@/utils/date"
 import { randomNumberId } from "@/utils/other"
 import { exerciseResponsesToMap, weekDayToDisplayWeekDay } from "@/utils/tranformators"
-import { useDebounceFn } from "@vueuse/core"
 import { watch, ref } from "vue"
 import { useRouter } from "vue-router"
 
@@ -96,12 +95,12 @@ function getEmptyWeekDay(dayDate: Date, weekId: number): DisplayWeekDay {
 
 // Update when start of week changes
 function updateStartDate(startDate: Date) {
-  let index = 0
+  let dayIndex = 0
   const newWeekDays: Map<string, DisplayWeekDay> = new Map()
   weekDays.value.forEach((weekDay) => {
     unassignWeekDay(weekDay)
     const newDayDate = new Date(startDate.valueOf())
-    newDayDate.setDate(startDate.getDate() + index)
+    newDayDate.setDate(startDate.getDate() + dayIndex)
 
     if (!weekDay.is_created) {
       weekDay.day_date = newDayDate
@@ -110,7 +109,8 @@ function updateStartDate(startDate: Date) {
         .put({ id: weekDay.id, day_date: getISODateString(newDayDate) })
         .then(() => (weekDay.day_date = newDayDate))
     }
-    index++
+
+    dayIndex++
     newWeekDays.set(getISODateString(newDayDate), weekDay)
   })
   weekDays.value = newWeekDays
@@ -177,31 +177,6 @@ function redirectToAthlete() {
   router.push({ path: `/athlete/${selectedUserId.value}` })
 }
 
-const updateNameDebounce = useDebounceFn((newDay: DisplayWeekDay) => {
-  weekDayService.put({
-    name: newDay.name,
-    id: newDay.id,
-  })
-}, 1000)
-
-function deleteWeekDay(day: DisplayWeekDay) {
-  weekDayService.delete(day.id).then(() => {
-    const deletedWeekDay = weekDays.value.get(getISODateString(day.day_date))
-    if (deletedWeekDay) deletedWeekDay.is_deleted = true
-  })
-}
-
-function restoreDeletedExerciseTable(day: DisplayWeekDay) {
-  weekDayService.postUndelete(day.id).then(() => {
-    const deletedWeekDay = weekDays.value.get(getISODateString(day.day_date))
-    if (deletedWeekDay) deletedWeekDay.is_deleted = false
-  })
-}
-
-function duplicateFromWeek() {
-  duplicateDialogActive.value = true
-}
-
 function sucesfulDuplication() {
   addNotification("Duplication succesfull!", "success")
   if (!activeStartDate.value || !activeWeekId.value) return
@@ -252,80 +227,20 @@ function sucesfulDuplication() {
         <v-divider />
 
         <v-btn @click="assignAll">Assign all available</v-btn>
-        <v-btn @click="duplicateFromWeek">Duplicate from other week</v-btn>
-        <v-card v-for="day in weekDays.values()" :key="day.id">
-          <template #title>
-            <div class="mt-2 d-flex align-center">
-              <v-text-field
-                label="Name"
-                :disabled="!isTrainer || !day.is_created || day.is_deleted"
-                variant="outlined"
-                hide-details="auto"
-                v-model="day.name"
-                placeholder="Choose a name..."
-                @update:model-value="updateNameDebounce(day)"
-              />
-              <v-btn
-                v-if="isTrainer && day.is_created && !day.is_deleted"
-                class="ml-2"
-                icon="mdi-close"
-                variant="text"
-                v-tooltip:bottom="'Delete'"
-                color="error"
-                @click="deleteWeekDay(day)"
-              />
-            </div>
-          </template>
-
-          <template #subtitle>
-            {{ `${day.day_string} | ${getISODateString(day.day_date)}` }}
-          </template>
-
-          <template #text>
-            <div v-if="day.is_deleted && isTrainer">
-              <v-btn
-                @click="restoreDeletedExerciseTable(day)"
-                icon="mdi-plus"
-                v-tooltip:bottom="'Recover deleted exercise table'"
-              />
-              <div v-if="foundTimeslots.has(getISODateString(day.day_date))">
-                Timeslot exists, create exercise to assign week day to timeslot
-                {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
-              </div>
-            </div>
-
-            <div v-else-if="day.is_created">
-              <ExercisesPanel
-                :week-day-id="day.id"
-                :model-value="exercisesMap.get(day.id)"
-                @update:model-value="(newValue) => exercisesMap.set(day.id, newValue!)"
-              />
-              <v-spacer />
-              <div v-if="day.timeslot_id">
-                Has timeslot: {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
-                <v-btn @click="unassignWeekDay(day)">Unassign</v-btn>
-              </div>
-              <div v-else-if="foundTimeslots.has(getISODateString(day.day_date))">
-                timeslot found at {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
-
-                <v-btn @click="assignWeekDay(day)">Assign</v-btn>
-              </div>
-            </div>
-
-            <div v-else-if="isTrainer">
-              <v-btn
-                @click="addWeekDay(day)"
-                icon="mdi-plus"
-                v-tooltip:bottom="'Add new exercise table'"
-              />
-              <div v-if="foundTimeslots.has(getISODateString(day.day_date))">
-                Timeslot exists, create exercise to assign week day to timeslot
-                {{ foundTimeslots.get(getISODateString(day.day_date))?.start }}
-              </div>
-            </div>
-          </template>
-          <v-divider />
-        </v-card>
+        <v-btn @click="duplicateDialogActive = true">Duplicate from other week</v-btn>
+        <WeekDayCard
+          v-for="day in weekDays.values()"
+          :key="day.id"
+          :day="day"
+          :exercises="exercisesMap.get(day.id)!"
+          @update:day="
+            (newDayObject) => weekDays.set(getISODateString(newDayObject.day_date), newDayObject)
+          "
+          @update:exercises="(newExercises) => exercisesMap.set(day.id, newExercises!)"
+          @add:week-day="addWeekDay"
+          @assign:week-day="assignWeekDay"
+          @unassing:week-day="unassignWeekDay"
+        />
       </div>
 
       <div v-else>Choose a user above</div>
