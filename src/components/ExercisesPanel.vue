@@ -2,7 +2,6 @@
 import { useNotifications } from "@/composables/useNotifications"
 import NotificationFloat from "@/components/NotificationFloat.vue"
 import ExerciseTable from "@/components/ExerciseTable.vue"
-import ExerciseControlPanel from "@/components/ExerciseControlPanel.vue"
 import { useExercises } from "@/composables/useExercises"
 import type { ExerciseTableColumn } from "@/types/exercise"
 import { type ExerciseResponse } from "@/services/exercise"
@@ -54,17 +53,6 @@ const { exerciseTypes } = useExerciseTypes()
 const { showDialog, selectedType, handleCreate, handleUpdate, isNew, addNew } =
   useExerciseTypeDialog(exerciseTypes)
 
-function duplicateTimeslot(_duplicateFrom: number | undefined) {
-  alert("Fix this")
-  // if (duplicateFrom) {
-  //   exerciseService
-  //     .postDuplicate({ copy_timeslot_id: duplicateFrom, timeslot_id: weekDayId })
-  //     .then((res) => {
-  //       exerciseRes.value = res
-  //     })
-  // }
-}
-
 function displayExerciseType(exerciseTypeId: number) {
   selectedType.value = exerciseTypes.value.find((et) => et.id === exerciseTypeId)
   showDialog.value = true
@@ -95,23 +83,19 @@ function displayExerciseType(exerciseTypeId: number) {
       />
     </template>
   </ChangeEventBar>
-  <ExerciseControlPanel
-    :is-trainer="isTrainer"
-    @add-exercise="addExercise"
-    @duplicate-timeslot="duplicateTimeslot"
-    @create:exercise-type="addNew"
-  >
-    <ExerciseTable
-      :columns="EXERCISE_COLUMNS"
-      :exercises="exercises"
-      :exercise-types="exerciseTypes"
-      :is-table-editable="isTableEditable"
-      @update-table="updateTable"
-      @delete-exercise="deleteExercise"
-      @display:exercise-type="displayExerciseType"
-      @update:copy-work-set="copyWorkSet"
-    />
-  </ExerciseControlPanel>
+
+  <ExerciseTable
+    :columns="EXERCISE_COLUMNS"
+    :exercises="exercises"
+    :exercise-types="exerciseTypes"
+    :is-table-editable="isTableEditable"
+    @update-table="updateTable"
+    @delete-exercise="deleteExercise"
+    @display:exercise-type="displayExerciseType"
+    @update:copy-work-set="copyWorkSet"
+  />
+  <v-btn class="mt-2 mr-2" text="Add exercise" @click="addExercise" />
+  <v-btn class="mt-2" v-if="isTrainer" text="Add exercise type" @click="addNew" />
 
   <ExerciseTypeDialog
     v-model="showDialog"
