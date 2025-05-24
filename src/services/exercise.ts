@@ -68,12 +68,4 @@ export class ExerciseService extends ServiceBase<
       route: Route.ExercisesCount,
     }) as Promise<number>
   }
-
-  async postDuplicate(jsonParams: ExerciseDuplicatePostRequest): Promise<ExerciseResponse> {
-    return this.handleRequest({
-      jsonParams,
-      method: Method.POST,
-      route: Route.ExercisesDuplicate,
-    }) as Promise<ExerciseResponse>
-  }
 }

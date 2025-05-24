@@ -8,7 +8,6 @@ export enum Route {
   // TODO: Make exercise a subpath of timeslot
   Exercises = "/exercises",
   ExercisesCount = `${Route.Exercises}/count`,
-  ExercisesDuplicate = `${Route.Exercises}/duplicate`,
   WorkSets = "/work-sets",
   Users = "/users",
   ExerciseTypes = "/exercise-types",

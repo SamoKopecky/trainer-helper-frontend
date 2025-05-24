@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BlocksPanel from "@/components/BlocksPanel.vue"
-import WeekDayCard from "@/components/WeekDayCard.vue"
+import WeekDayPanel from "@/components/WeekDayPanel.vue"
 import NotificationFloat from "@/components/NotificationFloat.vue"
 import WeekDuplicateDialog from "@/components/WeekDupliateDialog.vue"
 import { useNotifications } from "@/composables/useNotifications"
@@ -226,12 +226,15 @@ function sucesfulDuplication() {
         />
         <v-divider />
 
-        <v-btn @click="assignAll">Assign all available</v-btn>
-        <v-btn @click="duplicateDialogActive = true">Duplicate from other week</v-btn>
-        <WeekDayCard
+        <div v-if="isTrainer">
+          <v-btn @click="assignAll">Assign all available</v-btn>
+          <v-btn @click="duplicateDialogActive = true">Duplicate from other week</v-btn>
+        </div>
+        <WeekDayPanel
           v-for="day in weekDays.values()"
           :key="day.id"
           :day="day"
+          :timeslot="foundTimeslots.get(getISODateString(day.day_date))"
           :exercises="exercisesMap.get(day.id)!"
           @update:day="
             (newDayObject) => weekDays.set(getISODateString(newDayObject.day_date), newDayObject)

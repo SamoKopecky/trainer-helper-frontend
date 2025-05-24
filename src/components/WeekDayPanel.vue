@@ -85,14 +85,15 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
       <div v-else-if="day.is_created">
         <ExercisesPanel :week-day-id="day.id" v-model="exercises" />
         <v-spacer />
-        <div v-if="day.timeslot_id && timeslot">
-          Has timeslot: {{ timeslot.start }}
-          <v-btn @click="emit('unassing:week-day', day)">Unassign</v-btn>
-        </div>
-        <div v-else-if="timeslot">
-          timeslot found at {{ timeslot.start }}
-
-          <v-btn @click="emit('add:week-day', day)">Assign</v-btn>
+        <div v-if="isTrainer">
+          <div v-if="day.timeslot_id && timeslot">
+            Has timeslot: {{ timeslot.start }}
+            <v-btn @click="emit('unassing:week-day', day)">Unassign</v-btn>
+          </div>
+          <div v-else-if="timeslot">
+            timeslot found at {{ timeslot.start }}
+            <v-btn @click="emit('assign:week-day', day)">Assign</v-btn>
+          </div>
         </div>
       </div>
 

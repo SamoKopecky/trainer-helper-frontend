@@ -122,44 +122,49 @@ function unassingWeekDay() {
           @click="redirectExercise(timeslot)"
         />
         <v-btn v-if="isTrainer" text="Delete timeslot" @click="deleteCalTimeslot(timeslot)" />
+
         <v-spacer />
 
-        <div v-if="!isAssinged" class="mt-2 text-caption text-grey">
-          User not assinged, to match week day assing a user
-        </div>
-        <div v-else>
-          <div v-if="hasWeekDay" class="mt-3 text-caption">
-            Week day assinged {{ timeslot!.week_day!.name }} at
-            {{ timeslot!.week_day!.day_date.toLocaleDateString() }}
-            <v-btn
-              icon="mdi-close-circle"
-              variant="text"
-              size="small"
-              v-tooltip:bottom="'Unassing'"
-              color="error"
-              @click="unassingWeekDay"
-            />
+        <div v-if="isTrainer">
+          <div v-if="!isAssinged" class="mt-2 text-caption text-grey">
+            User not assinged, to match week day assing a user
           </div>
 
-          <div v-else class="mt-3">
-            <v-btn
-              text="Assign"
-              :disabled="!isWeekDayAvailable"
-              :color="isWeekDayAvailable ? 'green' : ''"
-              @click="assignWeekDay"
-            />
-
-            <div v-if="isWeekDayAvailable" class="mt-2 text-green text-caption">
-              <v-icon color="green ">mdi-check-circle</v-icon>
-              Week day found! {{ weekDayMatch!.name }} at
-              {{ weekDayMatch!.day_date.toLocaleDateString() }}
+          <div v-else>
+            <div v-if="hasWeekDay" class="mt-3 text-caption">
+              Week day assinged {{ timeslot!.week_day!.name }} at
+              {{ timeslot!.week_day!.day_date.toLocaleDateString() }}
+              <v-btn
+                icon="mdi-close-circle"
+                variant="text"
+                size="small"
+                v-tooltip:bottom="'Unassing'"
+                color="error"
+                @click="unassingWeekDay"
+              />
             </div>
 
-            <div v-else-if="!isWeekDayAvailable" class="mt-2 text-caption text-grey">
-              Week day not found, go to athelte overview and create a new week day
+            <div v-else class="mt-3">
+              <v-btn
+                text="Assign"
+                :disabled="!isWeekDayAvailable"
+                :color="isWeekDayAvailable ? 'green' : ''"
+                @click="assignWeekDay"
+              />
+
+              <div v-if="isWeekDayAvailable" class="mt-2 text-green text-caption">
+                <v-icon color="green ">mdi-check-circle</v-icon>
+                Week day found! {{ weekDayMatch!.name }} at
+                {{ weekDayMatch!.day_date.toLocaleDateString() }}
+              </div>
+
+              <div v-else-if="!isWeekDayAvailable" class="mt-2 text-caption text-grey">
+                Week day not found, go to athelte overview and create a new week day
+              </div>
             </div>
           </div>
         </div>
+        <div v-else-if="!hasWeekDay">Not assingned yet</div>
       </v-card-text>
     </v-card>
   </v-dialog>
