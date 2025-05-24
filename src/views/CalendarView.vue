@@ -85,7 +85,19 @@ const theme = useTheme()
       justify-content: flex-start;
     }
   }
+  .vuecal__event {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
+  .vuecal__event-title {
+    font-weight: bold;
+  }
+  .vuecal__event-content {
+    margin-top: 0.5rem;
+  }
 }
+
 .vuecal--default-theme .vuecal__cell--selected::before {
   background-color: transparent;
 }

@@ -90,7 +90,9 @@ function assignWeekDay() {
       id: weekDayMatch.value.id,
       timeslot_id: timeslot.value.id,
     })
-    .then(() => (timeslot.value!.week_day = weekDayMatch.value))
+    .then(() => {
+      timeslot.value!.week_day = weekDayMatch.value
+    })
 }
 
 function unassingWeekDay() {

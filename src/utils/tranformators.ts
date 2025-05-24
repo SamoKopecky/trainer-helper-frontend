@@ -66,6 +66,7 @@ export function timeslotToAppTimeslot(timeslot: EnhancedTimeslot): AppTimeslot {
   return {
     ...timeslot,
     title: getTimeslotUserName(timeslot),
+    content: timeslot.week_day?.name,
     start: new Date(timeslot.start),
     end: new Date(timeslot.end),
     class: isAssigned ? "assigned" : "no-user",
