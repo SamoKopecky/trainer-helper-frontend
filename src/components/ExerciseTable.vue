@@ -59,7 +59,7 @@ watch(
     groups.value = getAllGroupIds(newExercises)
     groupIdAlphabetMap.value = getGroupAlphabetMap(newExercises)
   },
-  { deep: true },
+  { deep: true, immediate: true },
 )
 
 const exercisesByExerciseId: ComputedRef<Map<number, ExerciseTableData[]>> = computed(() => {
@@ -246,8 +246,6 @@ function displayExerciseType(exerciseTypeId: number | undefined) {
 
 <style lang="css" scoped>
 .table-container {
-  padding-left: 1rem;
-  padding-right: 1rem;
   overflow-x: auto; /* Enable horizontal scrolling */
   max-width: 100%; /* Limit the container width to fit the parent */
   max-height: 100%;

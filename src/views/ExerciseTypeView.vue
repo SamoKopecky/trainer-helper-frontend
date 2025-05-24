@@ -50,7 +50,7 @@ function initExerciseTypes() {
     :headers="headers"
     :items="tableExerciseTypes"
     :loading="loading"
-    title="Exercise types"
+    title="Exercise Types"
     @row-click="rowClick"
     @add-new="addNew"
   >

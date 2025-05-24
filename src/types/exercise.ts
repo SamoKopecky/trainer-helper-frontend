@@ -2,6 +2,7 @@ import type { WorkSet } from "./other"
 
 export interface Exercise {
   id: number
+  week_day_id: number
   group_id: number
   note?: string
   exercise_type_id?: number
