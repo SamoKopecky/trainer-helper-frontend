@@ -2,6 +2,7 @@
 import type { CalTimeslot } from "@/types/calendar"
 import { useRouter } from "vue-router"
 import { ref, watch } from "vue"
+import { formatDate } from "@/utils/date"
 import { useUsers } from "@/composables/useUsers"
 import { WeekDayService } from "@/services/weekDay"
 import { getISODateString } from "@/utils/date"
@@ -97,14 +98,6 @@ function unassingWeekDay() {
   if (!timeslot.value || !timeslot.value.week_day) return
   weekDayService.deleteTimeslot(timeslot.value.week_day.id).then(() => {
     timeslot.value!.week_day = undefined
-  })
-}
-
-function formatDate(date: Date) {
-  if (!date) return ""
-  return new Date(date).toLocaleDateString(undefined, {
-    month: "numeric",
-    day: "numeric",
   })
 }
 </script>

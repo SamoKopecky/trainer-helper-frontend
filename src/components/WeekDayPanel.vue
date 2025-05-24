@@ -4,7 +4,7 @@ import { WeekDayService } from "@/services/weekDay"
 import type { DisplayWeekDay } from "@/types/block"
 import ExercisesPanel from "@/components/ExercisesPanel.vue"
 import { useDebounceFn } from "@vueuse/core"
-import { getISODateString } from "@/utils/date"
+import { formatDate, formatTime, getISODateString } from "@/utils/date"
 import type { PropType } from "vue"
 import type { Timeslot } from "@/types/other"
 import { type ExerciseResponse } from "@/services/exercise"
@@ -74,25 +74,46 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
         <v-btn
           @click="restoreDeletedExerciseTable(day)"
           icon="mdi-plus"
-          v-tooltip:bottom="'Recover deleted exercise table'"
+          v-tooltip:bottom="'Recover deleted session'"
         />
-        <div v-if="timeslot">
-          Timeslot exists, create exercise to assign week day to timeslot
-          {{ timeslot.start }}
+        <div v-if="timeslot" class="mt-2 text-caption text-grey">
+          Timeslot exists at {{ formatTime(timeslot.start) }} &ndash;
+          {{ formatTime(timeslot.end) }} but there is no session to asign it to, create a session
+          first
         </div>
       </div>
 
       <div v-else-if="day.is_created">
         <ExercisesPanel :week-day-id="day.id" v-model="exercises" />
         <v-spacer />
-        <div v-if="isTrainer">
+        <div v-if="isTrainer" class="mt-2">
           <div v-if="day.timeslot_id && timeslot">
-            Has timeslot: {{ timeslot.start }}
-            <v-btn @click="emit('unassing:week-day', day)">Unassign</v-btn>
+            <div class="mt-2 d-flex align-center">
+              Session assinged at {{ formatTime(timeslot.start) }} &ndash;
+              {{ formatTime(timeslot.end) }}
+              <v-btn
+                icon="mdi-close-circle"
+                variant="text"
+                density="compact"
+                v-tooltip:bottom="'Unassing'"
+                color="error"
+                @click="emit('unassing:week-day', day)"
+                class="ml-1"
+              />
+            </div>
           </div>
+
+          <!-- Assign found timeslot -->
           <div v-else-if="timeslot">
-            timeslot found at {{ timeslot.start }}
-            <v-btn @click="emit('assign:week-day', day)">Assign</v-btn>
+            <v-btn text="Assign" color="green" @click="emit('assign:week-day', day)" />
+
+            <div class="mt-2 text-green d-flex align-center">
+              <v-icon color="green" class="mr-1">mdi-check-circle</v-icon>
+              <span
+                >Session found at {{ formatTime(timeslot.start) }} &ndash;
+                {{ formatTime(timeslot.end) }}</span
+              >
+            </div>
           </div>
         </div>
       </div>
@@ -101,11 +122,12 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
         <v-btn
           @click="emit('add:week-day', day)"
           icon="mdi-plus"
-          v-tooltip:bottom="'Add new exercise table'"
+          v-tooltip:bottom="'Add new session'"
         />
-        <div v-if="timeslot">
-          Timeslot exists, create exercise to assign week day to timeslot
-          {{ timeslot.start }}
+        <div v-if="timeslot" class="mt-2 text-caption text-grey">
+          Timeslot exists at {{ formatTime(timeslot.start) }} &ndash;
+          {{ formatTime(timeslot.end) }} but there is no session to asign it to, create a session
+          first
         </div>
       </div>
     </template>
