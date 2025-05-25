@@ -215,6 +215,7 @@ const updateNote = useDebounceFn((note: string) => {
     <template #title>
       <v-autocomplete
         v-model="selectedUserId"
+        :readonly="!isTrainer"
         @update:model-value="redirectToAthlete"
         :items="users"
         :item-title="userDisplay"

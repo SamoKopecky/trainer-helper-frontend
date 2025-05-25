@@ -125,6 +125,7 @@ defineExpose({
       <v-card-title>
         <v-autocomplete
           v-model="userModel"
+          :readonly="!isTrainer"
           :items="users"
           :item-title="userDisplay"
           item-value="id"
