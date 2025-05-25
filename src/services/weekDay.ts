@@ -1,10 +1,21 @@
-import type { WeekDay } from "@/types/block"
+import type { Week, WeekDay } from "@/types/block"
 import { ServiceBase, Route, Method } from "./base"
 import { isArray } from "@/utils/service"
+
+export interface WeekDayGetRequest {
+  // this one
+  week_id?: number
+
+  // or these two
+  day_date?: string
+  user_id?: string
+}
 
 export interface WeekDayPutRequest {
   id: number
   name?: string
+  day_date?: string
+  timeslot_id?: number
 }
 
 export interface WeekDayPostRequest {
@@ -26,6 +37,7 @@ export class WeekDayService extends ServiceBase<WeekDayPutRequest, WeekDayPostRe
 
     weekDays.forEach((w: any) => {
       w.day_date = new Date(w.day_date)
+      w.is_deleted = Boolean(w.deleted_at)
     })
     return weekDays as WeekDay[]
   }
@@ -42,12 +54,28 @@ export class WeekDayService extends ServiceBase<WeekDayPutRequest, WeekDayPostRe
     }) as Promise<WeekDay>
   }
 
-  async get(weekId: number): Promise<WeekDay[]> {
+  public async getMany(queryParams: WeekDayGetRequest): Promise<WeekDay[]> {
     return this.handleRequest({
       route: this.route,
       method: Method.GET,
-      queryParams: { week_id: weekId },
+      queryParams,
       toRes: this.parseWeekDays,
     }) as Promise<WeekDay[]>
+  }
+
+  public async get(id: number): Promise<WeekDay> {
+    return this.handleRequest({
+      route: `${this.route}/:id`,
+      method: Method.GET,
+      pathParams: { id },
+    }) as Promise<WeekDay>
+  }
+
+  public async deleteTimeslot(id: number): Promise<void> {
+    return this.handleRequest({
+      route: `${Route.WeekDaysTimeslots}/:id`,
+      method: Method.DELETE,
+      pathParams: { id },
+    }) as Promise<void>
   }
 }

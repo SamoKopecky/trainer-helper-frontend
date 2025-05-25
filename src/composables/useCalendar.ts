@@ -2,37 +2,37 @@ import type { ChangeEvent } from "@/changeEvents/base"
 import { TimeslotCreateEvent } from "@/changeEvents/timeslotCreate"
 import { TimelostDeleteEvent } from "@/changeEvents/timeslotDelete"
 import { TimeslotMoveEvent } from "@/changeEvents/timestlotMove"
-import { TimeslotService, type TimeslotGetRequest } from "@/services/timeslots"
-import type { AppTimeslot } from "@/types/calendar"
-import type { CalTimeslot } from "@/types/calendar"
-import type { Timeslot } from "@/types/other"
+import { TimeslotService, type TimeslotDetailedGetRequest } from "@/services/timeslots"
+import type { DisplayTimeslot } from "@/types/calendar"
+import type { CalDisplayTimeslot } from "@/types/calendar"
+import type { EnhancedTimeslot } from "@/types/other"
 import type { User } from "@/types/user"
 import type { UnresolvedCalTimeslot, UnresolvedVueCalTimeslot, VueCalRef } from "@/types/vuecal"
-import { timeslotToAppTimeslot } from "@/utils/tranformators"
+import { timeslotToDisplayTimeslot } from "@/utils/tranformators"
 import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
 import { onMounted, ref, type Ref } from "vue"
 
 export function useCalendar(
-  selectedEvent: Ref<CalTimeslot | null>,
+  selectedEvent: Ref<CalDisplayTimeslot | undefined>,
   showDialog: Ref<boolean, boolean>,
   addChangeEvent: (event: ChangeEvent) => void,
 ) {
   const keycloack = useKeycloak()
   const vueCalRef = ref<VueCalRef | null>()
-  const events = ref<Array<CalTimeslot>>([])
-  const oldEvents: Map<number, AppTimeslot> = new Map()
+  const events = ref<CalDisplayTimeslot[]>([])
+  const oldEvents: Map<number, DisplayTimeslot> = new Map()
   const timeslotService = new TimeslotService()
-  const request: TimeslotGetRequest = {
-    start_date: "2025-01-20T12:00:00Z",
-    end_date: "2026-02-28T20:15:00Z",
+  const request: TimeslotDetailedGetRequest = {
+    start: "2025-01-20T12:00:00Z",
+    end: "2026-02-28T20:15:00Z",
   }
 
-  function clickTimeslot(data: { e: Event; event: CalTimeslot }) {
+  function clickTimeslot(data: { e: Event; event: CalDisplayTimeslot }) {
     selectedEvent.value = data.event
     showDialog.value = true
   }
 
-  function deleteTimeslot(event: CalTimeslot | null) {
+  function deleteTimeslot(event: CalDisplayTimeslot | null) {
     if (event && vueCalRef.value) {
       addChangeEvent(new TimelostDeleteEvent(event, vueCalRef.value.view, oldEvents))
     }
@@ -54,25 +54,15 @@ export function useCalendar(
     )
   }
 
-  function updateEventUser(user: User | undefined) {
-    if (selectedEvent.value && user) {
-      selectedEvent.value.title = user.nickname ?? user.name
-      selectedEvent.value.class = "assigned"
-      timeslotService.put({ id: selectedEvent.value.id, trainee_id: user.id })
-    }
-  }
-
-  function eventMove(data: { e: Event; event: CalTimeslot; cell: unknown }) {
+  function eventMove(data: { e: Event; event: CalDisplayTimeslot; cell: unknown }) {
     addChangeEvent(new TimeslotMoveEvent(oldEvents, data.event, events.value))
   }
 
   onMounted(() => {
-    timeslotService.get(request).then((timeslots) => {
-      timeslots.forEach((timeslot: Timeslot) => {
-        if (!vueCalRef.value) {
-          throw new Error("Invalid vueCalRef")
-        }
-        const appTimeslot = timeslotToAppTimeslot(timeslot)
+    timeslotService.getDetailed(request).then((timeslots) => {
+      timeslots.forEach((timeslot: EnhancedTimeslot) => {
+        if (!vueCalRef.value) return
+        const appTimeslot = timeslotToDisplayTimeslot(timeslot)
         vueCalRef.value.view.createEvent(appTimeslot)
         oldEvents.set(timeslot.id, appTimeslot)
       })
@@ -85,7 +75,6 @@ export function useCalendar(
     clickTimeslot,
     deleteTimeslot,
     createTimeslot,
-    updateEventUser,
     eventMove,
   }
 }

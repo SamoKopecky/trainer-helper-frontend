@@ -11,6 +11,7 @@ const DATA_DIFF_MAP: Record<keyof ExerciseTableData, ExerciseUpdateType | null> 
   exercise_id: null,
   work_set_id: null,
   work_set_count: ExerciseUpdateType.WorkSetCount,
+  week_day_id: null,
   work_set_count_display: null,
 }
 

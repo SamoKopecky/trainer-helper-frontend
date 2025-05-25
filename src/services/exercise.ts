@@ -1,11 +1,6 @@
-import type { Timeslot, WorkSet } from "@/types/other"
+import type { WorkSet } from "@/types/other"
 import { ServiceBase, Method, Route } from "./base"
 import type { Exercise } from "@/types/exercise"
-
-export interface FullExerciseResponse {
-  exercises: ExerciseResponse[]
-  timeslot: Timeslot
-}
 
 export interface ExerciseResponse extends Omit<Exercise, "work_set_count"> {
   work_sets: WorkSet[]
@@ -28,7 +23,7 @@ export interface ExerciseCountPutRequest {
 }
 
 export interface ExercisePostRequest {
-  timeslot_id: number
+  week_day_id: number
   group_id: number
 }
 
@@ -50,12 +45,12 @@ export class ExerciseService extends ServiceBase<
     super(Route.Exercises)
   }
 
-  async get(timeslot_id: number): Promise<FullExerciseResponse> {
+  async getMany(weekDayIds: number[]): Promise<ExerciseResponse[]> {
     return this.handleRequest({
       method: Method.GET,
-      route: `${this.route}/:id`,
-      pathParams: { id: timeslot_id },
-    }) as Promise<FullExerciseResponse>
+      queryParams: { week_day_ids: weekDayIds },
+      route: this.route,
+    }) as Promise<ExerciseResponse[]>
   }
 
   async putCount(jsonParams: ExerciseCountPutRequest): Promise<WorkSet[]> {
@@ -72,13 +67,5 @@ export class ExerciseService extends ServiceBase<
       method: Method.DELETE,
       route: Route.ExercisesCount,
     }) as Promise<number>
-  }
-
-  async postDuplicate(jsonParams: ExerciseDuplicatePostRequest): Promise<FullExerciseResponse> {
-    return this.handleRequest({
-      jsonParams,
-      method: Method.POST,
-      route: Route.ExercisesDuplicate,
-    }) as Promise<FullExerciseResponse>
   }
 }

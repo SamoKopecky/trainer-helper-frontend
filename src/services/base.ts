@@ -1,3 +1,4 @@
+import { isArray } from "../utils/service"
 import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
 import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios"
 
@@ -7,7 +8,6 @@ export enum Route {
   // TODO: Make exercise a subpath of timeslot
   Exercises = "/exercises",
   ExercisesCount = `${Route.Exercises}/count`,
-  ExercisesDuplicate = `${Route.Exercises}/duplicate`,
   WorkSets = "/work-sets",
   Users = "/users",
   ExerciseTypes = "/exercise-types",
@@ -15,6 +15,7 @@ export enum Route {
   Blocks = "/blocks",
   Weeks = "/weeks",
   WeekDays = "/week-days",
+  WeekDaysTimeslots = `${Route.WeekDays}/timeslots`,
 }
 
 export enum Method {
@@ -139,7 +140,14 @@ export function replacePathParams<T extends object>(url: string, params: T): str
 export function addQueryParams<T extends object>(url: string, params: T): string {
   const urlObj = new URL(url)
   Object.keys(params).forEach((key) => {
-    urlObj.searchParams.append(key, params[key])
+    const paramVal = params[key]
+    if (isArray(paramVal)) {
+      paramVal.forEach((val) => {
+        urlObj.searchParams.append(key, String(val))
+      })
+    } else {
+      urlObj.searchParams.append(key, params[key])
+    }
   })
 
   return urlObj.toString()

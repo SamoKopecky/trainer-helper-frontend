@@ -31,12 +31,25 @@ function toggleTheme() {
 
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer">
-      <v-list-item link title="Home" to="/" />
-      <v-list-item v-if="isTrainer" link title="Athletes" to="/athleteList" />
-      <v-list-item link title="Athlete Info" :to="athleteIdPath" />
-      <v-list-item link title="Time schedule" to="/calendar" />
-      <v-list-item v-if="isTrainer" link title="Exercise types" to="/exerciseType" />
+    <v-navigation-drawer v-model="drawer" :width="220">
+      <v-list-item link title="Trainer Helper" to="/" />
+      <v-divider />
+      <v-list-item link title="Athlete Info" prepend-icon="mdi-account" :to="athleteIdPath" />
+      <v-list-item link title="Calendar" prepend-icon="mdi-calendar" to="/calendar" />
+      <v-list-item
+        v-if="isTrainer"
+        link
+        title="Athletes"
+        prepend-icon="mdi-account-multiple"
+        to="/athleteList"
+      />
+      <v-list-item
+        v-if="isTrainer"
+        link
+        title="Exercise Types"
+        prepend-icon="mdi-weight-lifter"
+        to="/exerciseType"
+      />
     </v-navigation-drawer>
 
     <v-app-bar>

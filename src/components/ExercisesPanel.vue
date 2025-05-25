@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import { useRoute } from "vue-router"
 import { useNotifications } from "@/composables/useNotifications"
 import NotificationFloat from "@/components/NotificationFloat.vue"
 import ExerciseTable from "@/components/ExerciseTable.vue"
-import TimeslotControlPanel from "@/components/TimeslotControlPanel.vue"
 import { useExercises } from "@/composables/useExercises"
 import type { ExerciseTableColumn } from "@/types/exercise"
-import { ExerciseService, type FullExerciseResponse } from "@/services/exercise"
+import { type ExerciseResponse } from "@/services/exercise"
 import { ref } from "vue"
-import { onMounted } from "vue"
-import { timeslotToAppTimeslot } from "@/utils/tranformators"
 import { useUser } from "@/composables/useUser"
 import { useExerciseTypes } from "@/composables/useExerciseTypes"
 import { useExerciseTypeDialog } from "@/composables/useExerciseTypeDialog"
@@ -34,43 +30,29 @@ const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "delete", type: "special", name: "", isMultirow: true, align: "center" },
 ]
 
-defineProps({
-  id: {
-    type: String,
+const exercisesModel = defineModel<ExerciseResponse[]>()
+const props = defineProps({
+  weekDayId: {
+    type: Number,
     required: true,
+  },
+  showToSessionBtn: {
+    type: Boolean,
+    required: false,
+    default: true,
   },
 })
 
-const route = useRoute()
-const timeslotId = Number(route.params.id)
-const exerciseService = new ExerciseService()
-const exerciseRes = ref<FullExerciseResponse | undefined>()
 const { isTrainer } = useUser()
 const isTableEditable = ref(false)
 
-onMounted(() => {
-  exerciseService.get(timeslotId).then((res) => {
-    exerciseRes.value = res
-  })
-})
-
 const { notifications, addNotification } = useNotifications()
 const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
-const { exercises, addExercise, deleteExercise, updateTable, updateTitle, copyWorkSet } =
-  useExercises(timeslotId, exerciseRes, addNotification, addChangeEvent)
+const { exercises, addExercise, deleteExercise, updateTable, copyWorkSet, goToSession } =
+  useExercises(props.weekDayId, exercisesModel, addNotification, addChangeEvent)
 const { exerciseTypes } = useExerciseTypes()
 const { showDialog, selectedType, handleCreate, handleUpdate, isNew, addNew } =
   useExerciseTypeDialog(exerciseTypes)
-
-function duplicateTimeslot(duplicateFrom: number | undefined) {
-  if (duplicateFrom) {
-    exerciseService
-      .postDuplicate({ copy_timeslot_id: duplicateFrom, timeslot_id: timeslotId })
-      .then((res) => {
-        exerciseRes.value = res
-      })
-  }
-}
 
 function displayExerciseType(exerciseTypeId: number) {
   selectedType.value = exerciseTypes.value.find((et) => et.id === exerciseTypeId)
@@ -80,50 +62,6 @@ function displayExerciseType(exerciseTypeId: number) {
 
 <template>
   <NotificationFloat :notifications="notifications" />
-  <v-app-bar density="compact" rounded>
-    <ChangeEventBar
-      :is-undo-active="undoActive"
-      :is-redo-active="redoActive"
-      @undo="undo"
-      @redo="redo"
-    >
-      <template #extra>
-        <v-btn
-          v-if="!isTableEditable"
-          v-tooltip:bottom="'Edit table'"
-          @click="isTableEditable = true"
-          icon="mdi-table-edit"
-        />
-        <v-btn
-          v-else-if="isTableEditable"
-          color="green"
-          v-tooltip:bottom="'Save table'"
-          @click="isTableEditable = false"
-          icon="mdi-check"
-        />
-      </template>
-    </ChangeEventBar>
-  </v-app-bar>
-  <TimeslotControlPanel
-    :app-timeslot="exerciseRes ? timeslotToAppTimeslot(exerciseRes.timeslot) : undefined"
-    :is-trainer="isTrainer"
-    @add-exercise="addExercise"
-    @update-title="updateTitle"
-    @duplicate-timeslot="duplicateTimeslot"
-    @create:exercise-type="addNew"
-  >
-    <ExerciseTable
-      :columns="EXERCISE_COLUMNS"
-      :exercises="exercises"
-      :exercise-types="exerciseTypes"
-      :is-table-editable="isTableEditable"
-      @update-table="updateTable"
-      @delete-exercise="deleteExercise"
-      @display:exercise-type="displayExerciseType"
-      @update:copy-work-set="copyWorkSet"
-    />
-  </TimeslotControlPanel>
-
   <ExerciseTypeDialog
     v-model="showDialog"
     :exercise-type="selectedType"
@@ -131,4 +69,49 @@ function displayExerciseType(exerciseTypeId: number) {
     @update:exercise-type="handleUpdate"
     @create:exercise-type="handleCreate"
   />
+
+  <ChangeEventBar
+    :is-undo-active="undoActive"
+    :is-redo-active="redoActive"
+    @undo="undo"
+    @redo="redo"
+  >
+    <template #extra>
+      <v-btn
+        v-if="!isTableEditable"
+        v-tooltip:bottom="'Edit table'"
+        @click="isTableEditable = true"
+        variant="text"
+        icon="mdi-table-edit"
+      />
+      <v-btn
+        v-else-if="isTableEditable"
+        color="green"
+        v-tooltip:bottom="'Save table'"
+        @click="isTableEditable = false"
+        variant="text"
+        icon="mdi-check"
+      />
+      <v-btn
+        v-if="showToSessionBtn"
+        v-tooltip:bottom="'To session'"
+        @click="goToSession(weekDayId)"
+        variant="text"
+        icon="mdi-table-arrow-down"
+      />
+    </template>
+  </ChangeEventBar>
+
+  <ExerciseTable
+    :columns="EXERCISE_COLUMNS"
+    :exercises="exercises"
+    :exercise-types="exerciseTypes"
+    :is-table-editable="isTableEditable"
+    @update-table="updateTable"
+    @delete-exercise="deleteExercise"
+    @display:exercise-type="displayExerciseType"
+    @update:copy-work-set="copyWorkSet"
+  />
+  <v-btn class="mt-2 mr-2" text="Add exercise" @click="addExercise" />
+  <v-btn class="mt-2" v-if="isTrainer" text="Add exercise type" @click="addNew" />
 </template>

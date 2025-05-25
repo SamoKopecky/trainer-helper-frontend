@@ -10,6 +10,8 @@ export interface Block extends Labeled {
 
 export interface Week extends Labeled {
   start_date: Date
+  block_id: number
+  note?: string
 }
 
 export interface BlockValue extends Omit<Block, "weeks"> {
@@ -31,5 +33,7 @@ export interface WeekBase {
   id: number
   week_id: number
   day_date: Date
+  is_deleted: boolean
   name?: string
+  timeslot_id?: number
 }
