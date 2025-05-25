@@ -46,7 +46,8 @@ function restoreDeletedExerciseTable(day: DisplayWeekDay) {
       <div class="mt-2 d-flex align-center">
         <v-text-field
           label="Name"
-          :disabled="!isTrainer || !day.is_created || day.is_deleted"
+          :disabled="!day.is_created || day.is_deleted"
+          :readonly="!isTrainer"
           variant="outlined"
           hide-details="auto"
           v-model="day.name"

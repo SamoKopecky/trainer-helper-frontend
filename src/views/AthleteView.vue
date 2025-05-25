@@ -245,6 +245,7 @@ const updateNote = useDebounceFn((note: string) => {
         <v-divider />
 
         <v-textarea
+          :readonly="!isTrainer"
           hide-details="auto"
           variant="outlined"
           auto-grow

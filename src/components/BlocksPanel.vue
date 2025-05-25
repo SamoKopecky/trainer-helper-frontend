@@ -183,7 +183,8 @@ function changeStartOfTheWeek() {
 
     <div class="mt-4">
       <v-date-input
-        :disabled="!activeWeekId || !isEditable"
+        :disabled="!activeWeekId"
+        :readonly="!isEditable"
         v-model="selectedDate"
         variant="outlined"
         label="Start of the week"
