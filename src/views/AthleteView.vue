@@ -16,6 +16,8 @@ import { randomNumberId } from "@/utils/other"
 import { exerciseResponsesToMap, weekDayToDisplayWeekDay } from "@/utils/tranformators"
 import { watch, ref } from "vue"
 import { useRouter } from "vue-router"
+import { useDebounceFn } from "@vueuse/core"
+import { WeekService } from "@/services/week"
 
 const props = defineProps({
   userId: {
@@ -25,21 +27,24 @@ const props = defineProps({
   },
 })
 
+const weekService = new WeekService()
 const weekDayService = new WeekDayService()
 const exerciseService = new ExerciseService()
 const timeslotService = new TimeslotService()
 
-const { addNotification, notifications } = useNotifications()
 const duplicateDialogActive = ref(false)
 const activeWeekId = ref<number>()
 const activeStartDate = ref<Date>()
 const selectedUserId = ref<string>()
-const router = useRouter()
-const { users, userDisplay } = useUsers()
 const weekDays = ref<Map<string, DisplayWeekDay>>(new Map())
 const exercisesMap = ref<Map<number, ExerciseResponse[]>>(new Map())
-const { isTrainer } = useUser()
 const foundTimeslots = ref<Map<string, Timeslot>>(new Map())
+const noteRef = ref<string>()
+
+const { addNotification, notifications } = useNotifications()
+const router = useRouter()
+const { users, userDisplay } = useUsers()
+const { isTrainer } = useUser()
 
 watch(
   () => props.userId,
@@ -51,6 +56,11 @@ watch(
   },
   { immediate: true },
 )
+
+watch(activeWeekId, (newVal) => {
+  if (!newVal) return
+  weekService.get(newVal).then((res) => (noteRef.value = res.note))
+})
 
 function assignAll() {
   weekDays.value.forEach((wd) => {
@@ -182,6 +192,14 @@ function sucesfulDuplication() {
   if (!activeStartDate.value || !activeWeekId.value) return
   updateWeekId(activeWeekId.value, activeStartDate.value)
 }
+
+const updateNote = useDebounceFn((note: string) => {
+  if (!activeWeekId.value) return
+  weekService.put({
+    note,
+    id: activeWeekId.value,
+  })
+}, 1000)
 </script>
 
 <template>
@@ -225,6 +243,17 @@ function sucesfulDuplication() {
           @update:start-date="updateStartDate"
         />
         <v-divider />
+
+        <v-textarea
+          hide-details="auto"
+          variant="outlined"
+          auto-grow
+          :rows="2"
+          label="Week notes"
+          placeholder="Enter any notes for the week..."
+          v-model="noteRef"
+          @update:model-value="updateNote"
+        />
 
         <div v-if="isTrainer" class="md-2 mt-2">
           <v-btn class="mr-2" @click="assignAll">Assign all available timeslots</v-btn>

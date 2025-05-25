@@ -70,7 +70,7 @@ watch(
       }
       activeBlocks.value = blocksToMap(res)
       weekService
-        .get({
+        .getFiltered({
           start_date: getISODateString(new Date()),
           user_id: props.userId,
         })

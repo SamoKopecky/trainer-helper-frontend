@@ -26,15 +26,13 @@ watch(
   },
   { immediate: true },
 )
-// TODO: solve issue if exercise table is empty
-// TODO: solve calendar assing issues
 </script>
 
 <template>
   <div class="mr-2 ml-2">
-    <div style="text-align: center">
-      <h2>{{ weekDay?.name }}</h2>
-      <h4>{{ formatDate(new Date(weekDay!.day_date)) }}</h4>
+    <div style="text-align: center" v-if="weekDay">
+      <h2>{{ weekDay.name }}</h2>
+      <h4>{{ formatDate(new Date(weekDay.day_date)) }}</h4>
     </div>
     <v-divider></v-divider>
     <ExercisesPanel :week-day-id="Number(id)" v-model="exercise" :show-to-session-btn="false" />

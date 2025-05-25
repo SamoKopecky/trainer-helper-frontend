@@ -11,6 +11,7 @@ export interface Block extends Labeled {
 export interface Week extends Labeled {
   start_date: Date
   block_id: number
+  note?: string
 }
 
 export interface BlockValue extends Omit<Block, "weeks"> {

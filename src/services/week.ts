@@ -15,7 +15,8 @@ export interface WeekPostRequest {
 
 export interface WeekPutRequest {
   id: number
-  start_date: string
+  start_date?: string
+  note?: string
 }
 
 export interface WeekPostDuplicateRequest {
@@ -33,7 +34,16 @@ export class WeekService extends ServiceBase<WeekPutRequest, WeekPostRequest, We
     return week
   }
 
-  public get(queryParams: WeekGetRequest): Promise<Week> {
+  public async get(id: number): Promise<Week> {
+    return this.handleRequest({
+      route: `${this.route}/:id`,
+      method: Method.GET,
+      pathParams: { id },
+      toRes: this.parseWeek,
+    }) as Promise<Week>
+  }
+
+  public getFiltered(queryParams: WeekGetRequest): Promise<Week> {
     return this.handleRequest({
       method: Method.GET,
       route: this.route,

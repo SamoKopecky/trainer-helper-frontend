@@ -23,7 +23,7 @@ const { isTrainer } = useUser()
 const { users, userDisplay } = useUsers()
 const router = useRouter()
 
-const timeslotUserId = ref<string>()
+const userModel = ref<string>()
 const weekDayMatch = ref<WeekDay>()
 const hasWeekDay = computed(() => timeslot.value && timeslot.value.week_day)
 const isAssinged = computed(() => timeslot.value && timeslot.value.user)
@@ -31,6 +31,8 @@ const isWeekDayAvailable = computed(() => weekDayMatch.value)
 
 // When switching which event is viewed, always find a new match
 watch(active, (newValue) => {
+  if (timeslot.value && timeslot.value.user) userModel.value = timeslot.value?.user?.id
+
   if (newValue && !timeslot.value?.week_day) findMatch()
 })
 
@@ -46,7 +48,7 @@ function redirectExercise(timeslot: DisplayTimeslot | undefined) {
 }
 
 function redirectAthlete() {
-  router.push({ path: `/athlete/${timeslotUserId.value}` })
+  router.push({ path: `/athlete/${timeslot.value?.user?.id}` })
 }
 
 function deleteCalTimeslot(event: DisplayTimeslot | undefined) {
@@ -54,7 +56,7 @@ function deleteCalTimeslot(event: DisplayTimeslot | undefined) {
 }
 
 function updateUser() {
-  const newUser = users.value?.find((p) => p.id === timeslotUserId.value)
+  const newUser = users.value?.find((p) => p.id === userModel.value)
   if (!newUser || !timeslot.value) return
 
   timeslotService.put({ id: timeslot.value.id, trainee_id: newUser.id }).then(() => {
@@ -122,7 +124,7 @@ defineExpose({
     <v-card>
       <v-card-title>
         <v-autocomplete
-          v-model="timeslotUserId"
+          v-model="userModel"
           :items="users"
           :item-title="userDisplay"
           item-value="id"
