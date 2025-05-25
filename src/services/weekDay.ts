@@ -1,4 +1,4 @@
-import type { WeekDay } from "@/types/block"
+import type { Week, WeekDay } from "@/types/block"
 import { ServiceBase, Route, Method } from "./base"
 import { isArray } from "@/utils/service"
 
@@ -54,13 +54,21 @@ export class WeekDayService extends ServiceBase<WeekDayPutRequest, WeekDayPostRe
     }) as Promise<WeekDay>
   }
 
-  public async get(queryParams: WeekDayGetRequest): Promise<WeekDay[]> {
+  public async getMany(queryParams: WeekDayGetRequest): Promise<WeekDay[]> {
     return this.handleRequest({
       route: this.route,
       method: Method.GET,
       queryParams,
       toRes: this.parseWeekDays,
     }) as Promise<WeekDay[]>
+  }
+
+  public async get(id: number): Promise<WeekDay> {
+    return this.handleRequest({
+      route: `${this.route}/:id`,
+      method: Method.GET,
+      pathParams: { id },
+    }) as Promise<WeekDay>
   }
 
   public async deleteTimeslot(id: number): Promise<void> {

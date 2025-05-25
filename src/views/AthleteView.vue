@@ -146,7 +146,7 @@ function updateWeekId(weekId: number, startDate: Date) {
 
   const weekDayIds: number[] = []
   weekDayService
-    .get({ week_id: weekId })
+    .getMany({ week_id: weekId })
     .then((res) =>
       res.forEach((weekDay) => {
         weekDayIds.push(weekDay.id)

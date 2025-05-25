@@ -69,7 +69,7 @@ watch([() => timeslot.value?.start], () => {
 function findMatch() {
   if (!timeslot.value) return
   weekDayService
-    .get({
+    .getMany({
       user_id: timeslotUserId.value,
       day_date: getISODateString(timeslot.value.start),
     })

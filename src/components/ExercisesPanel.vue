@@ -36,6 +36,11 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  showToSessionBtn: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
 })
 
 const { isTrainer } = useUser()
@@ -88,6 +93,7 @@ function displayExerciseType(exerciseTypeId: number) {
         icon="mdi-check"
       />
       <v-btn
+        v-if="showToSessionBtn"
         v-tooltip:bottom="'To session'"
         @click="goToSession(weekDayId)"
         variant="text"
