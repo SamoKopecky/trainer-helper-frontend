@@ -10,10 +10,12 @@ import { type WeekDay } from "@/types/block"
 import { useUser } from "@/composables/useUser"
 import { computed } from "vue"
 import { timeslotToDisplayTimeslot } from "@/utils/tranformators"
+import { TimeslotService } from "@/services/timeslots"
 
 const weekDayService = new WeekDayService()
+const timeslotService = new TimeslotService()
 
-const emit = defineEmits(["delete-cal-timeslot", "update:modelValue", "update-user"])
+const emit = defineEmits(["delete-cal-timeslot"])
 
 const timeslot = defineModel<DisplayTimeslot>("timeslot")
 const active = defineModel<boolean>("active")
@@ -26,6 +28,11 @@ const weekDayMatch = ref<WeekDay>()
 const hasWeekDay = computed(() => timeslot.value && timeslot.value.week_day)
 const isAssinged = computed(() => timeslot.value && timeslot.value.user)
 const isWeekDayAvailable = computed(() => weekDayMatch.value)
+
+// When switching which event is viewed, always find a new match
+watch(active, (newValue) => {
+  if (newValue && !timeslot.value?.week_day) findMatch()
+})
 
 function redirectExercise(timeslot: DisplayTimeslot | undefined) {
   if (!timeslot) return
@@ -47,38 +54,21 @@ function deleteCalTimeslot(event: DisplayTimeslot | undefined) {
 }
 
 function updateUser() {
-  unassingWeekDay()
-  emit(
-    "update-user",
-    users.value?.find((p) => p.id === timeslotUserId.value),
-  )
+  const newUser = users.value?.find((p) => p.id === timeslotUserId.value)
+  if (!newUser || !timeslot.value) return
+
+  timeslotService.put({ id: timeslot.value.id, trainee_id: newUser.id }).then(() => {
+    timeslot.value!.trainee_id = newUser.id
+    timeslot.value!.user = newUser
+    timeslot.value = timeslotToDisplayTimeslot(timeslot.value!, false)
+    // When user changes, always unassing and find new
+    unassignWeekDay()
+  })
 }
 
-// Watch on the change of start value
-watch([() => timeslot.value?.start], () => {
-  unassingWeekDay()
-
-  if (!timeslot.value || !timeslot.value.user) {
-    timeslotUserId.value = undefined
-    return
-  } else {
-    timeslotUserId.value = timeslot.value.user.id
-  }
-})
-
-function findMatch() {
-  if (!timeslot.value) return
-  weekDayService
-    .getMany({
-      user_id: timeslotUserId.value,
-      day_date: getISODateString(timeslot.value.start),
-    })
-    .then((res) => {
-      if (res.length == 0) {
-        weekDayMatch.value = undefined
-      }
-      weekDayMatch.value = res[0]
-    })
+function eventMoved() {
+  // On event move unassing
+  unassignWeekDay()
 }
 
 function assignWeekDay() {
@@ -94,17 +84,37 @@ function assignWeekDay() {
     })
 }
 
-function unassingWeekDay() {
+function findMatch() {
+  if (!timeslot.value) return
+  weekDayService
+    .getMany({
+      user_id: timeslot.value.user?.id,
+      day_date: getISODateString(timeslot.value.start),
+    })
+    .then((res) => {
+      if (res.length == 0) {
+        weekDayMatch.value = undefined
+      }
+      weekDayMatch.value = res[0]
+    })
+}
+
+function unassignWeekDay() {
+  // If unassingned always find new even if there was no session assinged
+  // before
+  findMatch()
   if (!timeslot.value || !timeslot.value.week_day) {
-    findMatch()
     return
   }
   weekDayService.deleteTimeslot(timeslot.value.week_day.id).then(() => {
     timeslot.value!.week_day = undefined
     timeslot.value = timeslotToDisplayTimeslot(timeslot.value!, false)
-    findMatch()
   })
 }
+
+defineExpose({
+  eventMoved,
+})
 </script>
 
 <template>
@@ -153,7 +163,7 @@ function unassingWeekDay() {
                 density="compact"
                 v-tooltip:bottom="'Unassing'"
                 color="error"
-                @click="unassingWeekDay"
+                @click="unassignWeekDay"
                 class="ml-1"
               />
             </div>

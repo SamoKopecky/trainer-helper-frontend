@@ -27,6 +27,7 @@ watch(
   { immediate: true },
 )
 // TODO: solve issue if exercise table is empty
+// TODO: solve calendar assing issues
 </script>
 
 <template>

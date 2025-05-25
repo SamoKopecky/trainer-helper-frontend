@@ -16,15 +16,18 @@ const { notifications, addNotification } = useNotifications()
 const { addChangeEvent, undo, redo, undoActive } = useChangeEvents(addNotification)
 const showDialog = ref(false)
 const selectedEvent = ref<CalDisplayTimeslot>()
-const {
-  events,
-  vueCalRef,
-  createTimeslot,
-  deleteTimeslot,
-  clickTimeslot,
-  updateEventUser,
-  eventMove,
-} = useCalendar(selectedEvent, showDialog, addChangeEvent)
+const { events, vueCalRef, createTimeslot, deleteTimeslot, clickTimeslot, eventMove } = useCalendar(
+  selectedEvent,
+  showDialog,
+  addChangeEvent,
+)
+
+const eventDialogRef = ref(null)
+function handleEventMove(data: { e: Event; event: CalDisplayTimeslot; cell: unknown }) {
+  eventMove(data)
+  // @ts-expect-error dunno how to make typing work
+  if (eventDialogRef.value !== null) eventDialogRef.value.eventMoved()
+}
 const { isTrainer } = useUser()
 const theme = useTheme()
 </script>
@@ -52,12 +55,12 @@ const theme = useTheme()
     :time-step="30"
     @event-click="clickTimeslot"
     @event-create="createTimeslot"
-    @event-drop="eventMove"
+    @event-drop="handleEventMove"
   ></VueCal>
 
   <EventDialog
     @delete-cal-timeslot="deleteTimeslot"
-    @update-user="updateEventUser"
+    ref="eventDialogRef"
     v-model:active="showDialog"
     v-model:timeslot="selectedEvent"
   />

@@ -54,20 +54,6 @@ export function useCalendar(
     )
   }
 
-  function updateEventUser(user?: User) {
-    if (selectedEvent.value && user) {
-      timeslotService.put({ id: selectedEvent.value.id, trainee_id: user.id }).then(() => {
-        if (!selectedEvent.value) return
-        selectedEvent.value.trainee_id = user.id
-        selectedEvent.value.user = user
-        selectedEvent.value = timeslotToDisplayTimeslot(
-          selectedEvent.value,
-          false,
-        ) as CalDisplayTimeslot
-      })
-    }
-  }
-
   function eventMove(data: { e: Event; event: CalDisplayTimeslot; cell: unknown }) {
     addChangeEvent(new TimeslotMoveEvent(oldEvents, data.event, events.value))
   }
@@ -89,7 +75,6 @@ export function useCalendar(
     clickTimeslot,
     deleteTimeslot,
     createTimeslot,
-    updateEventUser,
     eventMove,
   }
 }
