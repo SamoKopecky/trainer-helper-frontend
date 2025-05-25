@@ -1,6 +1,11 @@
 import { isArray } from "../utils/service"
 import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
-import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios"
+import axios, {
+  AxiosError,
+  type AxiosRequestConfig,
+  type AxiosResponse,
+  type ResponseType,
+} from "axios"
 
 const API_BASE_URL = import.meta.env.VITE_APP_BACKEND ?? "http://localhost:2001"
 export enum Route {
@@ -16,6 +21,7 @@ export enum Route {
   Weeks = "/weeks",
   WeekDays = "/week-days",
   WeekDaysTimeslots = `${Route.WeekDays}/timeslots`,
+  File = "/files",
 }
 
 export enum Method {
@@ -35,8 +41,13 @@ export abstract class ServiceBase<PutObj extends object, PostObj extends object,
   protected get_api_url(route: string) {
     return `${API_BASE_URL}${route}`
   }
-  protected get_headers() {
+
+  protected jsonHeaders() {
     return { "Content-Type": "application/json" }
+  }
+
+  protected mediaHeaders() {
+    return { "Content-Type": "multipart/form-data" }
   }
 
   public async post(jsonParams: PostObj): Promise<T> {
@@ -81,6 +92,8 @@ export abstract class ServiceBase<PutObj extends object, PostObj extends object,
     pathParams,
     queryParams,
     jsonParams,
+    postBody,
+    responseType,
     toRes = (obj) => obj as ResponseT,
     route,
   }: {
@@ -88,6 +101,8 @@ export abstract class ServiceBase<PutObj extends object, PostObj extends object,
     jsonParams?: JsonParamsT
     queryParams?: QueryParamsT
     pathParams?: PathParamsT
+    postBody?: FormData
+    responseType?: ResponseType
     toRes?: (obj: any) => ResponseT
     route: string
   }): Promise<ResponseT | void> {
@@ -95,12 +110,24 @@ export abstract class ServiceBase<PutObj extends object, PostObj extends object,
     if (pathParams) url = replacePathParams(url, pathParams)
     if (queryParams) url = addQueryParams(url, queryParams)
 
+    let data: any = undefined
+    let headers = this.jsonHeaders()
+    if (jsonParams) {
+      data = JSON.stringify(jsonParams)
+      headers = this.jsonHeaders()
+    } else if (postBody) {
+      data = postBody
+      headers = this.mediaHeaders()
+    }
+
     const request: AxiosRequestConfig = {
       method: method.toString().toLowerCase(),
-      headers: this.get_headers(),
-      data: JSON.stringify(jsonParams),
+      headers: headers,
+      data: data,
       url: url,
     }
+
+    if (responseType) request.responseType = responseType
 
     return axios(request)
       .then((response: AxiosResponse) => {

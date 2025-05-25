@@ -5,9 +5,10 @@ import { computed, type PropType, useTemplateRef } from "vue"
 import YoutubeEmbed from "./YoutubeEmbed.vue"
 import { extractYouTubeId } from "@/utils/other"
 import { ref } from "vue"
-import type { ExerciseTypePostRequest } from "@/services/exerciseType"
+import { ExerciseTypeService, type ExerciseTypePostRequest } from "@/services/exerciseType"
 import { watch } from "vue"
 import { watchEffect } from "vue"
+import { isArray } from "@/utils/service"
 
 const { modelValue, exerciseType, isNew } = defineProps({
   modelValue: {
@@ -24,6 +25,9 @@ const { modelValue, exerciseType, isNew } = defineProps({
     required: true,
   },
 })
+
+const exerciseTypeService = new ExerciseTypeService()
+
 const emit = defineEmits(["update:modelValue", "update:exerciseType", "create:exerciseType"])
 
 // Refs
@@ -31,7 +35,11 @@ const noteRef = ref<string>()
 const mediaTypeRef = ref<MediaType>()
 const youtubeLinkRef = ref<string>()
 const newNameRef = ref<string>()
+const file = ref<File>()
+const loadedFile = ref()
+
 const newNameInput = useTemplateRef("input")
+
 const youtubeVideoIdRef = computed(() => {
   if (exerciseType && exerciseType.youtube_link) {
     return extractYouTubeId(exerciseType?.youtube_link)
@@ -116,6 +124,29 @@ function emitUpdate() {
     emit("update:exerciseType", data)
   }
 }
+
+function uploadFile(file: File | File[]) {
+  if (!exerciseType) return
+  const formData = new FormData()
+
+  if (isArray(file)) {
+    file.forEach((f, i) => formData.append("file_" + i, f))
+  } else {
+    formData.append("file", file)
+  }
+
+  exerciseTypeService
+    .postFile(exerciseType.id, formData)
+    .then((res) => {
+      console.log("add notification")
+    })
+    .finally(() => {
+      exerciseTypeService.getFile(exerciseType.id).then((res) => {
+        const blob = res
+        console.log(blob.type)
+      })
+    })
+}
 </script>
 
 <template>
@@ -189,19 +220,22 @@ function emitUpdate() {
           </v-container>
         </div>
 
-        <v-file-input
-          v-if="mediaTypeRef === MediaType.File"
-          label="Select Video File"
-          variant="outlined"
-          show-size
-          accept="video/*"
-          placeholder="Choose a video file to upload"
-          prepend-icon=""
-          prepend-inner-icon="mdi-video"
-          clearable
-          hint="Not yet implemented"
-          persistent-hint
-        ></v-file-input>
+        <div v-if="mediaTypeRef === MediaType.File">
+          <v-file-input
+            label="Select Video File"
+            variant="outlined"
+            show-size
+            accept="video/*"
+            placeholder="Choose a video file to upload"
+            prepend-icon=""
+            prepend-inner-icon="mdi-video"
+            clearable
+            hint="Not yet implemented"
+            persistent-hint
+            @update:model-value="uploadFile"
+            v-model="file"
+          />
+        </div>
       </v-card-text>
       <v-card-actions>
         <v-btn color="grey-darken-1" variant="text" @click="exitButton">Exit</v-btn>
