@@ -1,18 +1,18 @@
 import { TimeslotService } from "@/services/timeslots"
 import type { ChangeEvent } from "./base"
-import type { AppTimeslot, CalTimeslot } from "@/types/calendar"
+import type { DisplayTimeslot, CalDisplayTimeslot } from "@/types/calendar"
 import type { VueCalView } from "@/types/vuecal"
 
 export class TimelostDeleteEvent implements ChangeEvent {
-  private timeslot: CalTimeslot
+  private timeslot: CalDisplayTimeslot
   private calendarView: VueCalView
   private timeslotService: TimeslotService
-  private eventsCopy: Map<number, AppTimeslot>
+  private eventsCopy: Map<number, DisplayTimeslot>
 
   constructor(
-    timeslot: CalTimeslot,
+    timeslot: CalDisplayTimeslot,
     calendarView: VueCalView,
-    eventsCopy: Map<number, AppTimeslot>,
+    eventsCopy: Map<number, DisplayTimeslot>,
   ) {
     this.timeslot = timeslot
     this.calendarView = calendarView

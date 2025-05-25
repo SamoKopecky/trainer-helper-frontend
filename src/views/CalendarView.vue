@@ -10,12 +10,12 @@ import { useNotifications } from "@/composables/useNotifications"
 import NotificationFloat from "@/components/NotificationFloat.vue"
 import ChangeEventBar from "@/components/ChangeEventBar.vue"
 import { ref } from "vue"
-import type { CalTimeslot } from "@/types/calendar"
+import type { CalDisplayTimeslot } from "@/types/calendar"
 
 const { notifications, addNotification } = useNotifications()
 const { addChangeEvent, undo, redo, undoActive } = useChangeEvents(addNotification)
 const showDialog = ref(false)
-const selectedEvent = ref<CalTimeslot>()
+const selectedEvent = ref<CalDisplayTimeslot>()
 const {
   events,
   vueCalRef,
@@ -101,7 +101,13 @@ const theme = useTheme()
 .vuecal--default-theme .vuecal__cell--selected::before {
   background-color: transparent;
 }
+.vuecal__event.fully-assinged {
+  background-color: #4caf50;
+}
 .vuecal__event.no-user {
   background-color: #79797a;
+}
+.vuecal__event.user-assinged {
+  background-color: #316191;
 }
 </style>

@@ -1,7 +1,7 @@
-import { type AppTimeslot } from "./calendar"
+import { type DisplayTimeslot } from "./calendar"
 
 export interface VueCalView {
-  createEvent(event: AppTimeslot): void
+  createEvent(event: DisplayTimeslot): void
 }
 
 export interface VueCalRef {
@@ -17,4 +17,4 @@ export interface VueCalTimeslot extends UnresolvedVueCalTimeslot {
   delete(type: number): void
 }
 
-export interface UnresolvedCalTimeslot extends UnresolvedVueCalTimeslot, AppTimeslot {}
+export interface UnresolvedCalTimeslot extends UnresolvedVueCalTimeslot, DisplayTimeslot {}

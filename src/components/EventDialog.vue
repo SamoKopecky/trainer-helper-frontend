@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CalTimeslot } from "@/types/calendar"
+import type { DisplayTimeslot } from "@/types/calendar"
 import { useRouter } from "vue-router"
 import { ref, watch } from "vue"
 import { formatDate } from "@/utils/date"
@@ -9,12 +9,13 @@ import { getISODateString } from "@/utils/date"
 import { type WeekDay } from "@/types/block"
 import { useUser } from "@/composables/useUser"
 import { computed } from "vue"
+import { timeslotToDisplayTimeslot } from "@/utils/tranformators"
 
 const weekDayService = new WeekDayService()
 
 const emit = defineEmits(["delete-cal-timeslot", "update:modelValue", "update-user"])
 
-const timeslot = defineModel<CalTimeslot>("timeslot")
+const timeslot = defineModel<DisplayTimeslot>("timeslot")
 const active = defineModel<boolean>("active")
 const { isTrainer } = useUser()
 const { users, userDisplay } = useUsers()
@@ -26,7 +27,7 @@ const hasWeekDay = computed(() => timeslot.value && timeslot.value.week_day)
 const isAssinged = computed(() => timeslot.value && timeslot.value.user)
 const isWeekDayAvailable = computed(() => weekDayMatch.value)
 
-function redirectExercise(timeslot: CalTimeslot | undefined) {
+function redirectExercise(timeslot: DisplayTimeslot | undefined) {
   if (!timeslot) return
 
   const basePath = "/weekDay"
@@ -41,22 +42,21 @@ function redirectAthlete() {
   router.push({ path: `/athlete/${timeslotUserId.value}` })
 }
 
-function deleteCalTimeslot(event: CalTimeslot | undefined) {
+function deleteCalTimeslot(event: DisplayTimeslot | undefined) {
   emit("delete-cal-timeslot", event)
 }
 
-// FIXME: Why sent events, just update the user here :)
 function updateUser() {
+  unassingWeekDay()
   emit(
     "update-user",
     users.value?.find((p) => p.id === timeslotUserId.value),
   )
-  unassingWeekDay()
 }
 
-// Watch on timeslot change and the change of start value
-watch([timeslot, () => timeslot.value?.start], () => {
-  weekDayMatch.value = undefined
+// Watch on the change of start value
+watch([() => timeslot.value?.start], () => {
+  unassingWeekDay()
 
   if (!timeslot.value || !timeslot.value.user) {
     timeslotUserId.value = undefined
@@ -64,8 +64,6 @@ watch([timeslot, () => timeslot.value?.start], () => {
   } else {
     timeslotUserId.value = timeslot.value.user.id
   }
-
-  if (!timeslot.value.week_day) findMatch()
 })
 
 function findMatch() {
@@ -92,14 +90,19 @@ function assignWeekDay() {
     })
     .then(() => {
       timeslot.value!.week_day = weekDayMatch.value
+      timeslot.value = timeslotToDisplayTimeslot(timeslot.value!, false)
     })
 }
 
 function unassingWeekDay() {
-  findMatch()
-  if (!timeslot.value || !timeslot.value.week_day) return
+  if (!timeslot.value || !timeslot.value.week_day) {
+    findMatch()
+    return
+  }
   weekDayService.deleteTimeslot(timeslot.value.week_day.id).then(() => {
     timeslot.value!.week_day = undefined
+    timeslot.value = timeslotToDisplayTimeslot(timeslot.value!, false)
+    findMatch()
   })
 }
 </script>

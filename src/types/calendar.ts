@@ -1,10 +1,10 @@
 import type { EnhancedTimeslot } from "./other"
 import type { VueCalTimeslot } from "./vuecal"
 
-export interface AppTimeslot extends EnhancedTimeslot {
+export interface DisplayTimeslot extends EnhancedTimeslot {
   title?: string
   content?: string
   class: string
 }
 
-export interface CalTimeslot extends VueCalTimeslot, AppTimeslot {}
+export interface CalDisplayTimeslot extends VueCalTimeslot, DisplayTimeslot {}

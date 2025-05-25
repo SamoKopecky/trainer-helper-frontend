@@ -14,6 +14,7 @@ const props = defineProps({
 const exercise = ref<ExerciseResponse[]>([])
 // TODO: add week name
 // TODO: Fix content change when timeslot is assinged
+// TODO: create exercise types on user creation
 
 watch(
   () => props.id,

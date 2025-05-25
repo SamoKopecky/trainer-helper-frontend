@@ -1,8 +1,13 @@
 import type { ExerciseResponse } from "@/services/exercise"
-import type { AppTimeslot } from "@/types/calendar"
+import type { CalDisplayTimeslot, DisplayTimeslot } from "@/types/calendar"
 import type { ExerciseTableData } from "@/types/exercise"
 import type { ExerciseType, ExerciseTypeTableRow } from "@/types/exerciseType"
-import type { EnhancedTimeslot, WorkSet } from "@/types/other"
+import {
+  isCalDisplayTimeslot,
+  isDisplayTimeslot,
+  type EnhancedTimeslot,
+  type WorkSet,
+} from "@/types/other"
 import { getTimeslotUserName } from "./user"
 import type { Block, BlockMap, BlockValue, DisplayWeekDay, Week, WeekDay } from "@/types/block"
 import { getDateWeekDayString } from "./date"
@@ -61,15 +66,37 @@ export function mergeTableDataAndWorkSetModel(
   }
 }
 
-export function timeslotToAppTimeslot(timeslot: EnhancedTimeslot): AppTimeslot {
-  const isAssigned = timeslot.user?.name ?? false
-  return {
-    ...timeslot,
-    title: getTimeslotUserName(timeslot),
-    content: timeslot.week_day?.name,
-    start: new Date(timeslot.start),
-    end: new Date(timeslot.end),
-    class: isAssigned ? "assigned" : "no-user",
+export function timeslotToDisplayTimeslot(
+  timeslot: EnhancedTimeslot | DisplayTimeslot | CalDisplayTimeslot,
+  fixDate: boolean = true,
+): DisplayTimeslot | CalDisplayTimeslot {
+  const isAssignedUser = timeslot.user ?? false
+  const isAssingedSession = timeslot.week_day ?? false
+
+  let eventClass = "no-user"
+  if (isAssignedUser && isAssingedSession) {
+    eventClass = "fully-assinged"
+  } else if (isAssignedUser) {
+    eventClass = "user-assinged"
+  }
+
+  if (fixDate) {
+    timeslot.start = new Date(timeslot.start)
+    timeslot.end = new Date(timeslot.end)
+  }
+
+  if (isDisplayTimeslot(timeslot) || isCalDisplayTimeslot(timeslot)) {
+    timeslot.title = getTimeslotUserName(timeslot)
+    timeslot.class = eventClass
+    timeslot.content = timeslot.week_day?.name
+    return timeslot
+  } else {
+    return {
+      ...timeslot,
+      title: getTimeslotUserName(timeslot),
+      class: eventClass,
+      content: timeslot.week_day?.name,
+    }
   }
 }
 
