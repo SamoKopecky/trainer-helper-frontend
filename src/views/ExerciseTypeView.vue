@@ -17,9 +17,9 @@ const headers = ref([
     key: "name",
     title: "Name",
   },
-  { key: "hasMedia", title: "Has Media", align: " d-none" },
-  { key: "hasMediaVal", title: "Has Media" },
-  { key: "mediaType", title: "Media Type" },
+  { key: "hasMedia", title: "Has Media" },
+  { key: "hasYoutube", title: "Has Youtube" },
+
   { key: "id", align: " d-none" },
 ])
 const exerciseTypeService = new ExerciseTypeService()
@@ -57,16 +57,14 @@ function initExerciseTypes() {
     <template #extra>
       <v-btn @click="initExerciseTypes">Create default exercise types</v-btn>
     </template>
+    <!-- HINT: item.COLUMN_NAME -->
     <!-- eslint-disable-next-line  -->
-    <template v-slot:item.mediaType="{ item }">
-      <v-icon v-if="item.mediaType === MediaType.Youtube" :color="item.hasMedia ? 'red' : 'grey'"
-        >mdi-youtube</v-icon
-      >
-      <v-icon
-        v-else-if="item.mediaType === MediaType.File"
-        :color="item.hasMedia ? 'white' : 'grey'"
-        >mdi-link</v-icon
-      >
+    <template v-slot:item.hasYoutube="{ item }">
+      <v-icon :color="item.hasYoutube ? 'red' : 'grey'">mdi-youtube</v-icon>
+    </template>
+    <!-- eslint-disable-next-line  -->
+    <template v-slot:item.hasMedia="{ item }">
+      <v-icon :color="item.hasMedia ? 'green' : 'grey'">mdi-link</v-icon>
     </template>
   </DataTable>
 

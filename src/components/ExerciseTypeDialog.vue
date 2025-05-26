@@ -2,6 +2,7 @@
 import { MediaType, type ExerciseType, type ExerciseTypeUpdate } from "@/types/exerciseType"
 import { watchDebounced } from "@vueuse/core"
 import { computed, type PropType, useTemplateRef } from "vue"
+import NotificationFloat from "@/components/NotificationFloat.vue"
 import YoutubeEmbed from "./YoutubeEmbed.vue"
 import { extractYouTubeId } from "@/utils/other"
 import { ref } from "vue"
@@ -9,12 +10,11 @@ import { ExerciseTypeService, type ExerciseTypePostRequest } from "@/services/ex
 import { watch } from "vue"
 import { watchEffect } from "vue"
 import { isArray } from "@/utils/service"
+import { useNotifications } from "@/composables/useNotifications"
 
-const { modelValue, exerciseType, isNew } = defineProps({
-  modelValue: {
-    type: Boolean,
-    required: true,
-  },
+const active = defineModel<boolean>()
+
+const { exerciseType, isNew } = defineProps({
   exerciseType: {
     type: Object as PropType<ExerciseType | undefined>,
     required: false,
@@ -35,10 +35,15 @@ const noteRef = ref<string>()
 const mediaTypeRef = ref<MediaType>()
 const youtubeLinkRef = ref<string>()
 const newNameRef = ref<string>()
-const file = ref<File>()
-const loadedFile = ref()
+const fileRef = ref<File>()
+const fileNameRef = ref<string>()
+const mediaBlobUrl = ref<string>()
+const mediaBlobType = ref<string>()
+const fileUploadLoading = ref<boolean>()
 
 const newNameInput = useTemplateRef("input")
+const uplodFileInput = useTemplateRef("file-upload-input")
+const { addNotification, notifications } = useNotifications()
 
 const youtubeVideoIdRef = computed(() => {
   if (exerciseType && exerciseType.youtube_link) {
@@ -70,6 +75,8 @@ watch(
       noteRef.value = exerciseType.note ?? ""
       mediaTypeRef.value = exerciseType.media_type
       youtubeLinkRef.value = exerciseType.youtube_link
+      fileNameRef.value = exerciseType.original_file_name
+      getMediaBlob()
     }
   },
 )
@@ -97,8 +104,23 @@ watchEffect(() => {
 })
 
 // Functions
-function exitButton() {
-  emit("update:modelValue", false)
+function revokeMediaBlob() {
+  if (mediaBlobUrl.value) {
+    URL.revokeObjectURL(mediaBlobUrl.value)
+    mediaBlobUrl.value = undefined
+    mediaBlobType.value = undefined
+  }
+}
+
+function getMediaBlob() {
+  if (!exerciseType) return
+  revokeMediaBlob()
+  exerciseTypeService.getFile(exerciseType.id).then((res) => {
+    if (res.type == "text/xml") return
+    const blob = res
+    mediaBlobType.value = blob.type
+    mediaBlobUrl.value = URL.createObjectURL(blob)
+  })
 }
 
 function saveButton() {
@@ -126,31 +148,35 @@ function emitUpdate() {
 }
 
 function uploadFile(file: File | File[]) {
+  uplodFileInput.value?.blur()
   if (!exerciseType) return
   const formData = new FormData()
 
   if (isArray(file)) {
-    file.forEach((f, i) => formData.append("file_" + i, f))
+    addNotification("Uploading multiple files not supported", "error")
+    return
   } else {
     formData.append("file", file)
   }
 
+  fileUploadLoading.value = true
   exerciseTypeService
     .postFile(exerciseType.id, formData)
-    .then((res) => {
-      console.log("add notification")
+    .then(() => {
+      getMediaBlob()
+      fileNameRef.value = file.name
     })
     .finally(() => {
-      exerciseTypeService.getFile(exerciseType.id).then((res) => {
-        const blob = res
-        console.log(blob.type)
-      })
+      addNotification("File uploaded succesfully!", "success")
+      fileUploadLoading.value = false
+      fileRef.value = undefined
     })
 }
 </script>
 
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="exitButton">
+  <v-dialog v-model="active">
+    <NotificationFloat :notifications="notifications" />
     <v-card>
       <!-- title -->
       <v-card-title>
@@ -197,7 +223,7 @@ function uploadFile(file: File | File[]) {
           </v-btn>
           <v-btn :value="MediaType.File" class="flex-grow-1">
             <v-icon start>mdi-upload</v-icon>
-            Upload File
+            Custom media
           </v-btn>
         </v-btn-toggle>
         <div v-if="mediaTypeRef === MediaType.Youtube">
@@ -222,23 +248,33 @@ function uploadFile(file: File | File[]) {
 
         <div v-if="mediaTypeRef === MediaType.File">
           <v-file-input
-            label="Select Video File"
+            :loading="fileUploadLoading"
+            ref="file-upload-input"
+            label="Upload new file"
             variant="outlined"
             show-size
             accept="video/*"
             placeholder="Choose a video file to upload"
             prepend-icon=""
+            :hint="fileNameRef ?? 'No file found'"
             prepend-inner-icon="mdi-video"
             clearable
-            hint="Not yet implemented"
             persistent-hint
             @update:model-value="uploadFile"
-            v-model="file"
+            v-model="fileRef"
           />
+          <v-responsive v-if="mediaBlobUrl" aspect-ratio="16/9" max-width="500px" class="mx-auto">
+            <video
+              controls
+              :src="mediaBlobUrl"
+              :type="mediaBlobType"
+              style="width: 100%; height: 100%; display: block"
+            />
+          </v-responsive>
         </div>
       </v-card-text>
       <v-card-actions>
-        <v-btn color="grey-darken-1" variant="text" @click="exitButton">Exit</v-btn>
+        <v-btn color="grey-darken-1" variant="text" @click="active = false">Exit</v-btn>
         <v-btn color="blue-darken-1" variant="text" @click="saveButton">Save</v-btn>
       </v-card-actions>
     </v-card>

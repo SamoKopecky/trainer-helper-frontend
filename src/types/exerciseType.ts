@@ -9,13 +9,14 @@ export interface ExerciseTypeUpdate {
   media_type?: MediaType
   youtube_link?: string
   file_path?: string
+  original_file_name?: string
 }
 
 export interface ExerciseTypeTableRow {
   id: number
   name: string
   hasMedia: boolean
-  hasMediaVal: string
+  hasYoutube: boolean
   mediaType?: MediaType
 }
 
