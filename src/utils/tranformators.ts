@@ -101,12 +101,11 @@ export function timeslotToDisplayTimeslot(
 }
 
 export function exerciseTypeToRow(exerciseType: ExerciseType): ExerciseTypeTableRow {
-  const hasMedia = Boolean(exerciseType.youtube_link)
   return {
     name: exerciseType.name,
     mediaType: exerciseType.media_type,
-    hasMedia: hasMedia,
-    hasMediaVal: hasMedia ? "Yes" : "No",
+    hasMedia: Boolean(exerciseType.file_path),
+    hasYoutube: Boolean(exerciseType.youtube_link),
     id: exerciseType.id,
   }
 }

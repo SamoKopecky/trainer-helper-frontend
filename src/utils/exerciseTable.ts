@@ -63,7 +63,6 @@ export function getAllGroupIds(exercises: ExerciseTableData[]): number[] {
 
 export function getGroupAlphabetMap(exercises: ExerciseTableData[]): Map<number, string> {
   const result = new Map()
-  // TODO: Whole alphabet
   if (exercises.length === 0) {
     return result
   }

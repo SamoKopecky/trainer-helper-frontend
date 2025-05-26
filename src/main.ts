@@ -50,6 +50,7 @@ import {
   VExpansionPanelText,
   VExpansionPanelTitle,
   VExpandTransition,
+  VResponsive,
 } from "vuetify/components"
 import router from "./router"
 import VueKeyCloak from "@dsb-norge/vue-keycloak-js"
@@ -97,6 +98,7 @@ const vuetify = createVuetify({
     VDataTable,
     VTextarea,
     VCardActions,
+    VResponsive,
     VBtnToggle,
     VFileInput,
     VForm,

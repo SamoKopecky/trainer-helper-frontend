@@ -43,4 +43,22 @@ export class ExerciseTypeService extends ServiceBase<
       method: Method.POST,
     }) as Promise<ExerciseType[]>
   }
+
+  public postFile(id: number, data: FormData): Promise<void> {
+    return this.handleRequest({
+      method: Method.POST,
+      route: `${this.route}/:id/files`,
+      pathParams: { id },
+      postBody: data,
+    }) as Promise<void>
+  }
+
+  public getFile(id: number): Promise<Blob> {
+    return this.handleRequest({
+      method: Method.GET,
+      route: `${this.route}/:id/files`,
+      pathParams: { id },
+      responseType: "blob",
+    }) as Promise<Blob>
+  }
 }
