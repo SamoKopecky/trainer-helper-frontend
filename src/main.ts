@@ -51,6 +51,7 @@ import {
   VExpansionPanelTitle,
   VExpandTransition,
   VResponsive,
+  VProgressCircular,
 } from "vuetify/components"
 import router from "./router"
 import VueKeyCloak from "@dsb-norge/vue-keycloak-js"
@@ -83,6 +84,7 @@ const vuetify = createVuetify({
     VDialog,
     VCard,
     VCardTitle,
+    VProgressCircular,
     VIcon,
     VSpacer,
     VAlert,

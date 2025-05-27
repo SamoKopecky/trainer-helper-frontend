@@ -39,6 +39,7 @@ const fileRef = ref<File>()
 const fileNameRef = ref<string>()
 const mediaBlobUrl = ref<string>()
 const mediaBlobType = ref<string>()
+const mediaBlobLoading = ref<boolean>()
 const fileUploadLoading = ref<boolean>()
 
 const newNameInput = useTemplateRef("input")
@@ -115,12 +116,16 @@ function revokeMediaBlob() {
 function getMediaBlob() {
   if (!exerciseType) return
   revokeMediaBlob()
-  exerciseTypeService.getFile(exerciseType.id).then((res) => {
-    if (res.type == "text/xml") return
-    const blob = res
-    mediaBlobType.value = blob.type
-    mediaBlobUrl.value = URL.createObjectURL(blob)
-  })
+  mediaBlobLoading.value = true
+  exerciseTypeService
+    .getFile(exerciseType.id)
+    .then((res) => {
+      if (res.type == "text/xml") return
+      const blob = res
+      mediaBlobType.value = blob.type
+      mediaBlobUrl.value = URL.createObjectURL(blob)
+    })
+    .finally(() => (mediaBlobLoading.value = false))
 }
 
 function saveButton() {
@@ -263,14 +268,17 @@ function uploadFile(file: File | File[]) {
             @update:model-value="uploadFile"
             v-model="fileRef"
           />
-          <v-responsive v-if="mediaBlobUrl" aspect-ratio="16/9" max-width="500px" class="mx-auto">
-            <video
-              controls
-              :src="mediaBlobUrl"
-              :type="mediaBlobType"
-              style="width: 100%; height: 100%; display: block"
-            />
-          </v-responsive>
+          <div class="d-flex justify-center">
+            <v-progress-circular size="100" v-if="mediaBlobLoading" indeterminate />
+            <v-responsive v-else v-show="mediaBlobUrl" aspect-ratio="16/9" max-width="500px">
+              <video
+                controls
+                :src="mediaBlobUrl"
+                :type="mediaBlobType"
+                style="width: 100%; height: 100%; display: block"
+              />
+            </v-responsive>
+          </div>
         </div>
       </v-card-text>
       <v-card-actions>
