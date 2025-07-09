@@ -30,6 +30,9 @@ const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "delete", type: "special", name: "", isMultirow: true, align: "center" },
 ]
 
+const copyWithAiActive = ref(false)
+const copyWithAiLoading = ref(false)
+const rawTextField = ref<string>()
 const exercisesModel = defineModel<ExerciseResponse[]>()
 const props = defineProps({
   weekDayId: {
@@ -48,8 +51,15 @@ const isTableEditable = ref(false)
 
 const { notifications, addNotification } = useNotifications()
 const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
-const { exercises, addExercise, deleteExercise, updateTable, copyWorkSet, goToSession } =
-  useExercises(props.weekDayId, exercisesModel, addNotification, addChangeEvent)
+const {
+  exercises,
+  addExercise,
+  deleteExercise,
+  updateTable,
+  copyWorkSet,
+  goToSession,
+  copyWithAi,
+} = useExercises(props.weekDayId, exercisesModel, addNotification, addChangeEvent)
 const { exerciseTypes } = useExerciseTypes()
 const { showDialog, selectedType, handleCreate, handleUpdate, isNew, addNew } =
   useExerciseTypeDialog(exerciseTypes)
@@ -58,60 +68,108 @@ function displayExerciseType(exerciseTypeId: number) {
   selectedType.value = exerciseTypes.value.find((et) => et.id === exerciseTypeId)
   showDialog.value = true
 }
+
+function copyWithAiConfirm() {
+  if (!rawTextField.value) {
+    addNotification("empty table, please fill in the text area", "info")
+    return
+  }
+  copyWithAiLoading.value = true
+  copyWithAi(rawTextField.value).finally(() => {
+    copyWithAiLoading.value = false
+    copyWithAiActive.value = false
+  })
+}
 </script>
 
 <template>
-  <NotificationFloat :notifications="notifications" />
-  <ExerciseTypeDialog
-    v-model="showDialog"
-    :exercise-type="selectedType"
-    :is-new="isNew"
-    @update:exercise-type="handleUpdate"
-    @create:exercise-type="handleCreate"
-  />
+  <div>
+    <NotificationFloat :notifications="notifications" />
+    <v-dialog v-model="copyWithAiActive">
+      <v-card title="Copy from google document" max-width="500px">
+        <template #text>
+          <p>Copy the whole table <b>including</b> the column header name and paste it bellow</p>
+          <v-textarea
+            class="mt-2"
+            v-model="rawTextField"
+            variant="outlined"
+            hide-details="auto"
+            placeholder="Paste table here ..."
+            label="Coppied table"
+            :auto-grow="false"
+          />
+          <v-btn
+            class="mt-2"
+            color="green"
+            @click="copyWithAiConfirm"
+            :loading="copyWithAiLoading"
+            text="Confirm"
+          />
+        </template>
+      </v-card>
+    </v-dialog>
+    <ExerciseTypeDialog
+      v-model="showDialog"
+      :exercise-type="selectedType"
+      :is-new="isNew"
+      @update:exercise-type="handleUpdate"
+      @create:exercise-type="handleCreate"
+    />
 
-  <ChangeEventBar
-    :is-undo-active="undoActive"
-    :is-redo-active="redoActive"
-    @undo="undo"
-    @redo="redo"
-  >
-    <template #extra>
-      <v-btn
-        v-if="!isTableEditable"
-        v-tooltip:bottom="'Edit table'"
-        @click="isTableEditable = true"
-        variant="text"
-        icon="mdi-table-edit"
-      />
-      <v-btn
-        v-else-if="isTableEditable"
-        color="green"
-        v-tooltip:bottom="'Save table'"
-        @click="isTableEditable = false"
-        variant="text"
-        icon="mdi-check"
-      />
-      <v-btn
-        v-if="showToSessionBtn"
-        v-tooltip:bottom="'To session'"
-        @click="goToSession(weekDayId)"
-        variant="text"
-        icon="mdi-table-arrow-down"
-      />
-    </template>
-  </ChangeEventBar>
+    <ChangeEventBar
+      :is-undo-active="undoActive"
+      :is-redo-active="redoActive"
+      @undo="undo"
+      @redo="redo"
+    >
+      <template #extra>
+        <v-btn
+          v-if="!isTableEditable"
+          v-tooltip:bottom="'Edit table'"
+          @click="isTableEditable = true"
+          variant="text"
+          icon="mdi-table-edit"
+        />
+        <v-btn
+          v-else-if="isTableEditable"
+          color="green"
+          v-tooltip:bottom="'Save table'"
+          @click="isTableEditable = false"
+          variant="text"
+          icon="mdi-check"
+        />
+        <v-btn
+          v-if="showToSessionBtn"
+          v-tooltip:bottom="'To session'"
+          @click="goToSession(weekDayId)"
+          variant="text"
+          icon="mdi-table-arrow-down"
+        />
+      </template>
+    </ChangeEventBar>
 
-  <ExerciseTable
-    :columns="EXERCISE_COLUMNS"
-    :exercises="exercises"
-    :exercise-types="exerciseTypes"
-    :is-table-editable="isTableEditable"
-    @update-table="updateTable"
-    @delete-exercise="deleteExercise"
-    @display:exercise-type="displayExerciseType"
-    @update:copy-work-set="copyWorkSet"
-  />
-  <v-btn class="mt-2 mr-2" text="Add exercise" @click="addExercise" />
-  <v-btn class="mt-2" v-if="isTrainer" text="Add exercise type" @click="addNew" />
+    <ExerciseTable
+      :columns="EXERCISE_COLUMNS"
+      :exercises="exercises"
+      :exercise-types="exerciseTypes"
+      :is-table-editable="isTableEditable"
+      @update-table="updateTable"
+      @delete-exercise="deleteExercise"
+      @display:exercise-type="displayExerciseType"
+      @update:copy-work-set="copyWorkSet"
+    />
+    <div class="mt-2">
+      <v-btn class="ml-2" text="Add exercise" @click="addExercise" />
+      <v-btn class="ml-2" v-if="isTrainer" text="Add exercise type" @click="addNew" />
+      <v-btn
+        class="ml-2"
+        v-if="isTrainer"
+        color="red"
+        text="Copy from google docs (IN PROGRESS)"
+        @click="copyWithAiActive = true"
+      />
+    </div>
+  </div>
 </template>
+
+<style scoped></style>

@@ -18,6 +18,7 @@ import { CopyWorkSetExerciseTableUpdate } from "@/changeEvents/exerciseTable/cop
 import { SetCountExerciseTableUpdate } from "@/changeEvents/exerciseTable/setCount"
 import type { ModelRef } from "vue"
 import { useRouter } from "vue-router"
+import { WeekDayService } from "@/services/weekDay"
 
 export function useExercises(
   weekDayId: number,
@@ -26,6 +27,7 @@ export function useExercises(
   addChangeEvent: (event: ChangeEvent) => void,
 ) {
   const exerciseService = new ExerciseService()
+  const weekDayService = new WeekDayService()
 
   const exercises = ref<ExerciseTableData[]>([])
   const exercisesOld: Map<number, ExerciseTableData> = new Map()
@@ -95,6 +97,13 @@ export function useExercises(
     )
   }
 
+  async function copyWithAi(rawData: string): Promise<void> {
+    return weekDayService
+      .postFromRaw({ raw_data: rawData, week_day_id: weekDayId })
+      .then(() => addNotification("exercises created", "success"))
+      .catch(() => addNotification("opreation failed", "error"))
+  }
+
   function updateTable(newRow: ExerciseTableData) {
     const oldRow = exercisesOld.get(newRow.work_set_id)
     if (!oldRow) {
@@ -117,5 +126,13 @@ export function useExercises(
     router.push({ path: `/weekDay/${weekDayId}` })
   }
 
-  return { exercises, addExercise, deleteExercise, updateTable, copyWorkSet, goToSession }
+  return {
+    exercises,
+    addExercise,
+    deleteExercise,
+    updateTable,
+    copyWorkSet,
+    goToSession,
+    copyWithAi,
+  }
 }

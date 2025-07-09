@@ -25,6 +25,11 @@ export interface WeekDayPostRequest {
   name?: string
 }
 
+export interface WeekDayFromRawPostRequest {
+  raw_data: string
+  week_day_id: number
+}
+
 export class WeekDayService extends ServiceBase<WeekDayPutRequest, WeekDayPostRequest, WeekDay> {
   constructor() {
     super(Route.WeekDays)
@@ -52,6 +57,14 @@ export class WeekDayService extends ServiceBase<WeekDayPutRequest, WeekDayPostRe
         return obj
       },
     }) as Promise<WeekDay>
+  }
+
+  public async postFromRaw(jsonParams: WeekDayFromRawPostRequest): Promise<void> {
+    return this.handleRequest({
+      jsonParams,
+      method: Method.POST,
+      route: `${this.route}/from-raw`,
+    })
   }
 
   public async getMany(queryParams: WeekDayGetRequest): Promise<WeekDay[]> {
