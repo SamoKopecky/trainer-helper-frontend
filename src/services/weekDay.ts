@@ -1,6 +1,7 @@
 import type { Week, WeekDay } from "@/types/block"
 import { ServiceBase, Route, Method } from "./base"
 import { isArray } from "@/utils/service"
+import type { ExerciseResponse } from "./exercise"
 
 export interface WeekDayGetRequest {
   // this one
@@ -56,15 +57,15 @@ export class WeekDayService extends ServiceBase<WeekDayPutRequest, WeekDayPostRe
         obj.day_date = new Date(obj.day_date)
         return obj
       },
-    }) as Promise<WeekDay>
+    })
   }
 
-  public async postFromRaw(jsonParams: WeekDayFromRawPostRequest): Promise<void> {
+  public async postFromRaw(jsonParams: WeekDayFromRawPostRequest): Promise<ExerciseResponse[]> {
     return this.handleRequest({
       jsonParams,
       method: Method.POST,
       route: `${this.route}/from-raw`,
-    })
+    }) as Promise<ExerciseResponse[]>
   }
 
   public async getMany(queryParams: WeekDayGetRequest): Promise<WeekDay[]> {

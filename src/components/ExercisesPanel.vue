@@ -75,10 +75,12 @@ function copyWithAiConfirm() {
     return
   }
   copyWithAiLoading.value = true
-  copyWithAi(rawTextField.value).finally(() => {
-    copyWithAiLoading.value = false
-    copyWithAiActive.value = false
-  })
+  copyWithAi(rawTextField.value)
+    .then()
+    .finally(() => {
+      copyWithAiLoading.value = false
+      copyWithAiActive.value = false
+    })
 }
 </script>
 
@@ -88,7 +90,11 @@ function copyWithAiConfirm() {
     <v-dialog v-model="copyWithAiActive">
       <v-card title="Copy from google document" max-width="500px">
         <template #text>
-          <p>Copy the whole table <b>including</b> the column header name and paste it bellow</p>
+          <p>
+            Copy the whole table <b>including</b> the column header name and paste it bellow.
+            <br />
+            <b>WARNING: This will delete all old exericses</b>
+          </p>
           <v-textarea
             class="mt-2"
             v-model="rawTextField"
@@ -164,8 +170,8 @@ function copyWithAiConfirm() {
       <v-btn
         class="ml-2"
         v-if="isTrainer"
-        color="red"
-        text="Copy from google docs (IN PROGRESS)"
+        color="blue"
+        text="Copy from google docs "
         @click="copyWithAiActive = true"
       />
     </div>

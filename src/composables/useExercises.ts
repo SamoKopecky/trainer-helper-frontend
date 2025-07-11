@@ -75,13 +75,17 @@ export function useExercises(
     exercisesOld.clear()
   }
 
+  function parseExerciseResponses(newExercises: ExerciseResponse[]) {
+    clearExercises()
+    newExercises.forEach((e) => addNewTableData(e))
+    exercises.value.sort((a, b) => sortRows(a, b))
+  }
+
   watch(
     exercisesModel,
     () => {
       if (exercisesModel.value) {
-        clearExercises()
-        exercisesModel.value.forEach((e) => addNewTableData(e))
-        exercises.value.sort((a, b) => sortRows(a, b))
+        parseExerciseResponses(exercisesModel.value)
       }
     },
     { immediate: true },
@@ -100,7 +104,10 @@ export function useExercises(
   async function copyWithAi(rawData: string): Promise<void> {
     return weekDayService
       .postFromRaw({ raw_data: rawData, week_day_id: weekDayId })
-      .then(() => addNotification("exercises created", "success"))
+      .then((res) => {
+        parseExerciseResponses(res)
+        addNotification("exercises created", "success")
+      })
       .catch(() => addNotification("opreation failed", "error"))
   }
 
