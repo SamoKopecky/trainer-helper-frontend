@@ -5,7 +5,7 @@ export interface WorkSetPutRequest {
   id: number
   reps?: number
   intensity?: string
-  rpe?: number
+  rpe?: string
 }
 
 export interface WorkSetPostUndeleteRequest {

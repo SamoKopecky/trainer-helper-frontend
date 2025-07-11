@@ -25,7 +25,7 @@ const EXERCISE_COLUMNS: ExerciseTableColumn[] = [
   { key: "work_set_count", type: "number", name: "Set count", isMultirow: true, align: "center" },
   { key: "reps", type: "number", name: "Reps", isMultirow: false, align: "center" },
   { key: "intensity", type: "text", name: "Intensity", isMultirow: false, align: "center" },
-  { key: "rpe", type: "number", name: "RPE", isMultirow: false, align: "center" },
+  { key: "rpe", type: "text", name: "RPE", isMultirow: false, align: "center" },
   { key: "note", type: "special", name: "Note", isMultirow: true, align: "left" },
   { key: "delete", type: "special", name: "", isMultirow: true, align: "center" },
 ]

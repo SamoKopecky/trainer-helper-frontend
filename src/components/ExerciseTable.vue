@@ -356,7 +356,7 @@ input {
 }
 
 .col-rpe {
-  width: 5%;
+  width: 7%;
 }
 
 .col-work-set-count {
@@ -373,7 +373,7 @@ input {
 }
 
 .col-note {
-  width: 41%;
+  width: 39%;
   min-width: 300px;
 }
 </style>

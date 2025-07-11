@@ -1,4 +1,4 @@
-import type { Week, WeekDay } from "@/types/block"
+import type { WeekDay } from "@/types/block"
 import { ServiceBase, Route, Method } from "./base"
 import { isArray } from "@/utils/service"
 import type { ExerciseResponse } from "./exercise"

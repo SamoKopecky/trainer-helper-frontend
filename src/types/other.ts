@@ -7,7 +7,7 @@ export interface WorkSet {
   exercise_id: number
   reps: number
   intensity: string
-  rpe?: number
+  rpe?: string
 }
 
 export interface Timeslot {
