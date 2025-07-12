@@ -63,7 +63,7 @@ function unregisterUser() {
 </script>
 
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="exitButton">
+  <v-dialog :model-value="modelValue" @update:model-value="exitButton" max-width="500px">
     <v-card>
       <v-card-title> {{ user?.nickname ?? user?.name ?? user?.email }} </v-card-title>
       <v-divider />

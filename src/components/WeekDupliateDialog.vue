@@ -45,7 +45,7 @@ function duplicate() {
 </script>
 
 <template>
-  <v-dialog v-model="active">
+  <v-dialog v-model="active" max-width="700px">
     <v-card title="Choose week to duplicate from">
       <template #text>
         <BlocksPanel :user-id="userId" :is-editable="false" @update:week-id="updateWeekId" />

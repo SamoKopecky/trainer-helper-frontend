@@ -179,7 +179,7 @@ function uploadFile(file: File | File[]) {
 </script>
 
 <template>
-  <v-dialog v-model="active">
+  <v-dialog v-model="active" max-width="1200px">
     <v-card>
       <!-- title -->
       <v-card-title>

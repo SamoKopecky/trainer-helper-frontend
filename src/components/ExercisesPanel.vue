@@ -85,8 +85,8 @@ function copyWithAiConfirm() {
 
 <template>
   <div>
-    <v-dialog v-model="copyWithAiActive">
-      <v-card title="Copy from google document" max-width="500px">
+    <v-dialog v-model="copyWithAiActive" max-width="700px">
+      <v-card title="Copy from google document">
         <template #text>
           <p>
             Copy the whole table <b>including</b> the column header name and paste it bellow.

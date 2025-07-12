@@ -120,7 +120,7 @@ defineExpose({
 </script>
 
 <template>
-  <v-dialog v-model="active">
+  <v-dialog v-model="active" max-width="500px">
     <v-card>
       <v-card-title>
         <v-autocomplete
