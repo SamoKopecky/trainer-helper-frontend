@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import BlocksPanel from "@/components/BlocksPanel.vue"
-import NotificationFloat from "@/components/NotificationFloat.vue"
-import { useNotifications } from "@/composables/useNotifications"
 import { WeekService } from "@/services/week"
+import { useNotificationStore } from "@/stores/useNotificationStore"
 import { ref } from "vue"
 
 const weekService = new WeekService()
 const active = defineModel<boolean>()
 const templateWeekId = ref<number>()
 const isDuplicating = ref(false)
-const { notifications, addNotification } = useNotifications()
+const { addNotification } = useNotificationStore()
 const props = defineProps({
   userId: {
     type: String,
@@ -47,7 +46,6 @@ function duplicate() {
 
 <template>
   <v-dialog v-model="active">
-    <NotificationFloat :notifications="notifications" />
     <v-card title="Choose week to duplicate from">
       <template #text>
         <BlocksPanel :user-id="userId" :is-editable="false" @update:week-id="updateWeekId" />

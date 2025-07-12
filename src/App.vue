@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useKeycloak } from "@dsb-norge/vue-keycloak-js"
+import NotificationPopup from "@/components/NotificationPopup.vue"
 import { ref } from "vue"
 import { useRoute } from "vue-router"
 import { useTheme } from "vuetify"
@@ -31,6 +32,7 @@ function toggleTheme() {
 
 <template>
   <v-app>
+    <NotificationPopup />
     <v-navigation-drawer v-model="drawer" :width="220">
       <v-list-item link title="Trainer Helper" to="/" />
       <v-divider />

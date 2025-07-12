@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { useNotifications } from "@/composables/useNotifications"
-import NotificationFloat from "@/components/NotificationFloat.vue"
 import ExerciseTable from "@/components/ExerciseTable.vue"
 import { useExercises } from "@/composables/useExercises"
 import type { ExerciseTableColumn } from "@/types/exercise"
 import { type ExerciseResponse } from "@/services/exercise"
 import { ref } from "vue"
+import { useNotificationStore } from "@/stores/useNotificationStore"
 import { useUser } from "@/composables/useUser"
 import { useExerciseTypes } from "@/composables/useExerciseTypes"
 import { useExerciseTypeDialog } from "@/composables/useExerciseTypeDialog"
@@ -49,7 +48,7 @@ const props = defineProps({
 const { isTrainer } = useUser()
 const isTableEditable = ref(false)
 
-const { notifications, addNotification } = useNotifications()
+const { addNotification } = useNotificationStore()
 const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
 const {
   exercises,
@@ -86,7 +85,6 @@ function copyWithAiConfirm() {
 
 <template>
   <div>
-    <NotificationFloat :notifications="notifications" />
     <v-dialog v-model="copyWithAiActive">
       <v-card title="Copy from google document" max-width="500px">
         <template #text>

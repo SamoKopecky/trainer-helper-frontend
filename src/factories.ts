@@ -12,7 +12,7 @@ export function workSetFactory({
   return {
     work_set_id: work_set_id,
     week_day_id: 1,
-    rpe: 7,
+    rpe: "7",
     intensity: intensity ?? "105Kg",
     reps: 2,
     exercise_type_id: 0,

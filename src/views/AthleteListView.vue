@@ -2,14 +2,13 @@
 import DataTable from "@/components/DataTable.vue"
 import { ref } from "vue"
 import type { User } from "@/types/user"
-import { useNotifications } from "@/composables/useNotifications"
-import NotificationFloat from "@/components/NotificationFloat.vue"
 import NewAthleteDialog from "@/components/NewAthleteDialog.vue"
 import AthleteDialog from "@/components/AthleteDialog.vue"
 import { useNewAthleteDialog } from "@/composables/useNewAthleteDialog"
 import { useAthleteDialog } from "@/composables/useAthleteDialog"
 import { onMounted } from "vue"
 import { UserService } from "@/services/user"
+import { useNotificationStore } from "@/stores/useNotificationStore"
 
 const headers = ref([
   {
@@ -25,7 +24,7 @@ const headers = ref([
 const users = ref<User[]>([])
 const loading = ref(false)
 const userService = new UserService()
-const { notifications, addNotification } = useNotifications()
+const { addNotification } = useNotificationStore()
 const {
   isLoading,
   showDialog: showNewDialog,
@@ -53,8 +52,6 @@ onMounted(() => {
 </script>
 
 <template>
-  <NotificationFloat :notifications="notifications" />
-
   <DataTable
     :headers="headers"
     :items="users"

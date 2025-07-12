@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useNotifications } from "@/composables/useNotifications"
-import NotificationFloat from "@/components/NotificationFloat.vue"
 import ChangeEventBar from "@/components/ChangeEventBar.vue"
 import { BlockService } from "@/services/block"
 import type { BlockMap, Week } from "@/types/block"
@@ -14,6 +12,7 @@ import { WeekDelete } from "@/changeEvents/user/weekDelete"
 import { watch } from "vue"
 import { WeekService } from "@/services/week"
 import { getClosestWeek, getISODateString } from "@/utils/date"
+import { useNotificationStore } from "@/stores/useNotificationStore"
 
 const props = defineProps({
   userId: {
@@ -26,7 +25,7 @@ const props = defineProps({
   },
 })
 
-const { notifications, addNotification } = useNotifications()
+const { addNotification } = useNotificationStore()
 const { addChangeEvent, redo, undo, redoActive, undoActive } = useChangeEvents(addNotification)
 
 const emit = defineEmits(["update:week-id", "update:start-date"])
@@ -132,7 +131,6 @@ function changeStartOfTheWeek() {
 
 <template>
   <div>
-    <NotificationFloat :notifications="notifications" />
     <!-- Blocks -->
     <span class="text-subtitle-1 font-weight-medium"> Block </span>
     <v-spacer />

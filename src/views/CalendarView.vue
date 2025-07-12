@@ -6,13 +6,12 @@ import EventDialog from "@/components/EventDialog.vue"
 import { useCalendar } from "@/composables/useCalendar"
 import { useUser } from "@/composables/useUser"
 import { useTheme } from "vuetify"
-import { useNotifications } from "@/composables/useNotifications"
-import NotificationFloat from "@/components/NotificationFloat.vue"
 import ChangeEventBar from "@/components/ChangeEventBar.vue"
 import { ref } from "vue"
 import type { CalDisplayTimeslot } from "@/types/calendar"
+import { useNotificationStore } from "@/stores/useNotificationStore"
 
-const { notifications, addNotification } = useNotifications()
+const { addNotification } = useNotificationStore()
 const { addChangeEvent, undo, redo, undoActive } = useChangeEvents(addNotification)
 const showDialog = ref(false)
 const selectedEvent = ref<CalDisplayTimeslot>()
@@ -33,7 +32,6 @@ const theme = useTheme()
 </script>
 
 <template>
-  <NotificationFloat :notifications="notifications" />
   <!-- TODO: Adjust change events for calendar -->
   <ChangeEventBar :is-undo-active="undoActive" :is-redo-active="false" @undo="undo" @redo="redo" />
   <VueCal

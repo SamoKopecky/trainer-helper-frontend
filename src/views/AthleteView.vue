@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import BlocksPanel from "@/components/BlocksPanel.vue"
 import WeekDayPanel from "@/components/WeekDayPanel.vue"
-import NotificationFloat from "@/components/NotificationFloat.vue"
 import WeekDuplicateDialog from "@/components/WeekDupliateDialog.vue"
-import { useNotifications } from "@/composables/useNotifications"
+import { useNotificationStore } from "@/stores/useNotificationStore"
 import { useUser } from "@/composables/useUser"
 import { useUsers } from "@/composables/useUsers"
 import { ExerciseService, type ExerciseResponse } from "@/services/exercise"
@@ -41,7 +40,7 @@ const exercisesMap = ref<Map<number, ExerciseResponse[]>>(new Map())
 const foundTimeslots = ref<Map<string, Timeslot>>(new Map())
 const noteRef = ref<string>()
 
-const { addNotification, notifications } = useNotifications()
+const { addNotification } = useNotificationStore()
 const router = useRouter()
 const { users, userDisplay } = useUsers()
 const { isTrainer } = useUser()
@@ -203,7 +202,6 @@ const updateNote = useDebounceFn((note: string) => {
 </script>
 
 <template>
-  <NotificationFloat :notifications="notifications" />
   <WeekDuplicateDialog
     v-model="duplicateDialogActive"
     :user-id="userId"

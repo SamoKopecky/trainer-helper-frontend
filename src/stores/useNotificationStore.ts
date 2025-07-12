@@ -1,8 +1,9 @@
 import type { ChangeNotification, NotificationType } from "@/types/other"
 import { randomStringId } from "@/utils/other"
 import { ref } from "vue"
+import { defineStore } from "pinia"
 
-export function useNotifications() {
+export const useNotificationStore = defineStore("notifications", () => {
   const notifications = ref<Map<string, ChangeNotification>>(new Map())
 
   function addNotification(text: string, type: NotificationType) {
@@ -15,4 +16,4 @@ export function useNotifications() {
   }
 
   return { notifications, addNotification }
-}
+})

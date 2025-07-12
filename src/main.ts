@@ -57,6 +57,7 @@ import router from "./router"
 import VueKeyCloak from "@dsb-norge/vue-keycloak-js"
 import { tokenInterceptor } from "./services/base"
 import { VDateInput } from "vuetify/labs/components"
+import { createPinia } from "pinia"
 
 const vuetify = createVuetify({
   components: {
@@ -119,9 +120,11 @@ const vuetify = createVuetify({
 
 const viteKeycloakUrl = import.meta.env.VITE_APP_KEYCLOAK_URL ?? "http://localhost:8080"
 const app = createApp(App)
+const pinia = createPinia()
 app
   .use(router)
   .use(vuetify)
+  .use(pinia)
   .use(VueKeyCloak, {
     config: {
       url: viteKeycloakUrl,

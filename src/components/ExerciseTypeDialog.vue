@@ -2,7 +2,7 @@
 import { MediaType, type ExerciseType, type ExerciseTypeUpdate } from "@/types/exerciseType"
 import { watchDebounced } from "@vueuse/core"
 import { computed, type PropType, useTemplateRef } from "vue"
-import NotificationFloat from "@/components/NotificationFloat.vue"
+import { useNotificationStore } from "@/stores/useNotificationStore"
 import YoutubeEmbed from "./YoutubeEmbed.vue"
 import { extractYouTubeId } from "@/utils/other"
 import { ref } from "vue"
@@ -10,7 +10,6 @@ import { ExerciseTypeService, type ExerciseTypePostRequest } from "@/services/ex
 import { watch } from "vue"
 import { watchEffect } from "vue"
 import { isArray } from "@/utils/service"
-import { useNotifications } from "@/composables/useNotifications"
 
 const active = defineModel<boolean>()
 
@@ -44,7 +43,7 @@ const fileUploadLoading = ref<boolean>()
 
 const newNameInput = useTemplateRef("input")
 const uplodFileInput = useTemplateRef("file-upload-input")
-const { addNotification, notifications } = useNotifications()
+const { addNotification } = useNotificationStore()
 
 const youtubeVideoIdRef = computed(() => {
   if (exerciseType && exerciseType.youtube_link) {
@@ -181,7 +180,6 @@ function uploadFile(file: File | File[]) {
 
 <template>
   <v-dialog v-model="active">
-    <NotificationFloat :notifications="notifications" />
     <v-card>
       <!-- title -->
       <v-card-title>
